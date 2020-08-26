@@ -1,0 +1,30 @@
+Package: quantdr
+Type: Package
+Title: Dimension Reduction for Conditional Quantiles
+Version: 0.1.0
+Author: person("Eliana", "Christou", email="echris15@uncc.edu",
+    role = c("aut", "cre"))
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: An implementation of dimension reduction techniques
+    for conditional quantiles. Nonparametric estimation of 
+    conditional quantiles is also available.  
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dr,  
+    KernSmooth,
+    mvtnorm,
+    quantreg
+Depends:     
+RoxygenNote: 7.1.1
+Collate: 
+    'llqrcv.R'
+    'llqr.R'
+    'quantdr.R'
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+SystemRequirements: GNU make

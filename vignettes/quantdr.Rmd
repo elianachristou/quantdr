@@ -1,0 +1,52 @@
+---
+title: "quantdr: Dimension Reduction for Conditional Quantiles"
+author: Eliana Christou\\ University of North Carolina at Charlotte
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{quantdr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(quantdr)
+```
+
+# Introduction
+## Introduction
+
+-----
+
+* Make a list
+    * with 4 spaces nested
+    
+1. Ordered list
+1. Ordered list
+
+Definition
+: say the definition
+
+*italic*
+**bold**
+
+```{r, results='hide'}
+# if i want to write code
+add <- function(a, b) a + b
+add(10, 20)
+```
+
+```{r, results='asis'}
+# if i want to write code
+add <- function(a, b) a + b
+add(10, 20)
+```
+
+Consider submitting the vignetted to the Journal of Statistical Software of The R Journal. 
+
