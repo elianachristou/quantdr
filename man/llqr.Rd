@@ -3,7 +3,7 @@
 \name{llqr}
 \alias{llqr}
 \alias{llqrcv}
-\title{Local linear conditional quantile estimation}
+\title{Local linear quantile estimation}
 \usage{
 llqr(x, y, tau = 0.5, h, method = "rule", x0)
 
@@ -19,36 +19,46 @@ represent predictor variables}
 
 \item{h}{A univariate bandwidth.}
 
-\item{method}{A method to select the bandwidth, if it is missing. There are
-two methods considered: the rule-of-thumb bandwidth of Yu and Jones (1994)
-and the cross-validation criterion.}
+\item{method}{A method to select the bandwidth, if it is missing.  Use
+\code{rule} for the rule-of-thumb bandwidth of Yu and Jones (1994) or
+\code{CV} for the method of cross-validation.}
 
-\item{x0}{A single observation for which to perform the estimation. It needs
+\item{x0}{A single observation for which to perform the estimation.  It needs
 to be a singular value, for a univariate predictor, or a vector, for a
-multivariate predictor. If \code{x0} is missing, the estimation will be
-performed on the entire design matrix \code{x}.}
+multivariate predictor.  If \code{x0} is missing, the estimation will be
+performed on the design matrix \code{x}.}
 }
 \value{
-\code{llqr} returns the local linear \code{tau}-th conditional
-  quantile estimator of \code{y} given \code{x}, along with the bandwidth
-  used.
+\code{llqr} computes the local linear \eqn{\tau}-th conditional
+  quantile estimator of \code{y} given \code{x}, and returns:
+
+  \code{ll_est}   The estimated function value at the design points \code{x}
+  or, if specified, at the point \code{x0}.
+
+  \code{h}  The bandwidth.
 
 \code{llqrcv} returns the optimal bandwidth selected using
   Cross-Validation criterion for the estimation of the \code{tau}-th
   conditional quantile of \code{y} given \code{x}.
 }
 \description{
-\code{llqr} estimates the \code{tau}-th conditional quantile of \code{y}
-given \code{x} based on a local linear estimation. The estimation is
-performed either at a point x0, if specified, or at the entire design matrix
-x.
+\code{llqr} estimates the \eqn{\tau}-th conditional quantile of \code{y}
+given \code{x} based on a local linear fitting.  The estimation is performed
+at each of the design points or, if specified, at a single observation point.
 }
 \details{
-The local linear estimation of the \code{tau}-th conditional quantile
-estimator requires a kernel and a bandwidth.  This function uses the normal
-kernel and it allows the bandwidth to be given by the user, or estimated
-using either the rule-of-thumb bandwidth of Yu and Jones (1994) or the
-Cross-Validation criterion. \eqn{a+b}
+The function computes the local linear quantile regression fit for a specified
+quantile \eqn{\tau} at the design points of the matrix \code{x} or at a
+pre-specified point \code{x0}.  The estimation is based on a standard normal
+kernel and a univariate bandwidth, which, if not specified by the user, it is
+defined using either the rule-of-thumb given by Yu and Jones (1994) or the
+cross-validation criterion.
+
+The estimation applies to univariate and multivariate predictor variables.
+For the later, the function uses the multivariate standard normal kernel.
+Note that, if the estimation is performed at a pre-specified point \code{x0},
+then \code{x0} should be a scaler (for univariate predictor) or a vector (for
+multivariate predictor).
 }
 \section{Functions}{
 \itemize{
@@ -77,4 +87,8 @@ n <- 100
 x <- rnorm(100); error <- rnorm(100); y <- x^2 + error
 tau <- 0.5
 llqrcv(x, y, tau = tau)
+}
+\references{
+K. Yu and M.C. Jones, Local linear quantile regression,
+Journal of the American Statistical Association, 93 (1998), pp. 228-237.
 }
