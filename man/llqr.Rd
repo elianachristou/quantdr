@@ -15,8 +15,8 @@ represent predictor variables.}
 \item{tau}{A quantile level, a number strictly between 0 and 1.}
 
 \item{h}{A univariate bandwidth.  If not specified, the bandwidth will be
-specified using either "\code{rule}" or "\code{CV}".  See \code{method}
-below for details.}
+defined using either "\code{rule}" or "\code{CV}".  See \code{method} below
+for details.}
 
 \item{method}{A character string specifying the method to select the
 bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
@@ -53,29 +53,34 @@ and Jones (1994) or the cross-validation criterion.
 
 The estimation applies to univariate and multivariate predictor variables.
 For the later, the local linear fit uses the multivariate standard normal
-kernel. Note that, if the estimation is performed at a pre-specified point
-\code{x0}, then \code{x0} should be a scalar (for univariate predictor) or a
+kernel. Note that if the estimation is performed at a pre-specified point
+\code{x0} then \code{x0} should be a scalar (for univariate predictor) or a
 vector (for multivariate predictor).
 }
 \examples{
 
+# estimate the function for different quantile levels
 set.seed(1234)
 n <- 100
-x <- rnorm(100); error <- rnorm(100); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
-tau <- 0.5
-plot(x, y)
-points(x, llqr(x, y, tau=tau)$ll_est, col='red', pch=16)
-x0=1
-llqr(x, y, tau=tau, x0=x0)
+x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+par(mfrow=c(2, 3))
+for (i in 1:length(taus)) {
+plot(x, y, main = taus[i])
+points(x, llqr(x, y, tau = taus[i])$ll_est, col = 'red', pch = 16)
+}
 
-n <- 100; p <- 2
-x <- matrix(rnorm(p * n), n, p); error <- rnorm(100); y <- exp(x[,1]+x[,2]) + error
-tau <- 0.5
-x0=c(1,2)
-llqr(x, y, tau=tau, x0=x0)
+# estimate the function at a point x0=1
+set.seed(1234)
+n <- 100
+x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+tau = 0.5
+x0 = 1
+llqr(x, y, tau = tau, x0 = x0)
 
-require(MASS)
-data(mcycle)
+# demonstrate the function estimation for different quantile levels
+par(mfrow=c(1, 1))
+data("mcycle", package="MASS")
 attach(mcycle)
 plot(times,accel,xlab = "milliseconds", ylab = "acceleration (in g)")
 taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
@@ -84,22 +89,6 @@ for(i in 1:length(taus)) {
  lines(times, fit ,lty=i)
 }
 legend(38,-50,c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"), lty=1:length(taus))
-
-plot(times,accel,xlab = "milliseconds", ylab = "acceleration (in g)")
-tau <- 0.5
- lines(times, llqr(times, accel, tau = taus[i], h=0.5)$ll_est ,lty=1)
- lines(times, llqr(times, accel, tau = taus[i], method="rule")$ll_est ,lty=2)
- lines(times, llqr(times, accel, tau = taus[i], method="CV")$ll_est ,lty=3)
-legend(40,-70,c("h=0.5","h=rule","h=CV"), lty=1:3)
-
-set.seed(1234)
-n <- 100
-x <- rnorm(100); error <- rnorm(100); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
-tau <- c(0.25, 0.5, 0.75)
-plot(x, y)
-for (i in 1:length(tau)) {
-  points(x, llqr(x, y, tau=tau[i])$ll_est, col = i)
-}
 
 \dontrun{
 n <- 100
