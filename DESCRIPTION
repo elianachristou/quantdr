@@ -16,11 +16,11 @@ Imports:
     KernSmooth,
     mvtnorm,
     quantreg
-Depends:     
+Depends: 
 RoxygenNote: 7.1.1
 Collate: 
+    'llqrcv.R'
     'llqr.R'
-    'quantdr.R'
 Suggests: 
     knitr,
     rmarkdown,

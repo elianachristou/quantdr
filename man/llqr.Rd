@@ -2,20 +2,17 @@
 % Please edit documentation in R/llqr.R
 \name{llqr}
 \alias{llqr}
-\alias{llqrcv}
 \title{Local linear quantile estimation}
 \usage{
 llqr(x, y, tau = 0.5, h, method = "rule", x0)
-
-llqrcv(x, y, tau = 0.5)
 }
 \arguments{
-\item{x}{a design matrix.The rows represent observations and the columns
-represent predictor variables}
+\item{x}{A design matrix.  The rows represent observations and the columns
+represent predictor variables.}
 
-\item{y}{a vector of the respons variable}
+\item{y}{A vector of the response variable.}
 
-\item{tau}{the quantile level, a number strictly between 0 and 1.}
+\item{tau}{A quantile level, a number strictly between 0 and 1.}
 
 \item{h}{A univariate bandwidth.}
 
@@ -36,10 +33,6 @@ performed on the design matrix \code{x}.}
   or, if specified, at the point \code{x0}.
 
   \code{h}  The bandwidth.
-
-\code{llqrcv} returns the optimal bandwidth selected using
-  Cross-Validation criterion for the estimation of the \code{tau}-th
-  conditional quantile of \code{y} given \code{x}.
 }
 \description{
 \code{llqr} estimates the \eqn{\tau}-th conditional quantile of \code{y}
@@ -60,20 +53,48 @@ Note that, if the estimation is performed at a pre-specified point \code{x0},
 then \code{x0} should be a scaler (for univariate predictor) or a vector (for
 multivariate predictor).
 }
-\section{Functions}{
-\itemize{
-\item \code{llqrcv}: Cross-Validation for bandwidth selection for local linear
-conditional quantile estimation
-}}
-
 \examples{
+
+set.seed(1234)
 n <- 100
-x <- rnorm(100); error <- rnorm(100); y <- x^2 + error
+x <- rnorm(100); error <- rnorm(100); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+tau <- 0.5
+plot(x, y)
+points(x, llqr(x, y, tau=tau)$ll_est, col='red', pch=16)
+x0=1
+llqr(x, y, tau=tau, x0=x0)
+
+n <- 100; p <- 2
+x <- matrix(rnorm(p * n), n, p); error <- rnorm(100); y <- exp(x[,1]+x[,2]) + error
+tau <- 0.5
+x0=c(1,2)
+llqr(x, y, tau=tau, x0=x0)
+
+require(MASS)
+data(mcycle)
+attach(mcycle)
+plot(times,accel,xlab = "milliseconds", ylab = "acceleration (in g)")
+taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+for(i in 1:length(taus)) {
+ fit <- llqr(times, accel, tau = taus[i])$ll_est
+ lines(times, fit ,lty=i)
+}
+legend(38,-50,c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"), lty=1:length(taus))
+
+plot(times,accel,xlab = "milliseconds", ylab = "acceleration (in g)")
+tau <- 0.5
+ lines(times, llqr(times, accel, tau = taus[i], h=0.5)$ll_est ,lty=1)
+ lines(times, llqr(times, accel, tau = taus[i], method="rule")$ll_est ,lty=2)
+ lines(times, llqr(times, accel, tau = taus[i], method="CV")$ll_est ,lty=3)
+legend(40,-70,c("h=0.5","h=rule","h=CV"), lty=1:3)
+
+set.seed(1234)
+n <- 100
+x <- rnorm(100); error <- rnorm(100); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
 tau <- c(0.25, 0.5, 0.75)
-par(mfrow=c(2,2))
+plot(x, y)
 for (i in 1:length(tau)) {
-  plot(x, y, main=print(tau[i]))
-  points(x, llqr(x, y, tau=tau[i])$ll_est, pch=16, col='red')
+  points(x, llqr(x, y, tau=tau[i])$ll_est, col = i)
 }
 
 \dontrun{
@@ -83,10 +104,6 @@ x0=1
 tau=0.5
 llqr(x, y, tau=tau, x0=x0)$ll_est
 }
-n <- 100
-x <- rnorm(100); error <- rnorm(100); y <- x^2 + error
-tau <- 0.5
-llqrcv(x, y, tau = tau)
 }
 \references{
 Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
