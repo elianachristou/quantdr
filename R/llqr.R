@@ -27,6 +27,7 @@
 #'   quantile estimator of \code{y} given \code{x}, along with the bandwidth
 #'   used.
 #' @include llqrcv.R
+#' @import stats
 #' @examples
 #' n <- 100
 #' x <- rnorm(100); error <- rnorm(100); y <- x^2 + error

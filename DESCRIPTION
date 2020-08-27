@@ -29,4 +29,4 @@ Suggests:
 VignetteBuilder: knitr
 SystemRequirements: GNU make
 URL: http://github.com/elianachristou/quantdr
-BugReports: http://github.com/elianachristou/quantdr/issues
+BugReports: http://github.com/elianachristou/quantdr/issues 
