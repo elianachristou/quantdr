@@ -1,30 +1,34 @@
 #' Local linear quantile estimation
 #'
 #' \code{llqr} estimates the \eqn{\tau}-th conditional quantile of \code{y}
-#' given \code{x} based on a local linear fitting.  The estimation is performed
-#' at each of the design points or, if specified, at a single observation point.
+#' given \code{x} based on a local linear fit.  The estimation is performed at
+#' each of the design points or, if specified, at a single observation point
+#' \code{x0}.
 #'
-#' The function computes the local linear quantile regression fit for a specified
-#' quantile \eqn{\tau} at the design points of the matrix \code{x} or at a
-#' pre-specified point \code{x0}.  The estimation is based on a standard normal
-#' kernel and a univariate bandwidth, which, if not specified by the user, it is
-#' defined using either the rule-of-thumb given by Yu and Jones (1994) or the
-#' cross-validation criterion.
+#' The function computes the local linear quantile regression fit for a
+#' specified quantile level \eqn{\tau} at the design points of the matrix
+#' \code{x} or at a pre-specified point \code{x0}.  The estimation is based on a
+#' standard normal kernel and a univariate bandwidth.  The bandwidth, if not
+#' specified by the user, is defined using either the rule-of-thumb given by Yu
+#' and Jones (1994) or the cross-validation criterion.
 #'
 #' The estimation applies to univariate and multivariate predictor variables.
-#' For the later, the function uses the multivariate standard normal kernel.
-#' Note that, if the estimation is performed at a pre-specified point \code{x0},
-#' then \code{x0} should be a scaler (for univariate predictor) or a vector (for
-#' multivariate predictor).
+#' For the later, the local linear fit uses the multivariate standard normal
+#' kernel. Note that, if the estimation is performed at a pre-specified point
+#' \code{x0}, then \code{x0} should be a scalar (for univariate predictor) or a
+#' vector (for multivariate predictor).
 #'
 #' @param x A design matrix.  The rows represent observations and the columns
 #'   represent predictor variables.
 #' @param y A vector of the response variable.
-#' @param h A univariate bandwidth.
 #' @param tau A quantile level, a number strictly between 0 and 1.
-#' @param method A method to select the bandwidth, if it is missing.  Use
-#' \code{rule} for the rule-of-thumb bandwidth of Yu and Jones (1994) or
-#' \code{CV} for the method of cross-validation.
+#' @param h A univariate bandwidth.  If not specified, the bandwidth will be
+#'   specified using either "\code{rule}" or "\code{CV}".  See \code{method}
+#'   below for details.
+#' @param method A character string specifying the method to select the
+#'   bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
+#'   bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
+#'   cross-validation.
 #' @param x0 A single observation for which to perform the estimation.  It needs
 #'   to be a singular value, for a univariate predictor, or a vector, for a
 #'   multivariate predictor.  If \code{x0} is missing, the estimation will be
@@ -38,7 +42,7 @@
 #'   \code{h}  The bandwidth.
 #'
 #' @references Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
-#' Journal of the American Statistical Association, 93, 228-237.
+#'   \emph{Journal of the American Statistical Association}, 93, 228-237.
 #' @import stats
 #' @include llqrcv.R
 #' @examples
