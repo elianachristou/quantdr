@@ -41,13 +41,47 @@
 #' Journal of the American Statistical Association, 93, 228-237.
 #' @import stats
 #' @examples
+#'
+#' set.seed(1234)
 #' n <- 100
-#' x <- rnorm(100); error <- rnorm(100); y <- x^2 + error
+#' x <- rnorm(100); error <- rnorm(100); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+#' tau <- 0.5
+#' plot(x, y)
+#' points(x, llqr(x, y, tau=tau)$ll_est, col='red', pch=16)
+#' x0=1
+#' llqr(x, y, tau=tau, x0=x0)
+#'
+#' n <- 100; p <- 2
+#' x <- matrix(rnorm(p * n), n, p); error <- rnorm(100); y <- exp(x[,1]+x[,2]) + error
+#' tau <- 0.5
+#' x0=c(1,2)
+#' llqr(x, y, tau=tau, x0=x0)
+#'
+#' require(MASS)
+#' data(mcycle)
+#' attach(mcycle)
+#' plot(times,accel,xlab = "milliseconds", ylab = "acceleration (in g)")
+#' taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+#' for(i in 1:length(taus)) {
+#'  fit <- llqr(times, accel, tau = taus[i])$ll_est
+#'  lines(times, fit ,lty=i)
+#' }
+#' legend(38,-50,c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"), lty=1:length(taus))
+#'
+#' plot(times,accel,xlab = "milliseconds", ylab = "acceleration (in g)")
+#' tau <- 0.5
+#'  lines(times, llqr(times, accel, tau = taus[i], h=0.5)$ll_est ,lty=1)
+#'  lines(times, llqr(times, accel, tau = taus[i], method="rule")$ll_est ,lty=2)
+#'  lines(times, llqr(times, accel, tau = taus[i], method="CV")$ll_est ,lty=3)
+#' legend(40,-70,c("h=0.5","h=rule","h=CV"), lty=1:3)
+#'
+#' set.seed(1234)
+#' n <- 100
+#' x <- rnorm(100); error <- rnorm(100); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
 #' tau <- c(0.25, 0.5, 0.75)
-#' par(mfrow=c(2,2))
+#' plot(x, y)
 #' for (i in 1:length(tau)) {
-#'   plot(x, y, main=print(tau[i]))
-#'   points(x, llqr(x, y, tau=tau[i])$ll_est, pch=16, col='red')
+#'   points(x, llqr(x, y, tau=tau[i])$ll_est, col = i)
 #' }
 #'
 #' \dontrun{

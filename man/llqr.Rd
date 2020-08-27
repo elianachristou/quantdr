@@ -89,6 +89,6 @@ tau <- 0.5
 llqrcv(x, y, tau = tau)
 }
 \references{
-K. Yu and M.C. Jones, Local linear quantile regression,
-Journal of the American Statistical Association, 93 (1998), pp. 228-237.
+Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
+Journal of the American Statistical Association, 93, 228-237.
 }
