@@ -21,13 +21,13 @@
 #' @param y A vector of the response variable.
 #' @param tau A quantile level, a number strictly between 0 and 1.
 #' @param d The dimension of the central subspace.  If not specified, \code{d}
-#'   is estimated using the BIC criterion of Zhu et al. (2010).
+#'   is estimated using the modified-BIC type criterion of Zhu et al. (2010).
 #' @param dtau The dimension of the central quantile subspace.  If not
 #'   specified, \code{dtau} is estimated using the modified-BIC type criterion
 #'   of Zhu et al. (2010)
 #' @param h A univariate bandwidth for the local linear quantile regression fit.
-#'   If not specified, the bandwidth will be defined using either "\code{rule}"
-#'   or "\code{CV}".  See \code{method} below for details.
+#'   If not specified, the bandwidth is estimated using either "\code{rule}" or
+#'   "\code{CV}".  See \code{method} below for details.
 #' @param method A character string specifying the method to select the
 #'   bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
 #'   bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
@@ -44,12 +44,12 @@
 #'   one, the \code{evalues} output is not produced.}
 #'
 #'   \item{d: }{The dimension of the central subspace.  If not specified by the
-#'   user, \code{d} is the estimated dimension resulting from the modified-BIC
-#'   type criterion of Zhu et al. (2010).}
+#'   user, \code{d} is estimated using the modified-BIC type criterion of Zhu et
+#'   al. (2010).}
 #'
 #'   \item{dtau: }{The dimension of the central quantile subspace.  If not
-#'   specified by the user, \code{dtau_hat} is the estimated dimension resulting
-#'   from the modified-BIC type criterion of Zhu et al. (2010).}
+#'   specified by the user, \code{dtau_hat} is estimated using the modified-BIC
+#'   type criterion of Zhu et al. (2010).}
 #'
 #'   \item{h: }{The bandwidth for the local linear quantile regression fit.  If
 #'   not specified by the user, \code{h} is estimated using either the
@@ -96,8 +96,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
   # define the bandwidth, if missing.
   if (missing(h)) {
     if (method == "CV") {
-      non_par <- llqr(newx, y, tau = tau)
-      qhat <- non_par$ll_est; h <- non_par$h
+      h <- llqrcv(newx, y, tau = tau)
     }
     if (method == "rule") {
       h <- KernSmooth::dpill(newx, y);
@@ -162,4 +161,3 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     list(evectors = out, d = d, dtau_hat = dtau, h = h)
   }
 }
-
