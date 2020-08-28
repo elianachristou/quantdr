@@ -80,23 +80,18 @@ llqr(x, y, tau = tau, x0 = x0)
 
 # demonstrate the function estimation for different quantile levels
 par(mfrow=c(1, 1))
-data("mcycle", package="MASS")
-attach(mcycle)
-plot(times,accel,xlab = "milliseconds", ylab = "acceleration (in g)")
-taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
-for(i in 1:length(taus)) {
- fit <- llqr(times, accel, tau = taus[i])$ll_est
- lines(times, fit ,lty=i)
-}
-legend(38,-50,c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"), lty=1:length(taus))
+# require(MASS)
+# data(MASS::mcycle)
+# attach(mcycle)
+# plot(times, accel, xlab = "milliseconds", ylab = "acceleration")
+# taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+# for(i in 1:length(taus)) {
+ # fit <- llqr(times, accel, tau = taus[i])$ll_est
+ # lines(times, fit ,lty = i)
+# }
+# legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
+# lty=1:length(taus))
 
-\dontrun{
-n <- 100
-x <- cbind(rnorm(n), rnorm(n)); error <- rnorm(100); y <- x[, 1]^2 + error
-x0=1
-tau=0.5
-llqr(x, y, tau=tau, x0=x0)$ll_est
-}
 }
 \references{
 Yu, K. and Jones, M.C. (1998), Local linear quantile regression.

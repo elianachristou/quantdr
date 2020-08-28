@@ -68,25 +68,18 @@
 #'
 #' # demonstrate the function estimation for different quantile levels
 #' par(mfrow=c(1, 1))
-#' data("mcycle", package = "MASS")
-#' attach(mcycle)
-#' plot(times, accel, xlab = "milliseconds", ylab = "acceleration")
-#' taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
-#' for(i in 1:length(taus)) {
-#'  fit <- llqr(times, accel, tau = taus[i])$ll_est
-#'  lines(times, fit ,lty = i)
-#' }
-#' legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"), lty=1:length(taus))
+#' # require(MASS)
+#' # data(MASS::mcycle)
+#' # attach(mcycle)
+#' # plot(times, accel, xlab = "milliseconds", ylab = "acceleration")
+#' # taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+#' # for(i in 1:length(taus)) {
+#'  # fit <- llqr(times, accel, tau = taus[i])$ll_est
+#'  # lines(times, fit ,lty = i)
+#' # }
+#' # legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
+#' # lty=1:length(taus))
 #'
-#' \dontrun{
-#' # demonstrates the correspondence between x0 and the dimension of x
-#' set.seed(1234)
-#' n <- 100; p <- 2
-#' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n); y <- x[, 1]^2 + error
-#' x0 <- 1
-#' tau <- 0.5
-#' llqr(x, y, tau = tau, x0 = x0)$ll_est
-#' }
 #' @export
 llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
 
@@ -94,6 +87,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
   n <- length(y)
   p <- dim(x)[2]
 
+  # if bandwidth is missing, estimate it
   if (missing(h)) {
     if (method == "CV") {
       h <- llqrcv(x, y, tau)
@@ -106,9 +100,11 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
     h <- h
   }
 
+  # if x0 is missing, perform estimation at the entire design matrix
   if (missing(x0)) {
     ll_est <- as.null(n)
-
+    # if the dimension of x is one, use univariate kernel, otherwise
+    # use multivariate kernel
     if (p == 1) {
       for (i in 1:dim(x)[1]) {
         z <- x - x[i, 1]
@@ -133,7 +129,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
       ll_est <- q$coef[1]
     } else {
       if (length(x0) != p) {
-        print("The dimension of x0 needs to be the same as the number of columns of x")
+        print("The length of x0 needs to be the same as the number of columns of x")
         stop()
       }
       z <- matrix(0, n, p)
