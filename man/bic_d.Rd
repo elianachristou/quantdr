@@ -6,6 +6,9 @@
 \usage{
 bic_d(lambdas, n, p)
 }
+\arguments{
+\item{lambdas}{...}
+}
 \description{
 \code{cqs} ...
 }
