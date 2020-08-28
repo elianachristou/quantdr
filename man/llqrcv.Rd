@@ -2,27 +2,35 @@
 % Please edit documentation in R/llqrcv.R
 \name{llqrcv}
 \alias{llqrcv}
-\title{Cross-Validation for bandwidth selection for local linear
-conditional quantile estimation}
+\title{Cross-Validation bandwidth selection for local linear quantile estimation}
 \usage{
 llqrcv(x, y, tau = 0.5)
 }
 \arguments{
-\item{x}{a design matrix.The rows represent observations and the columns
-represent predictor variables}
+\item{x}{A design matrix.  The rows represent observations and the columns
+represent predictor variables.}
 
-\item{y}{a vector of the respons variable}
+\item{y}{A vector of the response variable.}
 
-\item{tau}{the quantile level, a number strictly between 0 and 1.}
+\item{tau}{A quantile level, a number strictly between 0 and 1.}
 }
 \value{
 \code{llqrcv} returns the optimal bandwidth selected using
-  Cross-Validation criterion for the estimation of the \code{tau}-th
+  Cross-Validation criterion for the local linear fit of the \eqn{\tau}-th
   conditional quantile of \code{y} given \code{x}.
 }
 \description{
-Cross-Validation for bandwidth selection for local linear
-conditional quantile estimation
+\code{llqrcv} estimates the bandwidth necessary for the local linear fit of
+the \eqn{\tau}-th conditional quantile of \code{y} given \code{x}.  The
+estimation is performed using the Cross-Validation criterion.
+}
+\details{
+A grid of bandwidth values is created and the local linear fit is estimated
+using all the data points except for one point, which is used to make the
+prediction.  This procedure is repeated \code{n} times, where \code{n} is the
+number of observations.  Then, the averge error is computed using the check
+function \eqn{\rho_\tau(u)=(\tau - I(u<0))u}, where \eqn{\tau} the quantile
+level.  The bandwidth is selected as the one with the smallest average error.
 }
 \examples{
 n <- 100
