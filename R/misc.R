@@ -1,3 +1,11 @@
+#' ...
+#'
+#' \code{cqs} ...
+#'
+#' .....
+#'
+#' @param
+
 bic_d <- function(lambdas, n, p) {
   gn <- as.null(p)
   for (i in seq_len(lambdas)) {
