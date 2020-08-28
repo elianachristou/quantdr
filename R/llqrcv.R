@@ -20,6 +20,7 @@
 #'   conditional quantile of \code{y} given \code{x}.
 #' @include llqr.R
 #' @examples
+#' set.seed(1234)
 #' n <- 100
 #' x <- rnorm(100); error <- rnorm(100); y <- x^2 + error
 #' tau <- 0.5

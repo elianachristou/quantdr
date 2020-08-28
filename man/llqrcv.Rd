@@ -33,6 +33,7 @@ function \eqn{\rho_\tau(u)=(\tau - I(u<0))u}, where \eqn{\tau} the quantile
 level.  The bandwidth is selected as the one with the smallest average error.
 }
 \examples{
+set.seed(1234)
 n <- 100
 x <- rnorm(100); error <- rnorm(100); y <- x^2 + error
 tau <- 0.5
