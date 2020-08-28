@@ -4,7 +4,7 @@
 #'
 #' .....
 #'
-#' @param
+#' @param lambdas ...
 
 bic_d <- function(lambdas, n, p) {
   gn <- as.null(p)
