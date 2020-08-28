@@ -34,12 +34,14 @@
 #'   cross-validation.
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace,
-#'   and returns: \itemize{ \item{evectors: }{The estimated directions of the
+#'   and returns:
+#'   \itemize{
+#'   \item{qvectors: }{The estimated directions of the
 #'   \eqn{\tau} central quantile subspace, which, if \code{d_tau} is greater
 #'   than 1, correspond to the eigenvalues of the matrix with column vectors the
 #'   estimated vectors.}
 #'
-#'   \item{evalues: }{The eigenvalues resulting from the eigenvalue decomposion
+#'   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
 #'   of the matrix with column vectors the estimated vectors. If \code{d_tau} is
 #'   one, the \code{evalues} output is not produced.}
 #'
@@ -64,11 +66,14 @@
 #' @include misc.R
 #'
 #' @examples
+#' set.seed(1234)
 #' n <- 100; p <- 10
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 #' y <- 3 * x[, 1] + x[, 2] + error
 #' tau <- 0.5
-#' cqs(x, y, tau, d = 1, dtau = 1)
+#' out <- cqs(x, y, tau, d = 1, dtau = 1)
+#' out
+#' 3 * out$qvectors / out$qvectors[1]
 #' @export
 cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
   # define the parameters
@@ -95,15 +100,8 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
 
   # define the bandwidth, if missing.
   if (missing(h)) {
-    if (method == "CV") {
-      h <- llqrcv(newx, y, tau = tau)
-    }
-    if (method == "rule") {
-      h <- KernSmooth::dpill(newx, y);
-      h <- h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
-      non_par <- llqr(newx, y, tau = tau, h = h)
-      qhat <- non_par$ll_est; h <- h
-    }
+    non_par <- llqr(newx, y, tau = tau, method = method)
+    qhat <- non_par$ll_est; h <- non_par$h
   } else {
     non_par <- llqr(newx, y, tau = tau, h = h)
     qhat <- non_par$ll_est; h <- h
@@ -132,7 +130,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     out <- eigen(B)$vectors
     out <- signrt %*% out
     dtau <- bic_d(eigenvalues, n, dim(x)[2])
-    list(evectors = out, evalues = eigenvalues, d = d, dtau = dtau, h = h)
+    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau, h = h)
   } else if (dtau > 1) {
     # if dtau is known to be greater than 1, then use the iterative procedure to
     # produce more vectors and select the eigenvectors associated with the dtau
@@ -152,12 +150,12 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     eigenvalues <- eigen(B)$values
     out <- eigen(B)$vectors
     out <- signrt %*% out
-    list(evectors = out, evalues = eigenvalues, d = d, dtau = dtau, h = h)
+    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau, h = h)
   } else {
     # if dtau is known to be one, then the initial vector is sufficient
     out <- signrt %*% beta_hat
     out <- out / sqrt(sum(out^2))
     dtau <- dtau
-    list(evectors = out, d = d, dtau_hat = dtau, h = h)
+    list(qvectors = out, d = d, dtau_hat = dtau, h = h)
   }
 }

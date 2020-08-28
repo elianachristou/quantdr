@@ -15,15 +15,15 @@ represent predictor variables.}
 \item{tau}{A quantile level, a number strictly between 0 and 1.}
 
 \item{d}{The dimension of the central subspace.  If not specified, \code{d}
-is estimated using the BIC criterion of Zhu et al. (2010).}
+is estimated using the modified-BIC type criterion of Zhu et al. (2010).}
 
 \item{dtau}{The dimension of the central quantile subspace.  If not
 specified, \code{dtau} is estimated using the modified-BIC type criterion
 of Zhu et al. (2010)}
 
 \item{h}{A univariate bandwidth for the local linear quantile regression fit.
-If not specified, the bandwidth will be defined using either "\code{rule}"
-or "\code{CV}".  See \code{method} below for details.}
+If not specified, the bandwidth is estimated using either "\code{rule}" or
+"\code{CV}".  See \code{method} below for details.}
 
 \item{method}{A character string specifying the method to select the
 bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
@@ -32,22 +32,24 @@ cross-validation.}
 }
 \value{
 \code{cqs} computes the directions of the central quantile subspace,
-  and returns: \itemize{ \item{evectors: }{The estimated directions of the
+  and returns:
+  \itemize{
+  \item{qvectors: }{The estimated directions of the
   \eqn{\tau} central quantile subspace, which, if \code{d_tau} is greater
   than 1, correspond to the eigenvalues of the matrix with column vectors the
   estimated vectors.}
 
-  \item{evalues: }{The eigenvalues resulting from the eigenvalue decomposion
+  \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
   of the matrix with column vectors the estimated vectors. If \code{d_tau} is
   one, the \code{evalues} output is not produced.}
 
   \item{d: }{The dimension of the central subspace.  If not specified by the
-  user, \code{d} is the estimated dimension resulting from the modified-BIC
-  type criterion of Zhu et al. (2010).}
+  user, \code{d} is estimated using the modified-BIC type criterion of Zhu et
+  al. (2010).}
 
   \item{dtau: }{The dimension of the central quantile subspace.  If not
-  specified by the user, \code{dtau_hat} is the estimated dimension resulting
-  from the modified-BIC type criterion of Zhu et al. (2010).}
+  specified by the user, \code{dtau_hat} is estimated using the modified-BIC
+  type criterion of Zhu et al. (2010).}
 
   \item{h: }{The bandwidth for the local linear quantile regression fit.  If
   not specified by the user, \code{h} is estimated using either the
@@ -73,11 +75,14 @@ dimension of the central quantile subspace is unknown, it is estimated using
 the modified-BIC type criterion of Zhu et al. (2010).
 }
 \examples{
+set.seed(1234)
 n <- 100; p <- 10
 x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 tau <- 0.5
-cqs(x, y, tau, d = 1, dtau = 1)
+out <- cqs(x, y, tau, d = 1, dtau = 1)
+out
+3 * out$evectors / out$evectors[1]
 }
 \references{
 Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
