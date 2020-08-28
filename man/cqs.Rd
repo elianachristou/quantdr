@@ -6,9 +6,79 @@
 \usage{
 cqs(x, y, tau = 0.5, d, dtau, h, method = "rule")
 }
+\arguments{
+\item{x}{A design matrix.  The rows represent observations and the columns
+represent predictor variables.}
+
+\item{y}{A vector of the response variable.}
+
+\item{tau}{A quantile level, a number strictly between 0 and 1.}
+
+\item{d}{The dimension of the central subspace.  If not specified, \code{d}
+is estimated using the BIC criterion of Zhu et al. (2010).}
+
+\item{dtau}{The dimension of the central quantile subspace.  If not
+specified, \code{dtau} is estimated using the modified-BIC type criterion
+of Zhu et al. (2010)}
+
+\item{h}{A univariate bandwidth for the local linear quantile regression fit.
+If not specified, the bandwidth will be defined using either "\code{rule}"
+or "\code{CV}".  See \code{method} below for details.}
+
+\item{method}{A character string specifying the method to select the
+bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
+bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
+cross-validation.}
+}
+\value{
+\code{cqs} computes the directions of the central quantile subspace,
+  and returns:
+  \itemize{
+  \item{evectors: }{The estimated directions of the \eqn{\tau} central quantile
+  subspace, which, if \code{d_tau} is greater than 1, correspond to the
+  eigenvalues of the matrix with column vectors the estimated vectors.}
+
+  \item{evalues: }{The eigenvalues resulting from the eigenvalue decomposion of
+  the matrix with column vectors the estimated vectors. If \code{d_tau} is
+  one, the \code{evalues} output is not produced.}
+
+  \item{d: }{The dimension of the central subspace.  If not specified by the
+  user, \code{d} is the estimated dimension resulting from the modified-BIC
+  type criterion of Zhu et al. (2010).}
+
+  \item{dtau_hat: }{The dimension of the central quantile subspace.  If not
+  specified by the user, \code{dtau_hat} is the estimated dimension resulting
+  from the modified-BIC type criterion of Zhu et al. (2010).}
+
+  \item{h: }{The bandwidth for the local linear quantile regression fit.  If
+  not specified by the user, \code{h} is estimated using either the
+  rule-of-thumb given by Yu and Jones (1994) or the cross-validation
+  criterion.}
+  }
+}
 \description{
-\code{cqs} ...
+\code{cqs} estimates the directions of the central quantile subspace.
 }
 \details{
-.....
+The function computes the directions that span the \eqn{\tau}th central
+quantile subspace, i.e., the directions that define linear combinations of
+the predictor \code{x} that contain all the information available on the
+conditional quantile function.
+
+The function starts by estimating the initial vector, which is defined as the
+least-squares estimator from regression the conditional quantile on \code{x}.
+Then, if the dimension of the central quantile subspace is one, the algorithm
+stops and reports that vector as the basis of the central quantile subspace.
+Otherwise, the algorithm continues by creating more vectors and applying an
+eigenvalue decomposition to extract linearly independent vectors.  If the
+dimension of the central quantile subspace is unknown, it is estimated using
+the modified-BIC type criterion of Zhu et al. (2010).
+}
+\references{
+Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
+  \emph{Journal of the American Statistical Association}, 93, 228-237.
+
+Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
+  regression through cumulative slicing estimation. \emph{Journal of the
+  American Statistical Association}, 105, 1455-1466.
 }
