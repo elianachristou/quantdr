@@ -25,13 +25,6 @@
 #' @param dtau The dimension of the central quantile subspace.  If not
 #'   specified, \code{dtau} is estimated using the modified-BIC type criterion
 #'   of Zhu et al. (2010)
-#' @param h A univariate bandwidth for the local linear quantile regression fit.
-#'   If not specified, the bandwidth is estimated using either "\code{rule}" or
-#'   "\code{CV}".  See \code{method} below for details.
-#' @param method A character string specifying the method to select the
-#'   bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
-#'   bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
-#'   cross-validation.
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace,
 #'   and returns:
@@ -52,13 +45,7 @@
 #'   \item{dtau: }{The dimension of the central quantile subspace.  If not
 #'   specified by the user, \code{dtau_hat} is estimated using the modified-BIC
 #'   type criterion of Zhu et al. (2010).}
-#'
-#'   \item{h: }{The bandwidth for the local linear quantile regression fit.  If
-#'   not specified by the user, \code{h} is estimated using either the
-#'   rule-of-thumb given by Yu and Jones (1994) or the cross-validation
-#'   criterion.} }
-#' @references Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
-#'   \emph{Journal of the American Statistical Association}, 93, 228-237.
+#'   }
 #' @references Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
 #'   regression through cumulative slicing estimation. \emph{Journal of the
 #'   American Statistical Association}, 105, 1455-1466.
@@ -75,7 +62,7 @@
 #' out
 #' 3 * out$qvectors / out$qvectors[1]
 #' @export
-cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
+cqs <- function(x, y, tau = 0.5, d, dtau) {
   # define the parameters
   n <- length(y); p <- dim(x)[2]
   # standardize the predictor variables
@@ -98,14 +85,10 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     newx <- xstand %*% ahat
   }
 
-  # define the bandwidth, if missing.
-  if (missing(h)) {
-    non_par <- llqr(newx, y, tau = tau, method = method)
-    qhat <- non_par$ll_est; h <- non_par$h
-  } else {
-    non_par <- llqr(newx, y, tau = tau, h = h)
-    qhat <- non_par$ll_est; h <- h
-  }
+  # define the bandwidth and estimate the conditional quantile
+  h <- sd(y) * n^ (-1 / (d + 4))
+  non_par <- llqr(newx, y, tau = tau, h = h)
+  qhat <- non_par$ll_est
 
   # define the initial vector, i.e., the ordinary least squares estimator from
   # regressing qhat on x
@@ -118,7 +101,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     b[, 1] <- beta_hat
     for (j in 2:(dim(x)[2])) {
       newx <- xstand %*% b[, j - 1]
-      hatq <- llqr(newx, y, tau = tau, h = h, )$ll_est
+      hatq <- llqr(newx, y, tau = tau, h = h)$ll_est
       mat <- matrix(0, dim(x)[1], dim(x)[2])
       for (i in 1:(dim(x)[1])) {
         mat[i, ] <- hatq[i] * xstand[i, ]
@@ -130,7 +113,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     out <- eigen(B)$vectors
     out <- signrt %*% out
     dtau <- bic_d(eigenvalues, n, dim(x)[2])
-    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau, h = h)
+    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau)
   } else if (dtau > 1) {
     # if dtau is known to be greater than 1, then use the iterative procedure to
     # produce more vectors and select the eigenvectors associated with the dtau
@@ -150,12 +133,12 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     eigenvalues <- eigen(B)$values
     out <- eigen(B)$vectors
     out <- signrt %*% out
-    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau, h = h)
+    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau)
   } else {
     # if dtau is known to be one, then the initial vector is sufficient
     out <- signrt %*% beta_hat
     out <- out / sqrt(sum(out^2))
     dtau <- dtau
-    list(qvectors = out, d = d, dtau_hat = dtau, h = h)
+    list(qvectors = out, d = d, dtau_hat = dtau)
   }
 }
