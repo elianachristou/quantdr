@@ -19,8 +19,10 @@ Imports:
 Depends: 
 RoxygenNote: 7.1.1
 Collate: 
+    'misc.R'
     'llqrcv.R'
     'llqr.R'
+    'cqs.R'
 Suggests: 
     knitr,
     rmarkdown,
