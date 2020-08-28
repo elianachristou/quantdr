@@ -36,7 +36,7 @@ llqrcv <- function(x, y, tau=0.5) {
   qhat <- matrix(0, n, length(h))
   cv <- as.null(length(h))
 
-  for (i in seq_len(h)) {
+  for (i in 1:length(h)) {
     for (j in 1:n) {
       qhat[j, i] <- llqr(x = x[-j, ], y = y[-j], tau = tau, h = h[i],
                          x0 = x[j, ])$ll_est
