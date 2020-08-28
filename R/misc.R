@@ -8,7 +8,7 @@
 
 bic_d <- function(lambdas, n, p) {
   gn <- as.null(p)
-  for (i in seq_len(lambdas)) {
+  for (i in 1:length(lambdas)) {
     gn[i] <- n * sum((lambdas[1:i])^2) / sum((lambdas)^2)
                      - 2 * (n^ (3 / 4) / p) * i * (i + 1) / 2
   }

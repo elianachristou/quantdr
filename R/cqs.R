@@ -34,29 +34,27 @@
 #'   cross-validation.
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace,
-#'   and returns:
-#'   \itemize{
-#'   \item{evectors: }{The estimated directions of the \eqn{\tau} central quantile
-#'   subspace, which, if \code{d_tau} is greater than 1, correspond to the
-#'   eigenvalues of the matrix with column vectors the estimated vectors.}
+#'   and returns: \itemize{ \item{evectors: }{The estimated directions of the
+#'   \eqn{\tau} central quantile subspace, which, if \code{d_tau} is greater
+#'   than 1, correspond to the eigenvalues of the matrix with column vectors the
+#'   estimated vectors.}
 #'
-#'   \item{evalues: }{The eigenvalues resulting from the eigenvalue decomposion of
-#'   the matrix with column vectors the estimated vectors. If \code{d_tau} is
+#'   \item{evalues: }{The eigenvalues resulting from the eigenvalue decomposion
+#'   of the matrix with column vectors the estimated vectors. If \code{d_tau} is
 #'   one, the \code{evalues} output is not produced.}
 #'
 #'   \item{d: }{The dimension of the central subspace.  If not specified by the
 #'   user, \code{d} is the estimated dimension resulting from the modified-BIC
 #'   type criterion of Zhu et al. (2010).}
 #'
-#'   \item{dtau_hat: }{The dimension of the central quantile subspace.  If not
+#'   \item{dtau: }{The dimension of the central quantile subspace.  If not
 #'   specified by the user, \code{dtau_hat} is the estimated dimension resulting
 #'   from the modified-BIC type criterion of Zhu et al. (2010).}
 #'
 #'   \item{h: }{The bandwidth for the local linear quantile regression fit.  If
 #'   not specified by the user, \code{h} is estimated using either the
 #'   rule-of-thumb given by Yu and Jones (1994) or the cross-validation
-#'   criterion.}
-#'   }
+#'   criterion.} }
 #' @references Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
 #'   \emph{Journal of the American Statistical Association}, 93, 228-237.
 #' @references Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
@@ -64,6 +62,13 @@
 #'   American Statistical Association}, 105, 1455-1466.
 #' @include llqr.R
 #' @include misc.R
+#'
+#' @examples
+#' n <- 100; p <- 10
+#' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+#' y <- 3 * x[, 1] + x[, 2] + error
+#' tau <- 0.5
+#' cqs(x, y, tau, d = 1, dtau = 1)
 #' @export
 cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
   # define the parameters
@@ -128,7 +133,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     out <- eigen(B)$vectors
     out <- signrt %*% out
     dtau <- bic_d(eigenvalues, n, dim(x)[2])
-    list(evectors = out, evalues = eigenvalues, d = d, dtau_hat = dtau, h = h)
+    list(evectors = out, evalues = eigenvalues, d = d, dtau = dtau, h = h)
   } else if (dtau > 1) {
     # if dtau is known to be greater than 1, then use the iterative procedure to
     # produce more vectors and select the eigenvectors associated with the dtau
@@ -148,7 +153,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
     eigenvalues <- eigen(B)$values
     out <- eigen(B)$vectors
     out <- signrt %*% out
-    list(evectors = out, evalues = eigenvalues, d = d, dtau_hat = dtau, h = h)
+    list(evectors = out, evalues = eigenvalues, d = d, dtau = dtau, h = h)
   } else {
     # if dtau is known to be one, then the initial vector is sufficient
     out <- signrt %*% beta_hat
@@ -158,4 +163,3 @@ cqs <- function(x, y, tau = 0.5, d, dtau, h, method = "rule") {
   }
 }
 
-#' @

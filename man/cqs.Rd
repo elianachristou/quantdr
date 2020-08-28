@@ -32,29 +32,27 @@ cross-validation.}
 }
 \value{
 \code{cqs} computes the directions of the central quantile subspace,
-  and returns:
-  \itemize{
-  \item{evectors: }{The estimated directions of the \eqn{\tau} central quantile
-  subspace, which, if \code{d_tau} is greater than 1, correspond to the
-  eigenvalues of the matrix with column vectors the estimated vectors.}
+  and returns: \itemize{ \item{evectors: }{The estimated directions of the
+  \eqn{\tau} central quantile subspace, which, if \code{d_tau} is greater
+  than 1, correspond to the eigenvalues of the matrix with column vectors the
+  estimated vectors.}
 
-  \item{evalues: }{The eigenvalues resulting from the eigenvalue decomposion of
-  the matrix with column vectors the estimated vectors. If \code{d_tau} is
+  \item{evalues: }{The eigenvalues resulting from the eigenvalue decomposion
+  of the matrix with column vectors the estimated vectors. If \code{d_tau} is
   one, the \code{evalues} output is not produced.}
 
   \item{d: }{The dimension of the central subspace.  If not specified by the
   user, \code{d} is the estimated dimension resulting from the modified-BIC
   type criterion of Zhu et al. (2010).}
 
-  \item{dtau_hat: }{The dimension of the central quantile subspace.  If not
+  \item{dtau: }{The dimension of the central quantile subspace.  If not
   specified by the user, \code{dtau_hat} is the estimated dimension resulting
   from the modified-BIC type criterion of Zhu et al. (2010).}
 
   \item{h: }{The bandwidth for the local linear quantile regression fit.  If
   not specified by the user, \code{h} is estimated using either the
   rule-of-thumb given by Yu and Jones (1994) or the cross-validation
-  criterion.}
-  }
+  criterion.} }
 }
 \description{
 \code{cqs} estimates the directions of the central quantile subspace.
@@ -73,6 +71,13 @@ Otherwise, the algorithm continues by creating more vectors and applying an
 eigenvalue decomposition to extract linearly independent vectors.  If the
 dimension of the central quantile subspace is unknown, it is estimated using
 the modified-BIC type criterion of Zhu et al. (2010).
+}
+\examples{
+n <- 100; p <- 10
+x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+y <- 3 * x[, 1] + x[, 2] + error
+tau <- 0.5
+cqs(x, y, tau, d = 1, dtau = 1)
 }
 \references{
 Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
