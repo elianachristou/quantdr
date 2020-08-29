@@ -9,16 +9,33 @@ bic_d(lambdas, n, p)
 \arguments{
 \item{lambdas}{The eigenvalues of the matrix that spans the subspace}
 
-\item{n}{The number of observations.}
+\item{n}{The number of the observations.}
 
-\item{p}{The}
+\item{p}{The dimension of the predictor variable.}
+}
+\value{
+\code{bic_d} returns the dimension of the subspace.
 }
 \description{
 \code{bic_d} estimates the dimension of a subspace.
 }
 \details{
-The function estimates the dimension of a subspace using
-the modified-BIC type criterion of Zhu et al. (2010).
-The estimation is based on choosing \eqn{k} that maximizes
-\eqn{G_n(k)=n \frac{\sum_{i=1}^{k} \hat{\lambda}_{i}^2}{\sum_{i=1}^{p}\hat{\lambda}_{i}^2}}
+The function estimates the dimension of a subspace using the modified-BIC
+type criterion of Zhu et al. (2010). The estimation is based on choosing
+\eqn{k} that maximizes \eqn{G_n(k)=n \frac{\sum_{i=1}^{k}
+\hat{\lambda}_{i}^2}{\sum_{i=1}^{p}\hat{\lambda}_{i}^2}}
+}
+\examples{
+set.seed(1234)
+n <- 100; p <- 10; tau <- 0.5
+x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+y <- 3 * x[, 1] + x[, 2] + error
+out <- cqs(x, y, tau)
+bic_d(out$qvalues, n, p)
+
+}
+\references{
+Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
+  regression through cumulative slicing estimation. \emph{Journal of the
+  American Statistical Association}, 105, 1455-1466.
 }
