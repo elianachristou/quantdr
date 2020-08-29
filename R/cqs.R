@@ -53,6 +53,7 @@
 #' @include misc.R
 #'
 #' @examples
+#' # estimate the directions of a single-index model
 #' set.seed(1234)
 #' n <- 100; p <- 10
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
@@ -60,15 +61,29 @@
 #' tau <- 0.5
 #' out <- cqs(x, y, tau, d = 1, dtau = 1)
 #' out
-#' 3 * out$qvectors / out$qvectors[1]
+#' # without defining d and dtau
+#' out <- cqs(x, y, tau)
+#' out
+#' out$qvectors[, 1:out$dtau]
+#'
+#' # estimate the directions of a multi-index model
+#' set.seed(1234)
+#' n <- 100; p <- 10
+#' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+#' y <- exp(x[, 1]) + x[, 2] + error
+#' tau <- 0.5
+#' cqs(x, y, tau)$qvectors[, 1:2]
+#'
 #' @export
 cqs <- function(x, y, tau = 0.5, d, dtau) {
+
   # define the parameters
   n <- length(y); p <- dim(x)[2]
   # standardize the predictor variables
-  xc <- center(x)
+  xc <- scale(x, scale = FALSE)
   sig <- var(x)
-  signrt <- matpower(sig, -1 / 2)
+  signrt <- MTS::msqrt(sig)$invsqrt
+  #signrt <- matpower(sig, -1 / 2)
   xstand <- xc %*% signrt
 
   # use SIR for initial dimension reduction

@@ -8,6 +8,10 @@ bic_d(lambdas, n, p)
 }
 \arguments{
 \item{lambdas}{...}
+
+\item{n}{...}
+
+\item{p}{...}
 }
 \description{
 \code{cqs} ...

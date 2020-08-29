@@ -15,7 +15,8 @@ Imports:
     dr,  
     KernSmooth,
     mvtnorm,
-    quantreg
+    quantreg,
+    MTS
 Depends: 
 RoxygenNote: 7.1.1
 Collate: 

@@ -4,7 +4,7 @@
 \alias{cqs}
 \title{Central Quantile Subspace}
 \usage{
-cqs(x, y, tau = 0.5, d, dtau, h, method = "rule")
+cqs(x, y, tau = 0.5, d, dtau)
 }
 \arguments{
 \item{x}{A design matrix.  The rows represent observations and the columns
@@ -20,15 +20,6 @@ is estimated using the modified-BIC type criterion of Zhu et al. (2010).}
 \item{dtau}{The dimension of the central quantile subspace.  If not
 specified, \code{dtau} is estimated using the modified-BIC type criterion
 of Zhu et al. (2010)}
-
-\item{h}{A univariate bandwidth for the local linear quantile regression fit.
-If not specified, the bandwidth is estimated using either "\code{rule}" or
-"\code{CV}".  See \code{method} below for details.}
-
-\item{method}{A character string specifying the method to select the
-bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
-bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
-cross-validation.}
 }
 \value{
 \code{cqs} computes the directions of the central quantile subspace,
@@ -50,11 +41,7 @@ cross-validation.}
   \item{dtau: }{The dimension of the central quantile subspace.  If not
   specified by the user, \code{dtau_hat} is estimated using the modified-BIC
   type criterion of Zhu et al. (2010).}
-
-  \item{h: }{The bandwidth for the local linear quantile regression fit.  If
-  not specified by the user, \code{h} is estimated using either the
-  rule-of-thumb given by Yu and Jones (1994) or the cross-validation
-  criterion.} }
+  }
 }
 \description{
 \code{cqs} estimates the directions of the central quantile subspace.
@@ -75,6 +62,7 @@ dimension of the central quantile subspace is unknown, it is estimated using
 the modified-BIC type criterion of Zhu et al. (2010).
 }
 \examples{
+# estimate the directions of a single-index model
 set.seed(1234)
 n <- 100; p <- 10
 x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
@@ -82,12 +70,21 @@ y <- 3 * x[, 1] + x[, 2] + error
 tau <- 0.5
 out <- cqs(x, y, tau, d = 1, dtau = 1)
 out
-3 * out$evectors / out$evectors[1]
+# without defining d and dtau
+out <- cqs(x, y, tau)
+out
+out$qvectors[, 1:out$dtau]
+
+# estimate the directions of a multi-index model
+set.seed(1234)
+n <- 100; p <- 10
+x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+y <- exp(x[, 1]) + x[, 2] + error
+tau <- 0.5
+cqs(x, y, tau)$qvectors[, 1:2]
+
 }
 \references{
-Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
-  \emph{Journal of the American Statistical Association}, 93, 228-237.
-
 Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
   regression through cumulative slicing estimation. \emph{Journal of the
   American Statistical Association}, 105, 1455-1466.
