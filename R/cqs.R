@@ -50,7 +50,7 @@
 #'   regression through cumulative slicing estimation. \emph{Journal of the
 #'   American Statistical Association}, 105, 1455-1466.
 #' @include llqr.R
-#' @include misc.R
+#' @include bic_d.R
 #'
 #' @examples
 #' # estimate the directions of a single-index model

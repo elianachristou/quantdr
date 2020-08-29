@@ -20,7 +20,7 @@ Imports:
 Depends: 
 RoxygenNote: 7.1.1
 Collate: 
-    'misc.R'
+    'bic_d.R'
     'llqrcv.R'
     'llqr.R'
     'cqs.R'
