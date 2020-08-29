@@ -13,16 +13,20 @@ knitr::opts_chunk$set(
 )
 ```
 
-# quantdr: Dimension Reduction for Conditional Quantiles
+# quantdr
 
 <!-- badges: start -->
 <!-- badges: end -->
 
+quantdr: Dimension Reduction for Conditional Quantiles
+====================================================================
+
 The R package 'quantdr' performs dimension reduction techniques for conditional quantiles by estimating the fewest linear combinations of X that contain all the information on that function.  For details of the methodology, see [Christou, E. (2020) Central quantile subspace. *Statistics and Computing*, 30, 677–695](https://link.springer.com/article/10.1007/s11222-019-09915-8).
 
-The main function of the package is 'cqs', which estimates the directions of the central quantile subspace.  Once the directions are determined, one can form the new sufficient predictors and estimate the conditional quantile function using the 'llqr' function of the package.  
+The main function of the package is `cqs`, which estimates the directions of the central quantile subspace.  Once the directions are determined, one can form the new sufficient predictors and estimate the conditional quantile function using `llqr`.  
 
 ## Installation
+------------
 
 <!--  You can install the released version of quantdr from [CRAN](https://CRAN.R-project.org) with: -->
 
@@ -34,31 +38,77 @@ The main function of the package is 'cqs', which estimates the directions of the
 
 You can install the development version of quantdr from [GitHub](https://github.com/) with: 
 
-``` r
+``` {r, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("elianachristou/quantdr")
 ```
 ## Example
+-------
 
 This is a basic example which shows you how to solve the problem. 
 
-```{r example}
+```{r}
 library(quantdr)
-## basic example code
+
+## basic example code - a homogeneous model
+
+# Setting
+set.seed(1234)
+n <- 100; p <- 10; taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+y <- 3 * x[, 1] + x[, 2] + error
+
+# true direction that spans each central quantile subspace
+beta_true <- c(3, 1, rep(0, p-2))
+beta_true
+dir1 <- x %*% beta_true
+
+# Estimate the directions of each central quantile subspace
+out <- matrix(0, p, length(taus))
+for (i in 1:length(taus)) {
+  out[, i] <- cqs(x, y, tau = taus[i], d = 1, dtau = 1)$qvectors
+}
+out
+
+# compare the estimated direction with the true one using the angle between the two subspaces
+library(pracma)
+for (i in 1:length(taus)) {
+print(subspace(out[, i], beta_true) / (pi / 2)) # the angle is measured in radians, so divide by pi/2
+  }
+
+# Estimate and plot the conditional quantile function using the new sufficient predictors
+newx <- x %*% out
+par(mfrow=c(2,3))
+for (i in 1:length(taus)) {
+  plot(dir1, y, xlab = "sufficient direction", ylab = "y", main = taus[i])
+  qhat <- llqr(newx[, i], y, tau = taus[i])$ll_est
+  points(dir1, qhat, col = "red")
+}
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+Another example using the Boston housing data from the `MASS` library in R. 
 
-```{r cars}
-summary(cars)
+```{r, warning = FALSE}
+library(MASS)
+attach(Boston)
+# read the data 
+y <- medv
+x <- cbind(rm, log(tax), ptratio, log(lstat))
+data <- cbind(y, x)
+n <- length(y); p <- dim(x)[2]
+
+# plot the estimated direction of each predictor variable for multiple quantiles
+tau <- seq(0.1, 0.9, by = 0.005)
+beta_hat <- matrix(0, p, length(tau))
+
+for (k in 1:length(tau)) {
+  out <- cqs(x, y, tau = tau[k])
+  beta_hat[, k] <- out$qvectors[, 1:out$dtau] # the estimated dimension of the central subspace is 1
+}
+   
+par(mfrow=c(2,2))
+plot(tau, beta_hat[1, ], type = 'l', xlab = 'Quantile', main = 'RM', ylab = 'Coefficient')
+plot(tau, beta_hat[2, ], type = 'l', xlab = 'Quantile', main = 'log(TAX)', ylab = 'Coefficient')
+plot(tau, beta_hat[3, ], type = 'l', xlab = 'Quantile', main = 'PTRATIO', ylab = 'Coefficient')
+plot(tau, beta_hat[4, ], type = 'l', xlab = 'Quantile', main = 'log(LSTAT)', ylab = 'Coefficient')
 ```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
