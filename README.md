@@ -42,8 +42,7 @@ devtools::install_github("elianachristou/quantdr")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem.
-\(\frac{2}{3}\)
+This is a basic example which shows you how to solve the problem.
 
 ``` r
 library(quantdr)

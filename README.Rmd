@@ -40,7 +40,7 @@ devtools::install_github("elianachristou/quantdr")
 ```
 ## Example
 
-This is a basic example which shows you how to solve the problem.
+This is a basic example which shows you how to solve the problem. 
 
 ```{r example}
 library(quantdr)
