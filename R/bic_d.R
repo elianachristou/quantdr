@@ -34,5 +34,3 @@ bic_d <- function(lambdas, n, p) {
   }
   return(which(gn == max(gn)))
 }
-
-
