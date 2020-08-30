@@ -1,4 +1,4 @@
-#' Central Quantile Subspace
+#' Central quantile subspace
 #'
 #' \code{cqs} estimates the directions of the central quantile subspace.
 #'

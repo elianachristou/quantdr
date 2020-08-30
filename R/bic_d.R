@@ -1,4 +1,4 @@
-#' Modified-BIC type criterion
+#' Modified-BIC type criterion for structural dimension selection
 #'
 #' \code{bic_d} estimates the dimension of a subspace.
 #'
