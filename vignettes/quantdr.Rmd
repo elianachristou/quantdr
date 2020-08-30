@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 # Getting Started
 
-To get started you need to first install the package successfully using the command 
+To get started you need to first install the package using the command 
 ```{r, eval=FALSE}
 install.packages("quantdr")
 ```
@@ -40,11 +40,13 @@ The package includes the following functions:
 * `cqs` Central quantile subspace
 * `bic_d` Modified-BIC type criterion for structural dimension selection
 
-To get help on a specific function you can type `help(function.name)` or `?function.name`.  Try
+To get help on a specific function you can type `help(function.name)` or `?function.name` for a convenient shorthand.  Try
 ```{r, eval=FALSE}
 help(cqs)
 ?cqs
 ```
+
+To run examples in `R` you can use the examples used to illutrated that the commands are executable by pasting them into the `R` session.
 
 # Introduction
 ## Introduction
