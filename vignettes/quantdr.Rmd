@@ -1,11 +1,15 @@
 ---
 title: "quantdr: Dimension Reduction for Conditional Quantiles"
-author: Eliana Christou\\ University of North Carolina at Charlotte
+author: 
+- name: Eliana Christou
+  affiliation: University of North Carolina at Charlotte
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{quantdr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+abstract: "While dimension reduction techniques have been well developed, they focus on the entire conditional distribution of the data.  There are a lot of research areas where extremes are important and require the study of the conditional quantiles of the response given the predictor variables.  `quantdr` is an `R` package that performs dimension reduction to conditional quantiles by determining the directions that span the central quantile subspace (CQS)."  
+keywords: "central quantile subspace, dimension reduction, quantile regression"
 ---
 
 ```{r, include = FALSE}
@@ -15,8 +19,31 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+# Getting Started
+
+To get started you need to first install the package successfully using the command 
+```{r, eval=FALSE}
+install.packages("quantdr")
+```
+and then use it during any `R` session using the command
+```{r}
 library(quantdr)
+```
+For an overview on the available help files of the package use
+```{r, eval=FALSE}
+help(package = "quantdr")
+```
+The package includes the following functions:
+
+* `llqr` Local linear quantile estimation
+* `llqrcv` Cross-Validation bandwidth selection for local linear quantile estimation
+* `cqs` Central quantile subspace
+* `bic_d` Modified-BIC type criterion for structural dimension selection
+
+To get help on a specific function you can type `help(function.name)` or `?function.name`.  Try
+```{r, eval=FALSE}
+help(cqs)
+?cqs
 ```
 
 # Introduction
@@ -48,5 +75,5 @@ add <- function(a, b) a + b
 add(10, 20)
 ```
 
-Consider submitting the vignetted to the Journal of Statistical Software of The R Journal. 
+Consider submitting the vignette to the Journal of Statistical Software of The R Journal. 
 
