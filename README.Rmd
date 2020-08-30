@@ -26,7 +26,6 @@ The R package 'quantdr' performs dimension reduction techniques for conditional 
 The main function of the package is `cqs`, which estimates the directions of the central quantile subspace.  Once the directions are determined, one can form the new sufficient predictors and estimate the conditional quantile function using `llqr`.  
 
 ## Installation
-------------
 
 <!--  You can install the released version of quantdr from [CRAN](https://CRAN.R-project.org) with: -->
 
@@ -43,7 +42,6 @@ You can install the development version of quantdr from [GitHub](https://github.
 devtools::install_github("elianachristou/quantdr")
 ```
 ## Example
--------
 
 This is a basic example which shows you how to solve the problem. 
 
@@ -60,7 +58,7 @@ y <- 3 * x[, 1] + x[, 2] + error
 
 # true direction that spans each central quantile subspace
 beta_true <- c(3, 1, rep(0, p-2))
-beta_true
+beta_true/sqrt(sum(beta_true^2))
 dir1 <- x %*% beta_true
 
 # Estimate the directions of each central quantile subspace
@@ -97,7 +95,7 @@ x <- cbind(rm, log(tax), ptratio, log(lstat))
 data <- cbind(y, x)
 n <- length(y); p <- dim(x)[2]
 
-# plot the estimated direction of each predictor variable for multiple quantiles
+# plot the estimated coefficient of each predictor variable for multiple quantiles
 tau <- seq(0.1, 0.9, by = 0.005)
 beta_hat <- matrix(0, p, length(tau))
 
@@ -111,4 +109,5 @@ plot(tau, beta_hat[1, ], type = 'l', xlab = 'Quantile', main = 'RM', ylab = 'Coe
 plot(tau, beta_hat[2, ], type = 'l', xlab = 'Quantile', main = 'log(TAX)', ylab = 'Coefficient')
 plot(tau, beta_hat[3, ], type = 'l', xlab = 'Quantile', main = 'PTRATIO', ylab = 'Coefficient')
 plot(tau, beta_hat[4, ], type = 'l', xlab = 'Quantile', main = 'log(LSTAT)', ylab = 'Coefficient')
+
 ```

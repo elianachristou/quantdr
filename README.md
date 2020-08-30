@@ -22,7 +22,7 @@ determined, one can form the new sufficient predictors and estimate the
 conditional quantile function using
 `llqr`.
 
-## \#\# Installation
+## Installation
 
 <!--  You can install the released version of quantdr from [CRAN](https://CRAN.R-project.org) with: -->
 
@@ -42,7 +42,7 @@ You can install the development version of quantdr from
 devtools::install_github("elianachristou/quantdr")
 ```
 
-## \#\# Example
+## Example
 
 This is a basic example which shows you how to solve the problem.
 
@@ -59,8 +59,9 @@ y <- 3 * x[, 1] + x[, 2] + error
 
 # true direction that spans each central quantile subspace
 beta_true <- c(3, 1, rep(0, p-2))
-beta_true
-#>  [1] 3 1 0 0 0 0 0 0 0 0
+beta_true/sqrt(sum(beta_true^2))
+#>  [1] 0.9486833 0.3162278 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000
+#>  [8] 0.0000000 0.0000000 0.0000000
 dir1 <- x %*% beta_true
 
 # Estimate the directions of each central quantile subspace
@@ -116,7 +117,7 @@ x <- cbind(rm, log(tax), ptratio, log(lstat))
 data <- cbind(y, x)
 n <- length(y); p <- dim(x)[2]
 
-# plot the estimated direction of each predictor variable for multiple quantiles
+# plot the estimated coefficient of each predictor variable for multiple quantiles
 tau <- seq(0.1, 0.9, by = 0.005)
 beta_hat <- matrix(0, p, length(tau))
 
