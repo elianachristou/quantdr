@@ -1,9 +1,13 @@
 ---
-title: "quantdr: Dimension Reduction for Conditional Quantiles"
+title: "quantdr"
 author: 
 - name: Eliana Christou
   affiliation: University of North Carolina at Charlotte
 output: rmarkdown::html_vignette
+header-includes: |
+  ```{=latex}
+  \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+  ```
 vignette: >
   %\VignetteIndexEntry{quantdr}
   %\VignetteEngine{knitr::rmarkdown}
@@ -48,8 +52,20 @@ help(cqs)
 
 To run examples in `R` you can use the examples used to illutrated that the commands are executable by pasting them into the `R` session.
 
-# Introduction
-## Introduction
+# Central quantile subspace
+## Overview
+
+Data visualization and non-parametric modeling can become very chalennging when data is *high-dimensional*.  This has led to the development of many dimension reduction techniques, which focus on the entire conditional distribution of the response given the predictor variables.  However, when specific aspects of the conditional distribution are of interest, these methods can provide more directions than necessary.
+
+Quantile regession (QR) has received a lot of attention since its inception from Koenker and Bassett (1978) and it has been an attractive tool for research areas where extremes are important.  Christou (2020) proposed a dimension reduction technique for conditional quantiles that finds the fewest linear combinations of the predictor variable $\mathbf{X}$ necessary for determining the conditional quantile.     
+
+To give further intuition, for a univariate response $Y$ and a $p$ dimensional predictor $\mathbf{X}$, the method focuses on finding a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, where $\tau \in (0, 1)$ the quantile level and $d_{\tau} \leq p$, such that 
+\begin{eqnarray*}
+Y \independent Q_{\tau}(Y|\mathbf{X}) | \mathbf{B}_{\tau}^{\top} \mathbf{X},
+\end{eqnarray*}
+for $Q_{\tau}(Y|\mathbf{X})$ the $\tau$th conditional quantile of $Y$ given $\mathbf{X}$.  The space spanned by $\mathbf{B}_{\tau}$ is called the *$\tau$th quantile dimension reduction subspace* for the regression of $Y$ on $\mathbf{X}$.  The intersection of all $\tau$th dimension reduction subspaces is called the *$\tau$th central quantile subspace* ($\tau$-CQS) and is denoted by $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$.  Therefore, the goal is to identify the directions of $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$ and form the new sufficient predictors.     
+
+The purpose of this paper is to demonstrate the implementation of the functions appearing in the `quantdr` package, along with some examples.  The main function of the package is `cqs`, which returns the estimated directions of the $\tau$-CQS.  
 
 -----
 
