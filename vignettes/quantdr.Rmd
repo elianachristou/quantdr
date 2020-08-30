@@ -67,6 +67,19 @@ for $Q_{\tau}(Y|\mathbf{X})$ the $\tau$th conditional quantile of $Y$ given $\ma
 
 The purpose of this paper is to demonstrate the implementation of the functions appearing in the `quantdr` package, along with some examples.  The main function of the package is `cqs`, which returns the estimated directions of the $\tau$-CQS.  
 
+## The algorithm in a glance
+
+Christou (2020) proved that
+
+* $\boldsymbol{\beta}_{\tau} \in \mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$, where
+\begin{eqnarray*}
+(\alpha_{\tau}, \boldsymbol{\beta}_{\tau}) = \arg \min_{(a_{\tau}, \mathbf{b}_{\tau})} E \{ Q_{\tau}(Y| \mathbf{A}^{\top} \mathbf{X}) - a_{\tau} - \mathbf{b}_{\tau}^{\top}\mathbf{X}\}
+\end{eqnarray*}
+
+* $E\{Q_{\tau} (Y|U_{\tau})\mathbf{X}\} \in \mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$, where $U_{\tau}$ is a measurable function of $\mathbf{B}_{\tau}^{\top}\mathbf{X}$, provided that $Q_{\tau}(Y|U_{\tau})\mathbf{X}$ is integrable.  
+
+This implies that we can set $\boldsymbol{\beta}_{\tau, 0}=\boldsymbol{\beta}_{\tau}$ as the initial vector and then create more using $\boldsymbol{\beta}_{\tau,j}=E\{Q_{\tau}(Y | \boldsymbol{\beta}_{\tau, j-1}^{\top}\mathbf{X})\mathbf{X}\}$, for $j=1, \dots, p-1$.
+
 -----
 
 * Make a list
