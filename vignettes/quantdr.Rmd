@@ -117,7 +117,7 @@ If $d_{\tau}$ is unknown, then we estimate it using the modified-BIC type criter
 
 # Conclusion
 
-This vignette provides a brief introduction to the R package `quantdr` and presents a tutorial on how to implement the basic function `cqs`.  Performing dimension reduction techniques to conditional quantiles is an active research topic and therefore, updates and new functions will be incorporated into new versions of the package.  For this reason, this document will be updated accordingly and will be made available through the package.      
+This vignette provides a brief introduction to the R package `quantdr` and presents a tutorial on how to implement the basic function `cqs`.  Performing dimension reduction techniques to conditional quantiles is an active research topic and therefore, updates and new functions will be incorporated into new versions of the package.  For this reason, this document will be updated accordingly and will be made available through the package.  Suggestions and recommendations from the users will be highly appreciated.        
 
 -----
 
