@@ -27,7 +27,10 @@ Collate:
 Suggests: 
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    pracma,
+    quantmod,
+    MASS
 VignetteBuilder: knitr
 SystemRequirements: GNU make
 URL: http://github.com/elianachristou/quantdr

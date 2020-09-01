@@ -82,17 +82,16 @@ llqr(x, y, tau = tau, x0 = x0)
 
 # demonstrate the function estimation for different quantile levels
 par(mfrow=c(1, 1))
-#require(MASS)
-#data(mcycle)
-#attach(mcycle)
-#plot(times, accel, xlab = "milliseconds", ylab = "acceleration")
-#taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
-#for(i in 1:length(taus)) {
- #fit <- llqr(times, accel, tau = taus[i])$ll_est
- #lines(times, fit ,lty = i)
-#}
-#legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
-#lty=1:length(taus))
+data(mcycle, package="MASS")
+attach(mcycle)
+plot(times, accel, xlab = "milliseconds", ylab = "acceleration")
+taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+for(i in 1:length(taus)) {
+ fit <- llqr(times, accel, tau = taus[i])$ll_est
+ lines(times, fit ,lty = i)
+}
+legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
+lty=1:length(taus))
 
 }
 \references{
