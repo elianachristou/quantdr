@@ -202,8 +202,33 @@ for (i in 1:length(taus)) {
   points(true_dir, qhat_tau, pch = 16, col = "red")
 }
 ```
- 
 
+# An Example
+
+In this section, we will demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `getSymbols` function of the `quantmod` package in `R`.  The data consists of the daily returns from January 2016 to December 2018.       
+``` {r, message=FALSE, warning = FALSE}
+library(quantmod)
+BTC <- getSymbols("BTC-USD", from = "2016-01-01", to = "2018-12-31", src = "yahoo", auto.assign = FALSE)
+
+head(BTC)
+dim(BTC)
+```
+We consider $Y$ as the log returns and $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$, where $X_{1}, \dots, X_{5}$ are the returns in the past five days, and $X_+{6}, \dots, X_{10}$ are the absolute values of those returns.  
+``` {r}
+y <- BTC$`BTC-USD.Adjusted`
+r <- diff(log(y))
+newy=r[-c(1:5)]
+n <- length(newy); p <- 10
+
+xtemp=matrix(0,n,5)
+for (i in 6:(n+5)){
+xtemp[i-5,]=r[(i-5):(i-1)]  
+}
+xtemp2=cbind(xtemp[,5],xtemp[,4],xtemp[,3],xtemp[,2],xtemp[,1])
+
+x=cbind(xtemp2,abs(xtemp2))
+dim(x)
+``` 
 
 
 # Conclusion
