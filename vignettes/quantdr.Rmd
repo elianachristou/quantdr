@@ -215,7 +215,7 @@ dim(BTC)
 ```
 We consider $Y$ as the log returns and $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$, where $X_{1}, \dots, X_{5}$ are the returns in the past five days, and $X_+{6}, \dots, X_{10}$ are the absolute values of those returns.  
 ``` {r}
-y <- BTC$`BTC-USD.Adjusted`
+y <- as.vector(BTC$`BTC-USD.Adjusted`)
 r <- diff(log(y))
 newy=r[-c(1:5)]
 n <- length(newy); p <- 10
@@ -229,37 +229,53 @@ xtemp2=cbind(xtemp[,5],xtemp[,4],xtemp[,3],xtemp[,2],xtemp[,1])
 x=cbind(xtemp2,abs(xtemp2))
 dim(x)
 ``` 
+We want to estimate $Q_{\tau}(Y|\mathbf{X})$ for $\tau=0.01, 0.025, 0.05$.  The reason to choose these values is because in a financial risk setup, $Q_{\tau}(Y|\mathbf{X})$ is an important quantity called the value-at-risk (VaR).  
 
+To do this, we first want to reduce the dimension of the predictor vector $\mathbf{X}$, and therefore, we will estimate the $\tau$-CQS.  Since the dimension of each $\tau$-CQS is unknown, we do not specify $dtau$ and instead, allow the function to estimate it using the modified-BIC type criterion.  This is done by
+``` {r}
+taus <- c(0.01, 0.025, 0.05)
+out1 <- cqs(x, newy, tau = taus[1])
+out2 <- cqs(x, newy, tau = taus[2])
+out3 <- cqs(x, newy, tau = taus[3])
+
+out1$dtau; out2$dtau; out3$dtau
+```
+Since the dimension of the $\tau$-CQS for all quantile levels considered is one, we take the first eigenvector as its estimated basic vector.
+``` {r}
+beta_hat1 <- out1$qvectors[, 1] 
+beta_hat2 <- out2$qvectors[, 1] 
+beta_hat3 <- out3$qvectors[, 1] 
+beta_hat <- cbind(beta_hat1, beta_hat2, beta_hat3)
+```
+To estimate the conditional quantile function, we will form the new sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$ and use the `llqr` function.
+``` {r}
+newx <- x %*% beta_hat
+qhat <- matrix(0, n, length(taus))
+for (i in 1:length(taus)) {
+  qhat[, i] <- llqr(newx[, i], newy, tau = taus[i])$ll_est
+}
+
+plot.ts(newy, ylab = "returns")
+lines(qhat[, 1], col = "red")
+lines(qhat[, 2], col = "blue")
+lines(qhat[, 3], col = "green")
+```
+To further illustrate the estimation of the conditional quantile function, we estimate the proportion of times the return is less than $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$, i.e., the proportion of time $Y < \widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$. 
+``` {r}
+comp <- matrix(0, n, length(taus))
+for (i in 1:length(taus)) {
+ comp[, i] <- (newy < qhat[, i]) 
+}
+apply(comp, 2, mean)
+taus
+```
+This is of course performed in the entire data set.  We can further split the data into train and testing data sets and repeat the above procedure. 
 
 # Conclusion
 
 This vignette provides a brief introduction to the R package `quantdr` and presents a tutorial on how to implement the basic function `cqs`.  Performing dimension reduction techniques to conditional quantiles is an active research topic and therefore, updates and new functions will be incorporated into new versions of the package.  For this reason, this document will be updated accordingly and will be made available through the package.  Suggestions and recommendations from the users will be highly appreciated.        
 
 -----
-
-* Make a list
-    * with 4 spaces nested
-    
-1. Ordered list
-1. Ordered list
-
-Definition
-: say the definition
-
-*italic*
-**bold**
-
-```{r, results='hide'}
-# if i want to write code
-add <- function(a, b) a + b
-add(10, 20)
-```
-
-```{r, results='asis'}
-# if i want to write code
-add <- function(a, b) a + b
-add(10, 20)
-```
 
 Consider submitting the vignette to the Journal of Statistical Software of The R Journal. 
 
