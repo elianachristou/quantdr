@@ -1,4 +1,4 @@
-#' Local linear quantile estimation
+#' Local linear quantile regression
 #'
 #' \code{llqr} estimates the \eqn{\tau}-th conditional quantile of \code{y}
 #' given \code{x} based on a local linear fit.  The estimation is performed at
@@ -13,9 +13,9 @@
 #' and Jones (1994) or the cross-validation criterion.
 #'
 #' The estimation applies to univariate and multivariate predictor variables.
-#' For the later, the local linear fit uses the multivariate standard normal
+#' For the latter, the local linear fit uses the multivariate standard normal
 #' kernel. Note that if the estimation is performed at a pre-specified point
-#' \code{x0} then \code{x0} should be a scalar (for univariate predictor) or a
+#' \code{x0}, then \code{x0} should be a scalar (for univariate predictor) or a
 #' vector (for multivariate predictor).
 #'
 #' @param x A design matrix.  The rows represent observations and the columns
@@ -34,7 +34,7 @@
 #'   multivariate predictor.  If \code{x0} is missing, the estimation will be
 #'   performed on the design matrix \code{x}.
 #' @return \code{llqr} computes the local linear \eqn{\tau}-th conditional
-#'   quantile estimator of \code{y} given \code{x}, and returns: \itemize{
+#'   quantile function of \code{y} given \code{x}, and returns: \itemize{
 #'   \item{ll_est: }{The estimated function value at the design points \code{x}
 #'   or, if specified, at the point \code{x0}.}
 #'
@@ -94,7 +94,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
       h <- llqrcv(x, y, tau)
     }
     if (method == "rule") {
-      h <- KernSmooth::dpill(x, y);
+      h <- KernSmooth::dpill(x, y)
       h <- h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
     }
   } else {
@@ -107,6 +107,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
     # if the dimension of x is one, use univariate kernel, otherwise
     # use multivariate kernel
     if (p == 1) {
+      # perform estimation at the design matrix x
       for (i in 1:dim(x)[1]) {
         z <- x - x[i, 1]
         w <- dnorm(z / h)
@@ -124,6 +125,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
     }
   } else {
     if (p == 1) {
+      # perform estimation at the point x0
       z <- x - x0
       w <- dnorm(z / h)
       q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)

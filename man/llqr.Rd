@@ -2,7 +2,7 @@
 % Please edit documentation in R/llqr.R
 \name{llqr}
 \alias{llqr}
-\title{Local linear quantile estimation}
+\title{Local linear quantile regression}
 \usage{
 llqr(x, y, tau = 0.5, h, method = "rule", x0)
 }
@@ -30,7 +30,7 @@ performed on the design matrix \code{x}.}
 }
 \value{
 \code{llqr} computes the local linear \eqn{\tau}-th conditional
-  quantile estimator of \code{y} given \code{x}, and returns: \itemize{
+  quantile function of \code{y} given \code{x}, and returns: \itemize{
   \item{ll_est: }{The estimated function value at the design points \code{x}
   or, if specified, at the point \code{x0}.}
 
@@ -54,9 +54,9 @@ specified by the user, is defined using either the rule-of-thumb given by Yu
 and Jones (1994) or the cross-validation criterion.
 
 The estimation applies to univariate and multivariate predictor variables.
-For the later, the local linear fit uses the multivariate standard normal
+For the latter, the local linear fit uses the multivariate standard normal
 kernel. Note that if the estimation is performed at a pre-specified point
-\code{x0} then \code{x0} should be a scalar (for univariate predictor) or a
+\code{x0}, then \code{x0} should be a scalar (for univariate predictor) or a
 vector (for multivariate predictor).
 }
 \examples{
