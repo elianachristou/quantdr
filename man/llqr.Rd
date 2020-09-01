@@ -40,7 +40,7 @@ performed on the design matrix \code{x}.}
   criterion.} }
 }
 \description{
-\code{llqr} estimates the \eqn{\tau}-th conditional quantile of \code{y}
+\code{llqr} estimates the \eqn{\tau}th conditional quantile of \code{y}
 given \code{x} based on a local linear fit.  The estimation is performed at
 each of the design points or, if specified, at a single observation point
 \code{x0}.
