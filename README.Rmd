@@ -27,15 +27,15 @@ The main function of the package is `cqs`, which estimates the directions of the
 
 ## Installation
 
-<!--  You can install the released version of quantdr from [CRAN](https://CRAN.R-project.org) with: -->
+You can install the released version of quantdr from [CRAN](https://CRAN.R-project.org) with:
 
-<!-- ``` r -->
-<!-- install.packages("quantdr") -->
-<!-- ``` -->
+``` r 
+install.packages("quantdr") 
+```
 
-<!-- And the development version from [GitHub](https://github.com/) with: -->
+and the development version from [GitHub](https://github.com/) with: 
 
-You can install the development version of quantdr from [GitHub](https://github.com/) with: 
+<!-- You can install the development version of quantdr from [GitHub](https://github.com/) with:  -->
 
 ``` {r, eval = FALSE}
 # install.packages("devtools")

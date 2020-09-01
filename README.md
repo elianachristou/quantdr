@@ -19,23 +19,21 @@ methodology, see [Christou, E. (2020) Central quantile subspace.
 The main function of the package is `cqs`, which estimates the
 directions of the central quantile subspace. Once the directions are
 determined, one can form the new sufficient predictors and estimate the
-conditional quantile function using
-`llqr`.
+conditional quantile function using `llqr`.
 
 ## Installation
 
-<!--  You can install the released version of quantdr from [CRAN](https://CRAN.R-project.org) with: -->
+You can install the released version of quantdr from
+[CRAN](https://CRAN.R-project.org) with:
 
-<!-- ``` r -->
+``` r
+install.packages("quantdr") 
+```
 
-<!-- install.packages("quantdr") -->
+and the development version from [GitHub](https://github.com/)
+with:
 
-<!-- ``` -->
-
-<!-- And the development version from [GitHub](https://github.com/) with: -->
-
-You can install the development version of quantdr from
-[GitHub](https://github.com/) with:
+<!-- You can install the development version of quantdr from [GitHub](https://github.com/) with:  -->
 
 ``` r
 # install.packages("devtools")
