@@ -1,22 +1,21 @@
-#' Cross-Validation bandwidth selection for local linear quantile estimation
+#' Cross-Validation for bandwidth selection of local linear quantile regression
 #'
 #' \code{llqrcv} estimates the bandwidth necessary for the local linear fit of
-#' the \eqn{\tau}-th conditional quantile of \code{y} given \code{x}.  The
+#' the \eqn{\tau}th conditional quantile of \code{y} given \code{x}.  The
 #' estimation is performed using the Cross-Validation criterion.
 #'
 #' A grid of bandwidth values is created and the local linear fit is estimated
 #' using all the data points except for one point, which is used to make the
 #' prediction.  This procedure is repeated \code{n} times, where \code{n} is the
-#' number of observations.  Then, the averge error is computed using the check
-#' function \eqn{\rho_\tau(u)=(\tau - I(u<0))u}, where \eqn{\tau} the quantile
-#' level.  The bandwidth is selected as the one with the smallest average error.
+#' number of observations.  Then, the bandwidth is selected as the one with the
+#' smallest average error.
 #'
 #' @param x A design matrix.  The rows represent observations and the columns
 #'   represent predictor variables.
 #' @param y A vector of the response variable.
 #' @param tau A quantile level, a number strictly between 0 and 1.
 #' @return \code{llqrcv} returns the optimal bandwidth selected using
-#'   Cross-Validation criterion for the local linear fit of the \eqn{\tau}-th
+#'   Cross-Validation criterion for the local linear fit of the \eqn{\tau}th
 #'   conditional quantile of \code{y} given \code{x}.
 #' @include llqr.R
 #' @examples
