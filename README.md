@@ -97,9 +97,9 @@ print(subspace(out[, i], beta_true) / (pi / 2)) # the angle is measured in radia
 newx <- x %*% out
 par(mfrow=c(2,3))
 for (i in 1:length(taus)) {
-  plot(dir1, y, xlab = "sufficient direction", ylab = "y", main = taus[i])
+  plot(dir1, y, xlab = "sufficient direction", ylab = "y", main = taus[i], pch = 16)
   qhat <- llqr(newx[, i], y, tau = taus[i])$ll_est
-  points(dir1, qhat, col = "red")
+  points(dir1, qhat, pch = 16, col = "red")
 }
 ```
 
