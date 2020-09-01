@@ -8,7 +8,7 @@
 #' conditional quantile function.
 #'
 #' The function starts by estimating the initial vector, which is defined as the
-#' least-squares estimator from regression the conditional quantile on \code{x}.
+#' least-squares estimator from regressing the conditional quantile on \code{x}.
 #' Then, if the dimension of the central quantile subspace is one, the algorithm
 #' stops and reports that vector as the basis of the central quantile subspace.
 #' Otherwise, the algorithm continues by creating more vectors and applying an
@@ -30,13 +30,11 @@
 #'   and returns:
 #'   \itemize{
 #'   \item{qvectors: }{The estimated directions of the
-#'   \eqn{\tau} central quantile subspace, which, if \code{d_tau} is greater
-#'   than 1, correspond to the eigenvalues of the matrix with column vectors the
-#'   estimated vectors.}
+#'   \eqn{\tau}th central quantile subspace.}
 #'
 #'   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
 #'   of the matrix with column vectors the estimated vectors. If \code{d_tau} is
-#'   one, the \code{evalues} output is not produced.}
+#'   one, the \code{qvalues} output is not produced.}
 #'
 #'   \item{d: }{The dimension of the central subspace.  If not specified by the
 #'   user, \code{d} is estimated using the modified-BIC type criterion of Zhu et
@@ -61,7 +59,7 @@
 #' tau <- 0.5
 #' out <- cqs(x, y, tau, d = 1, dtau = 1)
 #' out
-#' # without defining d and dtau
+#' # without specifying d and dtau
 #' out <- cqs(x, y, tau)
 #' out
 #' out$qvectors[, 1:out$dtau]
@@ -83,7 +81,6 @@ cqs <- function(x, y, tau = 0.5, d, dtau) {
   xc <- scale(x, scale = FALSE)
   sig <- var(x)
   signrt <- MTS::msqrt(sig)$invsqrt
-  #signrt <- matpower(sig, -1 / 2)
   xstand <- xc %*% signrt
 
   # use SIR for initial dimension reduction
@@ -154,6 +151,6 @@ cqs <- function(x, y, tau = 0.5, d, dtau) {
     out <- signrt %*% beta_hat
     out <- out / sqrt(sum(out^2))
     dtau <- dtau
-    list(qvectors = out, d = d, dtau_hat = dtau)
+    list(qvectors = out, d = d, dtau = dtau)
   }
 }
