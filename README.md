@@ -3,10 +3,6 @@
 
 # quantdr
 
-<!-- badges: start --> [![Travis build
-status](https://travis-ci.com/elianachristou/quantdr.svg?branch=master)](https://travis-ci.com/elianachristou/quantdr)
-<!-- badges: end -->
-
 # quantdr: Dimension Reduction for Conditional Quantiles
 
 The R package ‘quantdr’ performs dimension reduction techniques for
