@@ -113,6 +113,97 @@ For this we use the `lm` function of the `stats` package.
 
 If $d_{\tau}$ is unknown, then we estimate it using the modified-BIC type criterion of Zhu et al. (2010).  For this we use the `bic_d` function of the presented package.  
 
+## Output of `cqs`
+
+For the purpose of this section, we will simulate data from the homoscedastic single-index model
+\begin{eqnarray*}
+Y=3X_{1}+X_{2}+\epsilon,
+\end{eqnarray*}
+where $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$ and the error $\epsilon$ are generated according to a standard normal distribution.  The $\tau$-CQS is spanned by $(3, 1, 0, \dots, 0)^{\top}$ for all $\tau$.  
+``` {r}
+set.seed(1234)
+n <- 100; p <- 10; tau <- 0.5
+x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+y <- 3 * x[, 1] + x[, 2] + error
+```
+The `cqs` function proceeds by specifying an $n \times p$ design matrix $\mathbf{X}$, a vector of the response variable $Y$, and a quantile level $\tau$.  The rest of the arguments, i.e., $d$, the dimension of the central subspace spanned by $\mathbf{A}$, and $d_{\tau}$, the dimension of the $\tau$-CQS, are not rquired. Note that for this example, $d=d_{\tau}=1$ for every quantile level $\tau$  
+
+We shall now discuss the output of the `cqs` function. 
+```{r}
+out1 <- cqs(x, y, tau = tau, d = 1, dtau = 1)
+out1
+```
+When the dimension of the $\tau$-CQS is known to be one, the algorithm reports the ordinary least-squares slope vector as the basis vector of the subspace.  This is denoted by `qvectors`.  Moreover, the function `cqs` outputs $d$ and $dtau$, which in this case are both known to be one.
+
+When the dimension of the $\tau$-CQS is unknown (or known to be greater than one), the algorithm continues, creates more vectors, and performs an eigenvalue decomposition.  Therefore, the output includes one more element, the eigenvalues provided by the eigenvalue decomposition, denoted by `qvalues`.
+```{r}
+out2 <- cqs(x, y, tau = tau)
+out2
+```
+Note that, the dimensions $d$ and $dtau$ are correctly specified by the modified-BIC type criterion.  Therefore, this output suggests to take the first eigenvector as the basis vector for the $\tau$-CQS.  We can extract the direction using
+``` {r}
+out2$qvectors[, 1:out2$dtau]
+```
+If we want to measure the estimation error resulting from estimating the $\tau$-CQS, we can use the angle between the true and the estimated subspace.  This is performed using the `subspace` function of the `pracma` package.  Note that the angle is measured in radians, and so we can dividy by $\pi / 2$.
+``` {r}
+library(pracma)
+beta_true <- c(3, 1, rep(0, p-2))
+beta_hat1 <- out1$qvectors
+beta_hat2 <- out2$qvectors[, 1:out2$dtau]
+subspace(beta_true, beta_hat1) / (pi / 2)
+subspace(beta_true, beta_hat2) / (pi / 2)
+```
+Note that the estimation error is slightly higher when the dimension of the subspace is unknown and being esitmated. 
+
+We can continue further and estimate the conditional quantile function.  To do this, we first form the new sufficient predictor $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$ using
+``` {r}
+newx <- x %*% beta_hat1
+```
+We can then estimate the conditional quantile using the `llqr` function.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for the estimation, are not required.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth or the CV criterion; the default choice is the rule-of-thumb.  Moreover, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example, let's use
+``` {r}
+qhat1 <- llqr(newx, y, tau)
+qhat1
+```
+The output consists of the estimation of the conditional quantile function at each point of the design matrix, i.e., $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top} \mathbf{X}_{i})$, $i=1, \dots, n$, and the bandwidth estimated using the rule-of-thumb.  For illustration purposes, let's repeat the above using the CV criterion
+``` {r}
+qhat2 <- llqr(newx, y, tau, method = "CV")
+qhat2
+```
+If $h$ is specified, then the output reports the value inputed by the user, i.e.,
+``` {r}
+qhat3 <- llqr(newx, y, tau, h = 1)
+qhat3
+```
+To illustrate the median regression, compared with the original data, we can use
+``` {r}
+true_dir <- x %*% beta_true
+plot(true_dir, y, xlab = "sufficient direction", ylab = "y", pch = 16)
+points(true_dir, qhat1$ll_est, pch = 16, col = 'red')
+```
+
+
+The same procedure can be performed for multiple quantile levels.  For example, we will estimate the $\tau$-CQS for $\tau= 0.1, 0.25, 0.5, 0.75, 0.9$.  
+``` {r}
+taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+
+out3 <- matrix(0, p, length(taus))
+for (i in 1:length(taus)) {
+  out3[, i] <- cqs(x, y, tau = taus[i], d = 1, dtau = 1)$qvectors
+}
+out3
+```
+Similarly, we can plot the data along with the estimated conditional quantile functions for the various quantile levels.  
+``` {r}
+newx <- x %*% out3
+par(mfrow=c(2,3))
+for (i in 1:length(taus)) {
+  plot(true_dir, y, xlab = "sufficient direction", ylab = "y", main = taus[i], pch = 16)
+  qhat_tau <- llqr(newx[, i], y, tau = taus[i])$ll_est
+  points(true_dir, qhat_tau, pch = 16, col = "red")
+}
+```
+ 
+
 
 
 # Conclusion
