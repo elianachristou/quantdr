@@ -3,12 +3,10 @@
 #' \code{bic_d} estimates the dimension of a subspace.
 #'
 #' The function estimates the dimension of a subspace using the modified-BIC
-#' type criterion of Zhu et al. (2010). The estimation is based on choosing
-#' \eqn{k} that maximizes \eqn{G_n(k)=n \frac{\sum_{i=1}^{k}
-#' \hat{\lambda}_{i}^2}{\sum_{i=1}^{p}\hat{\lambda}_{i}^2}}
+#' type criterion of Zhu et al. (2010).
 #'
 #' @param lambdas The eigenvalues of the matrix that spans the subspace
-#' @param n The number of the observations.
+#' @param n The number of observations.
 #' @param p The dimension of the predictor variable.
 #'
 #' @return \code{bic_d} returns the dimension of the subspace.
