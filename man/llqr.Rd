@@ -29,7 +29,7 @@ multivariate predictor.  If \code{x0} is missing, the estimation will be
 performed on the design matrix \code{x}.}
 }
 \value{
-\code{llqr} computes the local linear \eqn{\tau}-th conditional
+\code{llqr} computes the local linear \eqn{\tau}th conditional
   quantile function of \code{y} given \code{x}, and returns: \itemize{
   \item{ll_est: }{The estimated function value at the design points \code{x}
   or, if specified, at the point \code{x0}.}
