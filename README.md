@@ -3,7 +3,7 @@
 
 # quantdr
 
-# quantdr: Dimension Reduction for Conditional Quantiles
+# quantdr: Dimension Reduction Techniques for Conditional Quantiles
 
 The R package ‘quantdr’ performs dimension reduction techniques for
 conditional quantiles by estimating the fewest linear combinations of X
@@ -43,7 +43,7 @@ This is a basic example which shows you how to solve the problem.
 ``` r
 library(quantdr)
 
-## basic example code - a homogeneous model
+## basic example code - a homogeneous multi-index model
 
 # Setting
 set.seed(1234)
@@ -52,8 +52,8 @@ x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 
 # true direction that spans each central quantile subspace
-beta_true <- c(3, 1, rep(0, p-2))
-beta_true/sqrt(sum(beta_true^2))
+beta_true <- c(3, 1, rep(0, p - 2))
+beta_true / sqrt(sum(beta_true^2))
 #>  [1] 0.9486833 0.3162278 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000
 #>  [8] 0.0000000 0.0000000 0.0000000
 dir1 <- x %*% beta_true
@@ -100,7 +100,7 @@ for (i in 1:length(taus)) {
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 Another example using the Boston housing data from the `MASS` library in
-R.
+`R`.
 
 ``` r
 library(MASS)
@@ -108,7 +108,6 @@ attach(Boston)
 # read the data 
 y <- medv
 x <- cbind(rm, log(tax), ptratio, log(lstat))
-data <- cbind(y, x)
 n <- length(y); p <- dim(x)[2]
 
 # plot the estimated coefficient of each predictor variable for multiple quantiles

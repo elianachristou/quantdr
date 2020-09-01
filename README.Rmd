@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 # quantdr
 
-quantdr: Dimension Reduction for Conditional Quantiles
+quantdr: Dimension Reduction Techniques for Conditional Quantiles
 ====================================================================
 
 The R package 'quantdr' performs dimension reduction techniques for conditional quantiles by estimating the fewest linear combinations of X that contain all the information on that function.  For details of the methodology, see [Christou, E. (2020) Central quantile subspace. *Statistics and Computing*, 30, 677–695](https://link.springer.com/article/10.1007/s11222-019-09915-8).
@@ -45,7 +45,7 @@ This is a basic example which shows you how to solve the problem.
 ```{r}
 library(quantdr)
 
-## basic example code - a homogeneous model
+## basic example code - a homogeneous multi-index model
 
 # Setting
 set.seed(1234)
@@ -54,8 +54,8 @@ x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 
 # true direction that spans each central quantile subspace
-beta_true <- c(3, 1, rep(0, p-2))
-beta_true/sqrt(sum(beta_true^2))
+beta_true <- c(3, 1, rep(0, p - 2))
+beta_true / sqrt(sum(beta_true^2))
 dir1 <- x %*% beta_true
 
 # Estimate the directions of each central quantile subspace
@@ -81,7 +81,7 @@ for (i in 1:length(taus)) {
 }
 ```
 
-Another example using the Boston housing data from the `MASS` library in R. 
+Another example using the Boston housing data from the `MASS` library in `R`. 
 
 ```{r, warning = FALSE}
 library(MASS)
@@ -89,7 +89,6 @@ attach(Boston)
 # read the data 
 y <- medv
 x <- cbind(rm, log(tax), ptratio, log(lstat))
-data <- cbind(y, x)
 n <- length(y); p <- dim(x)[2]
 
 # plot the estimated coefficient of each predictor variable for multiple quantiles
