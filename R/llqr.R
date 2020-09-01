@@ -49,7 +49,7 @@
 #' @include llqrcv.R
 #' @examples
 #'
-#' # estimate the function for different quantile levels
+#' # estimate the function for different quantile levels for simulated data
 #' set.seed(1234)
 #' n <- 100
 #' x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
@@ -60,26 +60,26 @@
 #' points(x, llqr(x, y, tau = taus[i])$ll_est, col = 'red', pch = 16)
 #' }
 #'
-#' # estimate the function at a point x0=1
+#' # estimate the function at a point x0
 #' set.seed(1234)
 #' n <- 100
 #' x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
-#' tau = 0.5
-#' x0 = 1
+#' tau <- 0.5
+#' x0 <- 1
 #' llqr(x, y, tau = tau, x0 = x0)
 #'
-#' # demonstrate the function estimation for different quantile levels
-#' par(mfrow=c(1, 1))
-#' data(mcycle, package="MASS")
+#' # estimate the function for different quantile levels
+#' par(mfrow = c(1, 1))
+#' data(mcycle, package = "MASS")
 #' attach(mcycle)
 #' plot(times, accel, xlab = "milliseconds", ylab = "acceleration")
 #' taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
 #' for(i in 1:length(taus)) {
 #'  fit <- llqr(times, accel, tau = taus[i])$ll_est
-#'  lines(times, fit ,lty = i)
+#'  lines(times, fit, lty = i)
 #' }
 #' legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
-#' lty=1:length(taus))
+#'     lty=1:length(taus))
 #'
 #' @export
 llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
