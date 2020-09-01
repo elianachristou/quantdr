@@ -2,7 +2,7 @@
 % Please edit documentation in R/bic_d.R
 \name{bic_d}
 \alias{bic_d}
-\title{Modified-BIC type criterion}
+\title{Modified-BIC type criterion for structural dimension selection}
 \usage{
 bic_d(lambdas, n, p)
 }

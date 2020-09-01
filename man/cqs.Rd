@@ -2,7 +2,7 @@
 % Please edit documentation in R/cqs.R
 \name{cqs}
 \alias{cqs}
-\title{Central Quantile Subspace}
+\title{Central quantile subspace}
 \usage{
 cqs(x, y, tau = 0.5, d, dtau)
 }
