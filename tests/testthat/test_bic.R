@@ -6,5 +6,5 @@ test_that("the BIC criterion correctly estimates the dimension", {
   x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
   y <- 3 * x[, 1] + x[, 2] + error
   out <- cqs(x, y, tau)
-  expect_equal(bic_d(out$qvalues, n, p), 1)
+  expect_equal(bic_d(out$qvalues, n), 1)
 })
