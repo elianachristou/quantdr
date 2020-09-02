@@ -116,15 +116,22 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
       stop(paste("y needs to be a univariate response."))
     }
   }
-
   # checks if the number of observations for x and y agree
   if (length(y) != dim(x)[1]) {
     stop(paste("number of observations in y (", length(y), ") not equal
     to the number of rows of x (", dim(x)[1], ")", sep = ""))
   }
-
-  if (tau >= 1 | tau <= 0){
+  # checks if the quantile level is one-dimensional
+  if (length(tau) > 1) {
+    stop(paste("quantile level needs to be one number"))
+  }
+  # checks if the quantile level is between 0 and 1 (strictly)
+  if (tau >= 1 | tau <= 0) {
     stop(paste("quantile level needs to be a number strictly between 0 and 1"))
+  }
+  # checks for NAs
+  if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
+    stop(paste("Data include NAs. Fix this before applying the function."))
   }
 
   n <- length(y)
@@ -166,6 +173,11 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
       }
     }
   } else {
+    # checks if the dimension of x0 is the same as p
+    if (length(x0) != p) {
+      stop(paste("x0 needs to be a p-dimensional vector, where p is
+      the dimension of x (", dim(x)[2], ")"))
+    }
     if (p == 1) {
       # perform estimation at the point x0
       z <- x - x0
@@ -173,10 +185,6 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
       q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
       ll_est <- q$coef[1]
     } else {
-      if (length(x0) != p) {
-        stop(paste("The length of x0 needs to be the same as the number
-                   of columns of x"))
-      }
       z <- matrix(0, n, p)
       z <- x - t(matrix(rep(x0, p * n), p, n))
       w <- mvtnorm::dmvnorm(z / h)
