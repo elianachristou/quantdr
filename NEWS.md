@@ -1,9 +1,11 @@
-# quantdr 0.1.0
+## quantdr 0.1.0
+
+* First release
 
 ## Test environments
 
 * local R installation | R 3.6.0
-* ubuntu 16.04 (on travis-ci), R ...
+* travis-ci.org
 * win-builder (devel)
 
 
