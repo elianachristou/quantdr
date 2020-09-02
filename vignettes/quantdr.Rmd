@@ -9,7 +9,7 @@ header-includes: |
   \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
   ```
 vignette: >
-  %\VignetteIndexEntry{quantdr}
+  %\VignetteIndexEntry{Dimension Reduction Techniques for Conditional Quantiles in R: A Vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 abstract: "While dimension reduction techniques have been well developed, they focus on the entire conditional distribution of the data.  However, there are a lot of research areas where extremes are important and require the study of the conditional quantiles.  `quantdr` is an `R` package that performs dimension reduction to conditional quantiles by determining the directions that span the central quantile subspace (CQS)."  
