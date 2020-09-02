@@ -31,7 +31,7 @@ bic_d(out$qvalues, n)
 
 }
 \references{
-Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension reduction in
-  regression through cumulative slicing estimation. \emph{Journal of the
-  American Statistical Association}, 105, 1455-1466.
+Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension
+  reduction in regression through cumulative slicing estimation.
+  \emph{Journal of the American Statistical Association}, 105, 1455-1466.
 }

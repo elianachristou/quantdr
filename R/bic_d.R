@@ -24,6 +24,7 @@
 #' bic_d(out$qvalues, n)
 #'
 bic_d <- function(lambdas, n) {
+  lambdas <- sort(lambdas, decreasing = TRUE)
   p <- length(lambdas)
   gn <- as.null(p)
   for (i in 1:length(lambdas)) {
