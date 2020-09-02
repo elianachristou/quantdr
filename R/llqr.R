@@ -133,6 +133,11 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
   if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
     stop(paste("Data include NAs. Fix this before applying the function."))
   }
+  # checks if n>p
+  if (length(y) <= dim(x)[2]) {
+    stop(paste("number of observations in y (", length(y), ") should be
+    greater than the number of columns of x (", dim(x)[2], ")", sep = ""))
+  }
 
   n <- length(y)
   p <- dim(x)[2]
