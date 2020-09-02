@@ -11,11 +11,11 @@
 #'user, is defined using either the rule-of-thumb given by Yu and Jones (1994)
 #'or the cross-validation criterion.  However, the user needs to be careful
 #'about the bandwidth selection.  When the dimension of the predictor variable
-#'is large, local linear fitting meets the 'curse of dimensionality' problem. In
-#'situations like that, the bandwidth selected by the rule-of-thumb or the
-#'cross- validation criterion might be too small and cause the function to fail.
-#'For these cases, we advice the user to specify a bandwidth in the function.
-#'See the last example below.
+#'is large compared to the sample size, local linear fitting meets the 'curse of
+#'dimensionality' problem. In situations like that, the bandwidth selected by
+#'the rule-of-thumb or the cross- validation criterion might be too small and
+#'cause the function to fail. For these cases, we advice the user to specify a
+#'bandwidth in the function. See the last example below.
 #'
 #'The estimation applies to univariate and multivariate predictor variables. For
 #'the latter, the local linear fit uses the multivariate standard normal kernel.
