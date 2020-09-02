@@ -43,7 +43,7 @@
 #'   rule-of-thumb given by Yu and Jones (1994) or the cross-validation
 #'   criterion.} }
 #'
-#' @references Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
+#' @references Yu, K., and Jones, M.C. (1998), Local linear quantile regression.
 #'   \emph{Journal of the American Statistical Association}, 93, 228-237.
 #' @import stats
 #' @include llqrcv.R

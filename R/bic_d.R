@@ -11,7 +11,7 @@
 #'
 #' @return \code{bic_d} returns the dimension of the subspace.
 #'
-#' @references Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
+#' @references Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension reduction in
 #'   regression through cumulative slicing estimation. \emph{Journal of the
 #'   American Statistical Association}, 105, 1455-1466.
 #'

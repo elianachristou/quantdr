@@ -95,6 +95,6 @@ legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
 
 }
 \references{
-Yu, K. and Jones, M.C. (1998), Local linear quantile regression.
+Yu, K., and Jones, M.C. (1998), Local linear quantile regression.
   \emph{Journal of the American Statistical Association}, 93, 228-237.
 }
