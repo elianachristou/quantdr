@@ -41,7 +41,7 @@
 #'   al. (2010).}
 #'
 #'   \item{dtau: }{The dimension of the central quantile subspace.  If not
-#'   specified by the user, \code{dtau_hat} is estimated using the modified-BIC
+#'   specified by the user, \code{dtau} is estimated using the modified-BIC
 #'   type criterion of Zhu et al. (2010).}
 #'   }
 #' @references Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
