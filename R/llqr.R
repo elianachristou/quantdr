@@ -108,6 +108,25 @@
 llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
 
   x <- as.matrix(x)
+
+  # compatibility checks
+  # checks if y is univariate
+  if (is.matrix(y) == T) {
+    if (dim(y)[2] > 1) {
+      stop(paste("y needs to be a univariate response."))
+    }
+  }
+
+  # checks if the number of observations for x and y agree
+  if (length(y) != dim(x)[1]) {
+    stop(paste("number of observations in y (", length(y), ") not equal
+    to the number of rows of x (", dim(x)[1], ")", sep = ""))
+  }
+
+  if (tau >= 1 | tau <= 0){
+    stop(paste("quantile level needs to be a number strictly between 0 and 1"))
+  }
+
   n <- length(y)
   p <- dim(x)[2]
 
@@ -155,8 +174,8 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
       ll_est <- q$coef[1]
     } else {
       if (length(x0) != p) {
-        print("The length of x0 needs to be the same as the number of columns of x")
-        stop()
+        stop(paste("The length of x0 needs to be the same as the number
+                   of columns of x"))
       }
       z <- matrix(0, n, p)
       z <- x - t(matrix(rep(x0, p * n), p, n))
