@@ -60,6 +60,7 @@ dimension of the central quantile subspace is unknown, it is estimated using
 the modified-BIC type criterion of Zhu et al. (2010).
 }
 \examples{
+# Example 1
 # estimate the directions of a single-index model
 set.seed(1234)
 n <- 100; p <- 10
@@ -73,6 +74,7 @@ out <- cqs(x, y, tau)
 out
 out$qvectors[, 1:out$dtau]
 
+# Example 2
 # estimate the directions of a multi-index model
 set.seed(1234)
 n <- 100; p <- 10

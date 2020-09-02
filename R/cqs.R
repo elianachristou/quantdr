@@ -51,6 +51,7 @@
 #' @include bic_d.R
 #'
 #' @examples
+#' # Example 1
 #' # estimate the directions of a single-index model
 #' set.seed(1234)
 #' n <- 100; p <- 10
@@ -64,6 +65,7 @@
 #' out
 #' out$qvectors[, 1:out$dtau]
 #'
+#' # Example 2
 #' # estimate the directions of a multi-index model
 #' set.seed(1234)
 #' n <- 100; p <- 10
