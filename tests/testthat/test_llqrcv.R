@@ -42,4 +42,12 @@ test_that("quantile level needs to be one number", {
   expect_error(llqrcv(x, y, tau = tau), )
 })
 
+test_that("n should be greater than p", {
+  set.seed(1234)
+  n <- 20; p <- 40
+  x <- matrix(rnorm(n * p), n, p); error <- rnorm(n); y <- x[, 1]^2 + error
+  tau <- 0.5
+  expect_error(llqrcv(x, y, tau = tau), )
+})
+
 
