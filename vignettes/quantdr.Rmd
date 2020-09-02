@@ -35,10 +35,6 @@ The purpose of this vignette is to demonstrate the implementation of the functio
 
 # Getting Started
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-devtools::install_github("elianachristou/quantdr")
-```
-
 To get started you need to first install the package using the command 
 ```{r, eval=FALSE}
 install.packages("quantdr")
