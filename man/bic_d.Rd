@@ -4,14 +4,12 @@
 \alias{bic_d}
 \title{Modified-BIC type criterion for structural dimension selection}
 \usage{
-bic_d(lambdas, n, p)
+bic_d(lambdas, n)
 }
 \arguments{
 \item{lambdas}{The eigenvalues of the matrix that spans the subspace}
 
 \item{n}{The number of observations.}
-
-\item{p}{The dimension of the predictor variable.}
 }
 \value{
 \code{bic_d} returns the dimension of the subspace.
@@ -29,7 +27,7 @@ n <- 100; p <- 10; tau <- 0.5
 x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 out <- cqs(x, y, tau)
-bic_d(out$qvalues, n, p)
+bic_d(out$qvalues, n)
 
 }
 \references{

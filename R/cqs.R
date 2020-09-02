@@ -90,7 +90,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau) {
   if (missing(d)) {
     output <- dr::dr(y ~ xstand)
     lambdas <- output$evalues
-    d_hat <- bic_d(lambdas, n, dim(x)[2])
+    d_hat <- bic_d(lambdas, n)
     ahat <- cbind(output$evectors[, 1:d_hat])
     newx <- xstand %*% ahat
     d <- d_hat
@@ -126,7 +126,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau) {
     eigenvalues <- eigen(B)$values
     out <- eigen(B)$vectors
     out <- signrt %*% out
-    dtau <- bic_d(eigenvalues, n, dim(x)[2])
+    dtau <- bic_d(eigenvalues, n)
     list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau)
   } else if (dtau > 1) {
     # if dtau is known to be greater than 1, then use the iterative procedure to

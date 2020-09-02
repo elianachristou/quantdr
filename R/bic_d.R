@@ -7,13 +7,12 @@
 #'
 #' @param lambdas The eigenvalues of the matrix that spans the subspace
 #' @param n The number of observations.
-#' @param p The dimension of the predictor variable.
 #'
 #' @return \code{bic_d} returns the dimension of the subspace.
 #'
-#' @references Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension reduction in
-#'   regression through cumulative slicing estimation. \emph{Journal of the
-#'   American Statistical Association}, 105, 1455-1466.
+#' @references Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension
+#'   reduction in regression through cumulative slicing estimation.
+#'   \emph{Journal of the American Statistical Association}, 105, 1455-1466.
 #'
 #' @export
 #' @examples
@@ -22,9 +21,10 @@
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 #' y <- 3 * x[, 1] + x[, 2] + error
 #' out <- cqs(x, y, tau)
-#' bic_d(out$qvalues, n, p)
+#' bic_d(out$qvalues, n)
 #'
-bic_d <- function(lambdas, n, p) {
+bic_d <- function(lambdas, n) {
+  p <- length(lambdas)
   gn <- as.null(p)
   for (i in 1:length(lambdas)) {
     gn[i] <- n * sum((lambdas[1:i])^2) / sum((lambdas)^2) -

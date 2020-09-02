@@ -31,11 +31,11 @@ prediction.  This procedure is repeated \code{n} times, where \code{n} is the
 number of observations.  Then, the bandwidth is selected as the one with the
 smallest average error.
 
-When the dimension of the predictor variable is large, local linear fitting
-meets the 'curse of dimensionality' problem. In situations like that, the grid
-bandwidth values might be too small and cause the function to fail. For these
-cases, we advice the user to directly use the \code{llqr} function of the
-package and specify a bandwidth in the function.
+When the dimension of the predictor variable is large compared with the sample
+size, local linear fitting meets the 'curse of dimensionality' problem. In
+situations like that, the grid bandwidth values might be too small and cause
+the function to fail. For these cases, we advice the user to directly use the
+\code{llqr} function of the package and specify a bandwidth in the function.
 }
 \examples{
 set.seed(1234)
