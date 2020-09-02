@@ -26,6 +26,25 @@
 #' llqrcv(x, y, tau = tau)
 #' @export
 llqrcv <- function(x, y, tau=0.5) {
+  x <- as.matrix(x)
+
+  # compatibility checks
+  # checks if y is univariate
+  if (is.matrix(y) == T) {
+    if (dim(y)[2] > 1) {
+      stop(paste("y needs to be a univariate response."))
+    }
+  }
+  # checks if the number of observations for x and y agree
+  if (length(y) != dim(x)[1]) {
+    stop(paste("number of observations in y (", length(y), ") not equal
+    to the number of rows of x (", dim(x)[1], ")", sep = ""))
+  }
+  # checks for NAs
+  if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
+    stop(paste("Data include NAs. Fix this before applying the function."))
+  }
+
   n <- length(y)
   # create grid values for bandwidth
   h_lower <- min(n^ (- 1 / 5), min(2, sd(y)) * n^ (- 1 / 5))
