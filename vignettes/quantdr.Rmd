@@ -29,7 +29,7 @@ Data visualization and non-parametric fitting can become very challenging when d
 
 Quantile regression (QR) has received a lot of attention since its inception from Koenker and Bassett (1978) and it has been an attractive tool for research areas where non-central parts of the data are important.  Dimension reduction techniques for conditional quantiles have recently made an appearance and are still developing.  For some references, see Wu et al. (2010), Christou and Akritas (2016), Kong and Xia (2012, 2014), and Luo et al. (2014).
 
-More recently, Christou (2020) proposed a new technique for finding the fewest linear combinations of the predictor variable $\mathbf{X}$ that contain all the information about the conditional quantile.  To give further intuition, for a univariate response $Y$ and a $p$-dimensional predictor $\mathbf{X}$, the method focuses on finding a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, for $\tau \in (0, 1)$ and $d_{\tau} \leq p$, such that $Y$ and $Q_{\tau}(Y|\mathbf{X})$ are conditionally independent given $\mathbf{B}_{\tau}^{\top} \mathbf{X}$, where $Q_{\tau}(Y|\mathbf{X})$ denotes the $\tau$th conditional quantile of $Y$ given $\mathbf{X}$.  The space spanned by $\mathbf{B}_{\tau}$ is called the *$\tau$th quantile dimension reduction subspace* for the regression of $Y$ on $\mathbf{X}$.  The intersection of all $\tau$th dimension reduction subspaces is called the *$\tau$th central quantile subspace* ($\tau$-CQS) and is denoted by $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$.  Therefore, the overall goal is to identify the directions of $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$ and replace the $p \times 1$ predictor vector $\mathbf{X}$ with the low-dimensional $d_{\tau} \times 1$ predictor vector $\mathbf{B}_{\tau}^{\top}\mathbf{X}$. 
+More recently, Christou (2020) proposed a new technique for finding the fewest linear combinations of the predictor variable $\mathbf{X}$ that contain all the information about the conditional quantile.  To give further intuition, for a univariate response $Y$ and a $p$-dimensional predictor $\mathbf{X}$, the method focuses on finding a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, for $\tau \in (0, 1)$ and $d_{\tau} \leq p$, such that $Y$ and $Q_{\tau}(Y|\mathbf{X})$ are conditionally independent given $\mathbf{B}_{\tau}^{\top} \mathbf{X}$, where $Q_{\tau}(Y|\mathbf{X})$ denotes the $\tau$th conditional quantile of $Y$ given $\mathbf{X}$.  The space spanned by $\mathbf{B}_{\tau}$ is called the *$\tau$th quantile dimension reduction subspace* for the regression of $Y$ on $\mathbf{X}$.  The intersection of all $\tau$th dimension reduction subspaces is called the *$\tau$th central quantile subspace* ($\tau$-CQS) and is denoted by $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$.  
 
 The purpose of this vignette is to demonstrate the implementation of the functions appearing in the `quantdr` package, along with some examples.  The main function of the package is `cqs`, which returns the estimated directions of the $\tau$-CQS.  
 
@@ -65,11 +65,11 @@ To run examples in `R` you can use the examples used to illustrate that the comm
 # Central quantile subspace
 ## Overview
 
-The overall goal of the `cqs` function is to identify the coefficients of the linear combination $\mathbf{B}_{\tau}^{\top}\mathbf{X}$ in order to reduce the $p \times 1$ predictor vector $\mathbf{X}$ to a $d_{\tau} \times 1$ predictor vector $\mathbf{B}_{\tau}^{\top}\mathbf{X}$.  To do that, Christou (2020) proved two important results:
+The overall goal of the `cqs` function is to identify the coefficients of the linear combination $\mathbf{B}_{\tau}^{\top}\mathbf{X}$ in order to replace the $p \times 1$ predictor vector $\mathbf{X}$ with the low-dimensional $d_{\tau} \times 1$ predictor vector $\mathbf{B}_{\tau}^{\top}\mathbf{X}$.  To do that, Christou (2020) proved two important results:
 
-* $\boldsymbol{\beta}_{\tau} \in \mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$, where $\boldsymbol{\beta}_{\tau}$ is the slope vector from regression the conditional quantile on $\mathbf{X}$, i.e., 
+* $\boldsymbol{\beta}_{\tau} \in \mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$, where $\boldsymbol{\beta}_{\tau}$ is the slope vector from regressing the conditional quantile on $\mathbf{X}$, i.e., 
 \begin{eqnarray*}
-(\alpha_{\tau}, \boldsymbol{\beta}_{\tau}) = \arg \min_{(a_{\tau}, \mathbf{b}_{\tau})} E \{ Q_{\tau}(Y| \mathbf{A}^{\top} \mathbf{X}) - a_{\tau} - \mathbf{b}_{\tau}^{\top}\mathbf{X}\},
+(\alpha_{\tau}, \boldsymbol{\beta}_{\tau}) = \arg \min_{(a_{\tau}, \mathbf{b}_{\tau})} E \{ Q_{\tau}(Y| \mathbf{A}^{\top} \mathbf{X}) - a_{\tau} - \mathbf{b}_{\tau}^{\top}\mathbf{X}\}^2,
 \end{eqnarray*}
 and $\mathbf{A}$ spans the central subspace (Li 1991).  This implies an initial dimension reduction using $\mathbf{A}$, making the nonparametric estimation of $Q_{\tau}(Y|\mathbf{A}^{\top}\mathbf{X})$ tractable.   
 
@@ -81,13 +81,13 @@ The above two results imply the following:
 
 1. If the dimension of the $\tau$-CQS is known to be greater than one, then we can set $\boldsymbol{\beta}_{\tau, 0}=\boldsymbol{\beta}_{\tau}$ as the initial vector and then create more vectors using $\boldsymbol{\beta}_{\tau,j}=E\{Q_{\tau}(Y | \boldsymbol{\beta}_{\tau, j-1}^{\top}\mathbf{X})\mathbf{X}\}$, for $j=1, \dots, p-1$.  In order to obtain linearly independent vectors, we can perform an eigenvalue decomposition on $\mathbf{V}_{\tau}\mathbf{V}_{\tau}^{\top}$, where $\mathbf{V}_{\tau}=(\boldsymbol{\beta}_{\tau, 0}, \dots, \boldsymbol{\beta}_{\tau, p-1})$ and choose the eigenvectors corresponding to the $d_{\tau}$ nonzero eigenvalues.  
 
-1. If the dimension of the $\tau$-CQS is unknown, then can apply the procedure from 2. and estimate the dimension $d_{\tau}$ using the modified-BIC type criterion of Zhu et al. (2010). 
+1. If the dimension of the $\tau$-CQS is unknown, we can apply the procedure from 2. Then, we can estimate the dimension $d_{\tau}$ using the eigenvalues resulting from the eigenvalue decomposition and the modified-BIC type criterion of Zhu et al. (2010). 
 
 All of the above are incorporated in the `cqs` function in `R`.
 
 ## The algorithm on a glance
 
-The first step of the algorithm requires to fit a linear regression model of $Q_{\tau}(Y|\mathbf{A}^{\top}\mathbf{X})$ on $\mathbf{X}$, which implies the non-parametric estimation of the conditional quantile.  For this, we use the `llqr` function of the package and apply the local linear conditional quantile estimation technique of Guerre and Sabbah (2012).  The second step of the algorithm relies on estimating a conditional expectation and performing an eigenvalue decomposition.  Specifically,
+The first step of the algorithm requires to fit a linear regression model of $Q_{\tau}(Y|\mathbf{A}^{\top}\mathbf{X})$ on $\mathbf{X}$, which implies the non-parametric estimation of the conditional quantile.  The second step of the algorithm relies on estimating a conditional expectation and performing an eigenvalue decomposition.  Specifically,
 
 1.  We use a dimension reduction technique to estimate the basis matrix $\mathbf{A}$ of the central subspace, denoted by $\widehat{\mathbf{A}}$, and form the new sufficient predictors $\widehat{\mathbf{A}}^{\top} \mathbf{X}_{i}$, $i=1, \dots, n$.  For this we use the function `dr` from the package `dr`.
 
@@ -102,7 +102,7 @@ For this we use the `lm` function of the `stats` package.
 1. If $d_{\tau}=1$ we stop and report $\widehat{\boldsymbol{\beta}}_{\tau}$ as the estimated basis vector for $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$.  Otherwise, we move to Step 5.  
 
 1. We set $\widehat{\boldsymbol{\beta}}_{\tau, 0}=\widehat{\boldsymbol{\beta}}_{\tau}$, and, for $j=1, \dots, p-1$, we
-    A.  form the predictors $\widehat{\boldsymbol{\beta}}_{\tau, j-1}^{\top} \mathbf{X}_{i}$, $i=1, \dots, n$ and estimate $Q_{\tau}(Y| \widehat{\boldsymbol{\beta}}_{\tau, j-1}^{\top} \mathbf{X}_{u})$ using the local linear conditional quantile estimation method.  For this we use the `llqr` function of the presented paper.
+    A.  form the predictors $\widehat{\boldsymbol{\beta}}_{\tau, j-1}^{\top} \mathbf{X}_{i}$, $i=1, \dots, n$ and estimate $Q_{\tau}(Y| \widehat{\boldsymbol{\beta}}_{\tau, j-1}^{\top} \mathbf{X}_{i})$ using the local linear conditional quantile estimation method.  For this we use the `llqr` function of the presented paper.
     A.  form $\widehat{\boldsymbol{\beta}}_{\tau, j} = n^{-1} \sum_{i=1}^{n} \widehat{Q}_{\tau}(Y|\widehat{\boldsymbol{\beta}}_{\tau, j-1}^{\top} \mathbf{X}_{i}) \mathbf{X}_{i}$.
     
 1.  We form the $p \times p$ matrix $\widehat{\mathbf{V}}_{\tau}=(\widehat{\boldsymbol{\beta}}_{\tau, 0}, \dots, \widehat{\boldsymbol{\beta}}_{\tau, p-1})$ and choose the $d_{\tau}$ eigenvectors corresponding to the $d_{\tau}$ largest eigenvalues of $\widehat{\mathbf{V}}_{\tau} \widehat{\mathbf{V}}_{\tau}^{\top}$.  For this we use the `eigen` function of the `base` package.  
@@ -111,56 +111,56 @@ If $d_{\tau}$ is unknown, then we estimate it using the modified-BIC type criter
 
 ## Output of `cqs`
 
-For the purpose of this section, we will simulate data from the homoscedastic single-index model
+For the purpose of this section, we simulate data from the homoscedastic single-index model
 \begin{eqnarray*}
 Y=3X_{1}+X_{2}+\epsilon,
 \end{eqnarray*}
-where $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$ and the error $\epsilon$ are generated according to a standard normal distribution.  The $\tau$-CQS is spanned by $(3, 1, 0, \dots, 0)^{\top}$ for all $\tau$.  
+where $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$ and the error $\epsilon$ are generated according to a standard normal distribution.  The $\tau$-CQS is spanned by $(3, 1, 0, \dots, 0)^{\top}$ for all $\tau$.  We focus on the estimation of the 0.5-CQS.    
 ``` {r}
 set.seed(1234)
 n <- 100; p <- 10; tau <- 0.5
 x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 ```
-The `cqs` function proceeds by specifying an $n \times p$ design matrix $\mathbf{X}$, a vector of the response variable $Y$, and a quantile level $\tau$.  The rest of the arguments, i.e., $d$, the dimension of the central subspace spanned by $\mathbf{A}$, and $d_{\tau}$, the dimension of the $\tau$-CQS, are not required. Note that for this example, $d=d_{\tau}=1$ for every quantile level $\tau$  
+The `cqs` function proceeds by specifying an $n \times p$ design matrix $\mathbf{X}$, a vector of the response variable $Y$, and a quantile level $\tau$.  The rest of the arguments, i.e., $d$, the dimension of the central subspace spanned by $\mathbf{A}$, and $d_{\tau}$, the dimension of the $\tau$-CQS, are not required. Note that for this example $d=d_{\tau}=1$ for every quantile level $\tau$.  
 
-We shall now discuss the output of the `cqs` function. 
+We  now discuss the output of the `cqs` function. 
 ```{r}
 out1 <- cqs(x, y, tau = tau, d = 1, dtau = 1)
 out1
 ```
-When the dimension of the $\tau$-CQS is known to be one, the algorithm reports the ordinary least-squares slope vector as the basis vector of the subspace.  This is denoted by `qvectors`.  Moreover, the function `cqs` outputs $d$ and $dtau$, which in this case are both known to be one.
+When the dimension of the $\tau$-CQS is known to be one, the algorithm reports the ordinary least-squares slope vector as the basis vector of the subspace.  This is denoted by `qvectors`.  Moreover, the function `cqs` outputs `d` and `dtau`, which in this case are both specified by the user.
 
-When the dimension of the $\tau$-CQS is unknown (or known to be greater than one), the algorithm continues, creates more vectors, and performs an eigenvalue decomposition.  Therefore, the output includes one more element, the eigenvalues provided by the eigenvalue decomposition, denoted by `qvalues`.
+When the dimension of the $\tau$-CQS is unknown (or known to be greater than one), the algorithm continues, creates more vectors, and performs an eigenvalue decomposition.  Therefore, the output includes one more element, the eigenvalues provided by the eigenvalue decomposition and denoted by `qvalues`.
 ```{r}
 out2 <- cqs(x, y, tau = tau)
 out2
 ```
-Note that, the dimensions $d$ and $dtau$ are correctly specified by the modified-BIC type criterion.  Therefore, this output suggests to take the first eigenvector as the basis vector for the $\tau$-CQS.  We can extract the direction using
+Note that the dimensions `d` and `dtau` are correctly specified by the modified-BIC type criterion.  Therefore, this output suggests to take the first eigenvector as the basis vector for the $\tau$-CQS.  We can extract the direction using
 ``` {r}
 out2$qvectors[, 1:out2$dtau]
 ```
-If we want to measure the estimation error resulting from estimating the $\tau$-CQS, we can use the angle between the true and the estimated subspace.  This is performed using the `subspace` function of the `pracma` package.  Note that the angle is measured in radians, and so we can divide by $\pi / 2$.
+If we want to measure the estimation error we can use the angle between the true and the estimated subspaces.  This is performed using the `subspace` function of the `pracma` package.  Note that the angle is measured in radians, and so we divide by $\pi / 2$.
 ``` {r}
 library(pracma)
-beta_true <- c(3, 1, rep(0, p-2))
+beta_true <- c(3, 1, rep(0, p - 2))
 beta_hat1 <- out1$qvectors
 beta_hat2 <- out2$qvectors[, 1:out2$dtau]
 subspace(beta_true, beta_hat1) / (pi / 2)
 subspace(beta_true, beta_hat2) / (pi / 2)
 ```
-Note that the estimation error is slightly higher when the dimension of the subspace is unknown and being estimated. 
+Note that the estimation error is slightly higher when the dimension of the subspace is unknown and needs to be estimated. 
 
 We can continue further and estimate the conditional quantile function.  To do this, we first form the new sufficient predictor $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$ using
 ``` {r}
 newx <- x %*% beta_hat1
 ```
-We can then estimate the conditional quantile using the `llqr` function.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for the estimation, are not required.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth or the CV criterion; the default choice is the rule-of-thumb.  Moreover, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example, let's use
+We then estimate the conditional quantile using the `llqr` function of the presented package.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for which to perform the estimation, are not required.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth of Yu and Jones (1998) or the Cross-Validation (CV) criterion; the default choice is the rule-of-thumb.  Moreover, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example we use
 ``` {r}
 qhat1 <- llqr(newx, y, tau)
 qhat1
 ```
-The output consists of the estimation of the conditional quantile function at each point of the design matrix, i.e., $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top} \mathbf{X}_{i})$, $i=1, \dots, n$, and the bandwidth estimated using the rule-of-thumb.  For illustration purposes, let's repeat the above using the CV criterion
+The output consists of the estimation of the conditional quantile function at each point of the design matrix, i.e., $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top} \mathbf{X}_{i})$, $i=1, \dots, n$, and the bandwidth estimated using the rule-of-thumb.  For illustration purposes, we repeat the above using the CV criterion for the bandwidth selection
 ``` {r}
 qhat2 <- llqr(newx, y, tau, method = "CV")
 qhat2
@@ -171,14 +171,13 @@ qhat3 <- llqr(newx, y, tau, h = 1)
 qhat3
 ```
 To illustrate the median regression, compared with the original data, we can use
-``` {r}
+``` {r fig1, fig.height = 4.5, fig.width = 4.5, fig.align = "center"}
 true_dir <- x %*% beta_true
 plot(true_dir, y, xlab = "sufficient direction", ylab = "y", pch = 16)
 points(true_dir, qhat1$ll_est, pch = 16, col = 'red')
 ```
 
-
-The same procedure can be performed for multiple quantile levels.  For example, we will estimate the $\tau$-CQS for $\tau= 0.1, 0.25, 0.5, 0.75, 0.9$.  
+The same procedure can be performed for multiple quantile levels.  For example, we estimate the $\tau$-CQS for $\tau= 0.1, 0.25, 0.5, 0.75, 0.9$.  
 ``` {r}
 taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
 
@@ -189,7 +188,7 @@ for (i in 1:length(taus)) {
 out3
 ```
 Similarly, we can plot the data along with the estimated conditional quantile functions for the various quantile levels.  
-``` {r}
+``` {r fig2, fig.height = 5.5, fig.width = 7, fig.align = "center"}
 newx <- x %*% out3
 par(mfrow=c(2,3))
 for (i in 1:length(taus)) {
@@ -199,9 +198,9 @@ for (i in 1:length(taus)) {
 }
 ```
 
-## An Example
+## A Real Data Application
 
-In this section, we will demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `getSymbols` function of the `quantmod` package in `R`.  The data consists of the daily returns from January 2016 to December 2018.       
+In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `getSymbols` function of the `quantmod` package in `R`.  The data consists of the daily returns from January 2016 to December 2018.       
 ``` {r, message=FALSE, warning = FALSE}
 library(quantmod)
 BTC <- getSymbols("BTC-USD", from = "2016-01-01", to = "2018-12-31", src = "yahoo", auto.assign = FALSE)
@@ -209,25 +208,26 @@ BTC <- getSymbols("BTC-USD", from = "2016-01-01", to = "2018-12-31", src = "yaho
 head(BTC)
 dim(BTC)
 ```
-We consider $Y$ as the log returns and $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$, where $X_{1}, \dots, X_{5}$ are the returns in the past five days, and $X_+{6}, \dots, X_{10}$ are the absolute values of those returns.  
+We consider $Y$ as the log return and $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$, where $X_{1}, \dots, X_{5}$ are the returns in the past five days, and $X_{6}, \dots, X_{10}$ are the absolute values of those returns.  
 ``` {r}
 y <- as.vector(BTC$`BTC-USD.Adjusted`)
 r <- diff(log(y))
-newy=r[-c(1:5)]
+lag <- 5
+newy <- r[ - c(1:lag)]
 n <- length(newy); p <- 10
 
-xtemp=matrix(0,n,5)
-for (i in 6:(n+5)){
-xtemp[i-5,]=r[(i-5):(i-1)]  
+xtemp <- matrix(0, n, lag)
+for (i in (lag + 1):(n + lag)){
+xtemp[i - lag, ] <- r[(i - lag):(i - 1)]  
 }
-xtemp2=cbind(xtemp[,5],xtemp[,4],xtemp[,3],xtemp[,2],xtemp[,1])
+xtemp2 <- cbind(xtemp[, 5], xtemp[, 4], xtemp[, 3], xtemp[, 2], xtemp[, 1])
 
-x=cbind(xtemp2,abs(xtemp2))
+x <- cbind(xtemp2, abs(xtemp2))
 dim(x)
 ``` 
-We want to estimate $Q_{\tau}(Y|\mathbf{X})$ for $\tau=0.01, 0.025, 0.05$.  The reason to choose these values is because in a financial risk setup, $Q_{\tau}(Y|\mathbf{X})$ is an important quantity called the value-at-risk (VaR).  
+We want to estimate $Q_{\tau}(Y|\mathbf{X})$ for $\tau=0.01, 0.025, 0.05$.  The reason to choose these values is because $Q_{\tau}(Y|\mathbf{X})$ is an important quantity in a financial risk setup, called the value-at-risk (VaR).  
 
-To do this, we first want to reduce the dimension of the predictor vector $\mathbf{X}$, and therefore, we will estimate the $\tau$-CQS.  Since the dimension of each $\tau$-CQS is unknown, we do not specify $dtau$ and instead, allow the function to estimate it using the modified-BIC type criterion.  This is done by
+To do this, we first want to reduce the dimension of the predictor vector $\mathbf{X}$, and therefore, we estimate the $\tau$-CQS.  Since the dimension of each $\tau$-CQS is unknown, we do not specify `dtau` and instead, allow the function to estimate it using the modified-BIC type criterion.  This is done by
 ``` {r}
 taus <- c(0.01, 0.025, 0.05)
 out1 <- cqs(x, newy, tau = taus[1])
@@ -236,15 +236,15 @@ out3 <- cqs(x, newy, tau = taus[3])
 
 out1$dtau; out2$dtau; out3$dtau
 ```
-Since the dimension of the $\tau$-CQS for all quantile levels considered is one, we take the first eigenvector as its estimated basic vector.
+Since the dimension of the $\tau$-CQS for all quantile levels is estimated to be one, we take the first eigenvector as its estimated basic vector.
 ``` {r}
 beta_hat1 <- out1$qvectors[, 1] 
 beta_hat2 <- out2$qvectors[, 1] 
 beta_hat3 <- out3$qvectors[, 1] 
 beta_hat <- cbind(beta_hat1, beta_hat2, beta_hat3)
 ```
-To estimate the conditional quantile function, we will form the new sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$ and use the `llqr` function.
-``` {r}
+To estimate the conditional quantile function, we form the new sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$ and use the `llqr` function.
+``` {r fig3, fig.height = 5.5, fig.width = 7, fig.align = "center"}
 newx <- x %*% beta_hat
 qhat <- matrix(0, n, length(taus))
 for (i in 1:length(taus)) {
@@ -255,8 +255,10 @@ plot.ts(newy, ylab = "returns")
 lines(qhat[, 1], col = "red")
 lines(qhat[, 2], col = "blue")
 lines(qhat[, 3], col = "green")
+legend(840, 0.22, c("tau=0.01","tau=0.025","tau=0.05"), col=c("red", "blue", "green"), lty = 1)
 ```
-To further illustrate the estimation of the conditional quantile function, we estimate the proportion of times the return is less than $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$, i.e., the proportion of time $Y < \widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$. 
+
+To further illustrate the estimation of the conditional quantile function, we estimate the proportion of times the return is less than $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$, i.e., the proportion of times $Y < \widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$. 
 ``` {r}
 comp <- matrix(0, n, length(taus))
 for (i in 1:length(taus)) {
@@ -265,7 +267,6 @@ for (i in 1:length(taus)) {
 apply(comp, 2, mean)
 taus
 ```
-This is of course performed in the entire data set.  We can further split the data into train and testing data sets and repeat the above procedure. 
 
 # Conclusion
 
@@ -276,19 +277,26 @@ This vignette provides a brief introduction to the R package `quantdr` and prese
 
 1. Christou, E. (2020) Central quantile subspace. *Statistics and Computing*, 30, 677–695
 
-Koenker and Bassett (1978)
+1. Christou, E. and Akritas, M. (2016) Single index quantile regression for heteroscedastic data. *Journal of Multivariate Analysis*, 150, 169-182
 
-Wu, Yu, Yu (2010)
+1. Guerre, E., and Sabbah, C. (2012) Uniform bias study and Bahadur representation for local polynomial estimators of the conditional quantile function. *Econometric Theory*, 28, 87-129
 
-Christou and Akritas (2016)
+1. Koenker, R., and Bassett, G. (1978) Regression quantiles. *Econometrica*, 46, 33-50
 
-Kong and Xia (2012)
+1. Kong, E., and Xia, Y. (2012) A single-index quantile regression model and its estimation. *Econometric Theory*, 28, 730-768
 
-Kong and Xia (2014)
+1. Kong, E., and Xia, Y. (2014) An adaptive composite quantile approach to dimension reduction. *Annals of Statistics*, 42, 1657-1688
 
-Luo et al. (2014)
+1. Li, K.-C. (1991) Sliced inverse regression for dimension reduction. *Journal of the American Statistical Association*, 86, 316-327
+
+1. Luo, W., Li, B., and Yin, X. (2014) On efficient dimension reduction with respect to a statistical functional of interest. *Annals of Statistics*, 42, 382-412 
+
+1. Nakamoto, S. (2008) Bitcoin: a peer-to-peer electronic cash system. Available online. [https://bitcoin.org/bitcoin.pdf](https://bitcoin.org/bitcoin.pdf) 
+
+1. Wu, T. Z., Yu, K., and Yu, Y. (2010) Single index quantile regression. *Journal of Multivariate Analysis*, 101, 1607-1621
+
+1. Yu, K., and Jones, M. C. (1998) Local linear quantile regression. *Journal of the American Statistical Association*, 93, 228-238
+
+1. Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension reduction in regression through cumulative slicing estimation. *Journal of the American Statistical Association*, 105, 1455-1466
 
 -----
-
-Consider submitting the vignette to the Journal of Statistical Software of The R Journal. 
-
