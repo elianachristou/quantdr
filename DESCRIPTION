@@ -3,7 +3,7 @@ Type: Package
 Title: Dimension Reduction Techniques for Conditional Quantiles
 Version: 1.0.0
 Authors@R: person("Eliana", "Christou", email="echris15@uncc.edu",
-    role = c("aut", "cre"))
+    role = c("aut", "cre"), comment = c(ORCID = "https://orcid.org/0000-0001-5044-0969"))
 Description: An implementation of dimension reduction techniques
     for conditional quantiles. Nonparametric estimation of 
     conditional quantiles is also available.  
