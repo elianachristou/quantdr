@@ -48,7 +48,7 @@ llqrcv <- function(x, y, tau=0.5) {
   }
   # checks for NAs
   if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
-    stop(paste("Data include NAs. Fix this before applying the function."))
+    stop(paste("Data include NA/NaN. Fix this before applying the function."))
   }
   # checks if n>p
   if (length(y) <= dim(x)[2]) {
