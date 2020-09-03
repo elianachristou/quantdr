@@ -29,7 +29,7 @@ bic_d <- function(lambdas, n) {
   gn <- as.null(p)
   for (i in 1:length(lambdas)) {
     gn[i] <- n * sum((lambdas[1:i])^2) / sum((lambdas)^2) -
-        2 * (n^ (3 / 4) / p) * i * (i + 1) / 2
+        (n^ (3 / 4) / p) * i * (i + 1) / 2
   }
   return(which(gn == max(gn)))
 }
