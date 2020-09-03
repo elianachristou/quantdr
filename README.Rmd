@@ -90,7 +90,7 @@ for (i in 1:length(taus)) {
 
 Another example using the Boston housing data from the `MASS` library in `R`. 
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, fig.height = 6, fig.width = 7, fig.align = "center"}
 library(MASS)
 attach(Boston)
 # read the data 
