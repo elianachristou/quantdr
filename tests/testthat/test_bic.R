@@ -9,9 +9,3 @@ test_that("the BIC criterion correctly estimates the dimension", {
   expect_equal(bic_d(out$qvalues, n), 1)
 })
 
-
-test_that("the BIC criterion correctly estimates the dimension", {
-  lambdas <- c(1, 2, 0.05, 0.06)
-  n <- 100
-  expect_equal(bic_d(lambdas, n), 2)
-})
