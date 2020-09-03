@@ -67,7 +67,7 @@
 #' set.seed(1234)
 #' n <- 100; p <- 10
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
-#' y <- exp(x[, 1]) + x[, 2] + error
+#' y <- x[, 1] + exp(x[, 2]) + x[, 3]^3 + error
 #' tau <- 0.5
 #' cqs(x, y, tau)$qvectors[, 1:2]
 #'
@@ -105,6 +105,9 @@ cqs <- function(x, y, tau = 0.5, dtau) {
     stop(paste("number of observations in y (", length(y), ") should be
     greater than the number of columns of x (", dim(x)[2], ")", sep = ""))
   }
+  if (length(x) == length(y)) {
+    stop("x is one dimensional, no need for dimension reduction")
+  }
 
   # define the parameters
   n <- length(y); p <- dim(x)[2]
@@ -116,12 +119,12 @@ cqs <- function(x, y, tau = 0.5, dtau) {
 
   # use SIR for initial dimension reduction and apply BIC criterion
   # to estimate d, the dimension of the central subspace
-    output <- dr::dr(y ~ xstand)
-    lambdas <- output$evalues
-    d_hat <- bic_d(lambdas, n)
-    ahat <- cbind(output$evectors[, 1:d_hat])
-    newx <- xstand %*% ahat
-    d <- d_hat
+  output <- dr::dr(y ~ xstand)
+  lambdas <- output$evalues
+  d_hat <- bic_d(lambdas, n)
+  ahat <- cbind(output$evectors[, 1:d_hat])
+  newx <- xstand %*% ahat
+  d <- d_hat
 
   # define the bandwidth and estimate the conditional quantile
   h <- sd(y) * n^ (-1 / (d + 4))
