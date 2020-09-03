@@ -49,3 +49,17 @@ test_that("n should be greater than p", {
   tau <- 0.5
   expect_error(cqs(x, y, tau = tau), )
 })
+
+test_that("dtau needs to be an integer between 1 and p",{
+  set.seed(1234)
+  n <- 100; p <- 10
+  x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+  y <- 3 * x[, 1] + x[, 2] + error
+  tau <- 0.5
+  expect_error(cqs(x, y, tau = tau, dtau = -1), )
+  expect_error(cqs(x, y, tau = tau, dtau = -1.5), )
+  expect_equal(cqs(x, y, tau = tau, dtau = 1)$dtau, 1)
+  expect_error(cqs(x, y, tau = tau, dtau = 2.5), )
+  expect_error(cqs(x, y, tau = tau, dtau = 20), )
+})
+

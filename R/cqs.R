@@ -8,36 +8,39 @@
 #' conditional quantile function.
 #'
 #' The function starts by estimating the initial vector, which is defined as the
-#' least-squares estimator from regressing the conditional quantile on \code{x}.
-#' Then, if the dimension of the central quantile subspace is one, the algorithm
-#' stops and reports that vector as the basis of the central quantile subspace.
-#' Otherwise, the algorithm continues by creating more vectors and applying an
-#' eigenvalue decomposition to extract linearly independent vectors.  If the
-#' dimension of the central quantile subspace is unknown, it is estimated using
-#' the modified-BIC type criterion of Zhu et al. (2010).
+#' least-squares estimator from regressing the conditional quantile on the
+#' predictor variable \code{x}. Then, if the dimension of the central quantile
+#' subspace is one, the algorithm stops and reports that vector as the basis of
+#' the central quantile subspace. Otherwise, the algorithm continues by creating
+#' more vectors and applying an eigenvalue decomposition to extract linearly
+#' independent vectors.
 #'
 #' @param x A design matrix.  The rows represent observations and the columns
 #'   represent predictor variables.
 #' @param y A vector of the response variable.
 #' @param tau A quantile level, a number strictly between 0 and 1.
-#' @param dtau The dimension of the central quantile subspace.  If not
-#'   specified, \code{dtau} is estimated using the modified-BIC type criterion
-#'   of Zhu et al. (2010)
+#' @param dtau An optional dimension of the central quantile subspace. In the
+#'   context of the algorithm, if \code{dtau} is one, then the algorithm stops
+#'   after estimating the initial vector and saves computational time.  However,
+#'   if \code{dtau} is greater than one, or unspecified, then the algorithm
+#'   continues on creating more vectors.
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace,
-#'   and returns:
-#'   \itemize{
-#'   \item{qvectors: }{The estimated directions of the
+#'   and returns: \itemize{ \item{qvectors: }{The estimated directions of the
 #'   \eqn{\tau}th central quantile subspace.}
 #'
 #'   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
-#'   of the matrix with column vectors the estimated vectors. If \code{d_tau} is
-#'   one, the \code{qvalues} output is not produced.}
+#'   of the matrix with column vectors that span the central quantile subspace.
+#'   If \code{dtau} is one, the \code{qvalues} output is not produced.}
 #'
-#'   \item{dtau: }{The dimension of the central quantile subspace.  If not
-#'   specified by the user, \code{dtau} is estimated using the modified-BIC
-#'   type criterion of Zhu et al. (2010).}
-#'   }
+#'   \item{dtau: }{Suggested dimension of the central quantile subspae.  If
+#'   \code{dtau} is specified by the user, then the algorithm outputs the
+#'   user-defined value.  If \code{dtau} is not specified by the user, then the
+#'   algorithm outputs a suggested dimension using the modified-BIC type
+#'   criterion of Zhu et al. (2010).  Note that the user has the option to use
+#'   the eigenvalues \code{qvalues} on other criteria, like cross-validation or
+#'   a chi-square sequential test, and determine the estimated dimension of the
+#'   subspace.}}
 #' @references Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
 #'   regression through cumulative slicing estimation. \emph{Journal of the
 #'   American Statistical Association}, 105, 1455-1466.
@@ -54,7 +57,7 @@
 #' tau <- 0.5
 #' out <- cqs(x, y, tau, dtau = 1)
 #' out
-#' # without specifying d and dtau
+#' # without specifying dtau
 #' out <- cqs(x, y, tau)
 #' out
 #' out$qvectors[, 1:out$dtau]
@@ -111,8 +114,8 @@ cqs <- function(x, y, tau = 0.5, dtau) {
   signrt <- MTS::msqrt(sig)$invsqrt
   xstand <- xc %*% signrt
 
-  # use SIR for initial dimension reduction
-  # apply BIC criterion to estimate d
+  # use SIR for initial dimension reduction and apply BIC criterion
+  # to estimate d, the dimension of the central subspace
     output <- dr::dr(y ~ xstand)
     lambdas <- output$evalues
     d_hat <- bic_d(lambdas, n)
@@ -151,8 +154,11 @@ cqs <- function(x, y, tau = 0.5, dtau) {
     list(qvectors = out, qvalues = eigenvalues, dtau = dtau)
   } else if (dtau > 1) {
     # if dtau is known to be greater than 1, then use the iterative procedure to
-    # produce more vectors and select the eigenvectors associated with the dtau
-    # largest eigenvalues
+    # produce more vectors
+    # check that dtau is integer
+    if (dtau<1 | dtau != as.integer(dtau) | dtau > p){
+      stop(paste("dtau needs to be an integer between 1 and p (", dim(x)[2], ")"))
+    }
     b <- matrix(0, p, p)
     b[, 1] <- beta_hat
     for (j in 2:(dim(x)[2])) {
@@ -170,6 +176,10 @@ cqs <- function(x, y, tau = 0.5, dtau) {
     out <- signrt %*% out
     list(qvectors = out, qvalues = eigenvalues, dtau = dtau)
   } else {
+    # check that dtau is integer
+    if (dtau<1 | dtau != as.integer(dtau) | dtau > p){
+      stop(paste("dtau needs to be an integer between 1 and p (", dim(x)[2], ")"))
+    }
     # if dtau is known to be one, then the initial vector is sufficient
     out <- signrt %*% beta_hat
     out <- out / sqrt(sum(out^2))
