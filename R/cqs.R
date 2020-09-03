@@ -146,7 +146,7 @@ cqs <- function(x, y, tau = 0.5, dtau) {
       }
       b[, j] <- apply(mat, 2, mean)
     }
-    B <- b %*% t(b)
+    B <- tcrossprod(b, b)
     eigenvalues <- eigen(B)$values
     out <- eigen(B)$vectors
     out <- signrt %*% out
@@ -170,7 +170,7 @@ cqs <- function(x, y, tau = 0.5, dtau) {
       }
       b[, j] <- apply(mat, 2, mean)
     }
-    B <- b %*% t(b)
+    B <- tcrossprod(b, b)
     eigenvalues <- eigen(B)$values
     out <- eigen(B)$vectors
     out <- signrt %*% out
