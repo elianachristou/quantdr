@@ -4,7 +4,7 @@
 \alias{cqs}
 \title{Central quantile subspace}
 \usage{
-cqs(x, y, tau = 0.5, d, dtau)
+cqs(x, y, tau = 0.5, dtau)
 }
 \arguments{
 \item{x}{A design matrix.  The rows represent observations and the columns
@@ -13,9 +13,6 @@ represent predictor variables.}
 \item{y}{A vector of the response variable.}
 
 \item{tau}{A quantile level, a number strictly between 0 and 1.}
-
-\item{d}{The dimension of the central subspace.  If not specified, \code{d}
-is estimated using the modified-BIC type criterion of Zhu et al. (2010).}
 
 \item{dtau}{The dimension of the central quantile subspace.  If not
 specified, \code{dtau} is estimated using the modified-BIC type criterion
@@ -31,10 +28,6 @@ of Zhu et al. (2010)}
   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
   of the matrix with column vectors the estimated vectors. If \code{d_tau} is
   one, the \code{qvalues} output is not produced.}
-
-  \item{d: }{The dimension of the central subspace.  If not specified by the
-  user, \code{d} is estimated using the modified-BIC type criterion of Zhu et
-  al. (2010).}
 
   \item{dtau: }{The dimension of the central quantile subspace.  If not
   specified by the user, \code{dtau} is estimated using the modified-BIC
@@ -67,7 +60,7 @@ n <- 100; p <- 10
 x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 tau <- 0.5
-out <- cqs(x, y, tau, d = 1, dtau = 1)
+out <- cqs(x, y, tau, dtau = 1)
 out
 # without specifying d and dtau
 out <- cqs(x, y, tau)

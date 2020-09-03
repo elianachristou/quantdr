@@ -20,8 +20,6 @@
 #'   represent predictor variables.
 #' @param y A vector of the response variable.
 #' @param tau A quantile level, a number strictly between 0 and 1.
-#' @param d The dimension of the central subspace.  If not specified, \code{d}
-#'   is estimated using the modified-BIC type criterion of Zhu et al. (2010).
 #' @param dtau The dimension of the central quantile subspace.  If not
 #'   specified, \code{dtau} is estimated using the modified-BIC type criterion
 #'   of Zhu et al. (2010)
@@ -35,10 +33,6 @@
 #'   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
 #'   of the matrix with column vectors the estimated vectors. If \code{d_tau} is
 #'   one, the \code{qvalues} output is not produced.}
-#'
-#'   \item{d: }{The dimension of the central subspace.  If not specified by the
-#'   user, \code{d} is estimated using the modified-BIC type criterion of Zhu et
-#'   al. (2010).}
 #'
 #'   \item{dtau: }{The dimension of the central quantile subspace.  If not
 #'   specified by the user, \code{dtau} is estimated using the modified-BIC
@@ -58,7 +52,7 @@
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 #' y <- 3 * x[, 1] + x[, 2] + error
 #' tau <- 0.5
-#' out <- cqs(x, y, tau, d = 1, dtau = 1)
+#' out <- cqs(x, y, tau, dtau = 1)
 #' out
 #' # without specifying d and dtau
 #' out <- cqs(x, y, tau)
@@ -75,7 +69,7 @@
 #' cqs(x, y, tau)$qvectors[, 1:2]
 #'
 #' @export
-cqs <- function(x, y, tau = 0.5, d, dtau) {
+cqs <- function(x, y, tau = 0.5, dtau) {
 
   # define the parameters
   n <- length(y); p <- dim(x)[2]
@@ -86,18 +80,13 @@ cqs <- function(x, y, tau = 0.5, d, dtau) {
   xstand <- xc %*% signrt
 
   # use SIR for initial dimension reduction
-  # apply BIC criterion if d is not specified
-  if (missing(d)) {
+  # apply BIC criterion to estimate d
     output <- dr::dr(y ~ xstand)
     lambdas <- output$evalues
     d_hat <- bic_d(lambdas, n)
     ahat <- cbind(output$evectors[, 1:d_hat])
     newx <- xstand %*% ahat
     d <- d_hat
-  } else {
-    ahat <- cbind(dr::dr(y ~ xstand)$evector[, 1:d])
-    newx <- xstand %*% ahat
-  }
 
   # define the bandwidth and estimate the conditional quantile
   h <- sd(y) * n^ (-1 / (d + 4))
@@ -127,7 +116,7 @@ cqs <- function(x, y, tau = 0.5, d, dtau) {
     out <- eigen(B)$vectors
     out <- signrt %*% out
     dtau <- bic_d(eigenvalues, n)
-    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau)
+    list(qvectors = out, qvalues = eigenvalues, dtau = dtau)
   } else if (dtau > 1) {
     # if dtau is known to be greater than 1, then use the iterative procedure to
     # produce more vectors and select the eigenvectors associated with the dtau
@@ -147,12 +136,12 @@ cqs <- function(x, y, tau = 0.5, d, dtau) {
     eigenvalues <- eigen(B)$values
     out <- eigen(B)$vectors
     out <- signrt %*% out
-    list(qvectors = out, qvalues = eigenvalues, d = d, dtau = dtau)
+    list(qvectors = out, qvalues = eigenvalues, dtau = dtau)
   } else {
     # if dtau is known to be one, then the initial vector is sufficient
     out <- signrt %*% beta_hat
     out <- out / sqrt(sum(out^2))
     dtau <- dtau
-    list(qvectors = out, d = d, dtau = dtau)
+    list(qvectors = out, dtau = dtau)
   }
 }

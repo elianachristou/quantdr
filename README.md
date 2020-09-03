@@ -67,7 +67,7 @@ dir1 <- x %*% beta_true
 # Estimate the directions of each central quantile subspace
 out <- matrix(0, p, length(taus))
 for (i in 1:length(taus)) {
-  out[, i] <- cqs(x, y, tau = taus[i], d = 1, dtau = 1)$qvectors
+  out[, i] <- cqs(x, y, tau = taus[i], dtau = 1)$qvectors
 }
 out
 #>               [,1]         [,2]        [,3]         [,4]          [,5]
