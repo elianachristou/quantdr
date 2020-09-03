@@ -67,7 +67,7 @@
 #' set.seed(1234)
 #' n <- 100; p <- 10
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
-#' y <- x[, 1] + exp(x[, 2]) + x[, 3]^3 + error
+#' y <- exp(x[, 1]) + x[, 2] + error
 #' tau <- 0.5
 #' cqs(x, y, tau)$qvectors[, 1:2]
 #'
