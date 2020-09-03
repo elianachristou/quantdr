@@ -49,7 +49,7 @@ This is a basic example which shows you how to solve the problem.
 ``` r
 library(quantdr)
 
-## basic example code - a homogeneous multi-index model
+## basic example code - a homoscedastic single-index model
 
 # Setting
 set.seed(1234)
@@ -62,36 +62,39 @@ beta_true <- c(3, 1, rep(0, p - 2))
 beta_true / sqrt(sum(beta_true^2))
 #>  [1] 0.9486833 0.3162278 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000
 #>  [8] 0.0000000 0.0000000 0.0000000
+
+# sufficient direction
 dir1 <- x %*% beta_true
 
 # Estimate the directions of each central quantile subspace
+# Since dtau is known to be one, the algorithm will produce only one vector
 out <- matrix(0, p, length(taus))
 for (i in 1:length(taus)) {
   out[, i] <- cqs(x, y, tau = taus[i], dtau = 1)$qvectors
 }
 out
-#>               [,1]         [,2]        [,3]         [,4]          [,5]
-#>  [1,]  0.954922925  0.953598024  0.95406239  0.954269775  0.9575634520
-#>  [2,]  0.282714019  0.286649942  0.28461138  0.284893586  0.2746101072
-#>  [3,]  0.041087139  0.042374854  0.04304897  0.042428540  0.0372367542
-#>  [4,]  0.037832725  0.037682669  0.03890855  0.037272969  0.0370684841
-#>  [5,] -0.002814562 -0.003387548 -0.00329941 -0.002773467  0.0002099847
-#>  [6,] -0.050028660 -0.048834454 -0.04594872 -0.050712960 -0.0501001338
-#>  [7,]  0.029258405  0.028428392  0.02829842  0.028574762  0.0356230719
-#>  [8,]  0.017428119  0.017728512  0.01855861  0.017255355  0.0157407872
-#>  [9,]  0.015474773  0.018001429  0.02187873  0.012898022  0.0099383498
-#> [10,]  0.034139000  0.037738606  0.04059751  0.033989205  0.0278435274
+#>               [,1]         [,2]          [,3]         [,4]         [,5]
+#>  [1,]  0.949525419  0.951345485  0.9481249240  0.949893722  0.951285567
+#>  [2,]  0.297675031  0.290211374  0.3036884256  0.295630714  0.280349811
+#>  [3,]  0.066064403  0.063422461  0.0539648971  0.042117726  0.047074410
+#>  [4,]  0.026048171  0.020410164  0.0255546948  0.049771597  0.040678843
+#>  [5,]  0.002763456  0.008308760  0.0043920967  0.008982865  0.003477829
+#>  [6,] -0.050276673 -0.061732986 -0.0534880659 -0.046628222 -0.057344442
+#>  [7,]  0.032939936  0.035874469  0.0284903647  0.016886469  0.015840191
+#>  [8,]  0.016294499  0.016271051  0.0228861044  0.039207685  0.061479219
+#>  [9,] -0.001967384 -0.003376335 -0.0002880524  0.012076001  0.026121381
+#> [10,]  0.029295759  0.028931331  0.0324252190  0.042780536  0.067642983
 
-# compare the estimated direction with the true one using the angle between the two subspaces
+# compare each estimated direction with the true one using the angle between the two subspaces
 library(pracma)
 for (i in 1:length(taus)) {
 print(subspace(out[, i], beta_true) / (pi / 2)) # the angle is measured in radians, so divide by pi/2
   }
-#> [1] 0.06160559
-#> [1] 0.06168634
-#> [1] 0.06301522
-#> [1] 0.06114523
-#> [1] 0.06198434
+#> [1] 0.06412042
+#> [1] 0.06801387
+#> [1] 0.06038418
+#> [1] 0.06597454
+#> [1] 0.08488814
 
 # Estimate and plot the conditional quantile function using the new sufficient predictors
 newx <- x %*% out

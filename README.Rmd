@@ -49,7 +49,7 @@ This is a basic example which shows you how to solve the problem.
 ```{r}
 library(quantdr)
 
-## basic example code - a homogeneous multi-index model
+## basic example code - a homoscedastic single-index model
 
 # Setting
 set.seed(1234)
@@ -60,16 +60,19 @@ y <- 3 * x[, 1] + x[, 2] + error
 # true direction that spans each central quantile subspace
 beta_true <- c(3, 1, rep(0, p - 2))
 beta_true / sqrt(sum(beta_true^2))
+
+# sufficient direction
 dir1 <- x %*% beta_true
 
 # Estimate the directions of each central quantile subspace
+# Since dtau is known to be one, the algorithm will produce only one vector
 out <- matrix(0, p, length(taus))
 for (i in 1:length(taus)) {
   out[, i] <- cqs(x, y, tau = taus[i], dtau = 1)$qvectors
 }
 out
 
-# compare the estimated direction with the true one using the angle between the two subspaces
+# compare each estimated direction with the true one using the angle between the two subspaces
 library(pracma)
 for (i in 1:length(taus)) {
 print(subspace(out[, i], beta_true) / (pi / 2)) # the angle is measured in radians, so divide by pi/2
