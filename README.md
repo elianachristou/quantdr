@@ -122,7 +122,7 @@ beta_hat <- matrix(0, p, length(tau))
 
 for (k in 1:length(tau)) {
   out <- cqs(x, y, tau = tau[k])
-  beta_hat[, k] <- out$qvectors[, 1:out$dtau] # the estimated dimension of the central subspace is 1
+  beta_hat[, k] <- out$qvectors[, 1:out$dtau] # the suggested dimension of the central quantile subspace is 1
 }
    
 par(mfrow=c(2,2))
