@@ -71,6 +71,38 @@
 #' @export
 cqs <- function(x, y, tau = 0.5, dtau) {
 
+  x <- as.matrix(x)
+
+  # compatibility checks
+  # checks if y is univariate
+  if (is.matrix(y) == T) {
+    if (dim(y)[2] > 1) {
+      stop(paste("y needs to be a univariate response."))
+    }
+  }
+  # checks if the number of observations for x and y agree
+  if (length(y) != dim(x)[1]) {
+    stop(paste("number of observations in y (", length(y), ") not equal
+    to the number of rows of x (", dim(x)[1], ")", sep = ""))
+  }
+  # checks if the quantile level is one-dimensional
+  if (length(tau) > 1) {
+    stop(paste("quantile level needs to be one number"))
+  }
+  # checks if the quantile level is between 0 and 1 (strictly)
+  if (tau >= 1 | tau <= 0) {
+    stop(paste("quantile level needs to be a number strictly between 0 and 1"))
+  }
+  # checks for NAs
+  if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
+    stop(paste("Data include NAs. Fix this before applying the function."))
+  }
+  # checks if n>p
+  if (length(y) <= dim(x)[2]) {
+    stop(paste("number of observations in y (", length(y), ") should be
+    greater than the number of columns of x (", dim(x)[2], ")", sep = ""))
+  }
+
   # define the parameters
   n <- length(y); p <- dim(x)[2]
   # standardize the predictor variables
