@@ -60,13 +60,3 @@ test_that("the function gives an error message when the dimension of
   expect_error(llqr(x, y, tau = tau, x0 = x0)$ll_est, )
 })
 
-test_that("the function gives an error message when method is not one of
-          rule or CV", {
-  set.seed(1234)
-  n <- 100; p <- 2
-  x <- matrix(rnorm(n * p), n, p); error <- rnorm(n); y <- x[, 1]^2 + error
-  tau <- 0.5
-  expect_error(llqr(x, y, tau = tau, method = 2), )
-  expect_error(llqr(x, y, tau = tau, method = a), )
-  expect_error(llqr(x, y, tau = tau, method = 'a'), )
-          })
