@@ -9,19 +9,23 @@
 #'pre-specified point \code{x0}.  The estimation is based on a standard normal
 #'kernel and a univariate bandwidth.  The bandwidth, if not specified by the
 #'user, is defined using either the rule-of-thumb given by Yu and Jones (1994)
-#'or the cross-validation criterion.  However, the user needs to be careful
-#'about the bandwidth selection.  When the dimension of the predictor variable
-#'is large compared to the sample size, local linear fitting meets the 'curse of
-#'dimensionality' problem. In situations like that, the bandwidth selected by
-#'the rule-of-thumb or the cross- validation criterion might be too small and
-#'cause the function to fail. For these cases, we advice the user to specify a
-#'bandwidth in the function. See the last example below.
+#'or the cross-validation criterion.
 #'
 #'The estimation applies to univariate and multivariate predictor variables. For
 #'the latter, the local linear fit uses the multivariate standard normal kernel.
 #'Note that if the estimation is performed at a pre-specified point \code{x0},
 #'then \code{x0} should be a scalar (for univariate predictor) or a vector (for
 #'multivariate predictor).
+#'
+#'@section Warning:
+#'The user needs to be careful about the bandwidth selection. When the
+#'dimension of the predictor variable is large compared to the sample size,
+#'local linear fitting meets the 'curse of dimensionality' problem. In
+#'situations like that, the bandwidth selected by the rule-of-thumb or the
+#'cross- validation criterion might be small and lead to a sparse
+#'neighborhood. This will cause the function to fail. For these cases, we
+#'advice the user to specify a bandwidth in the function. See the last example
+#below.
 #'
 #'@param x A design matrix.  The rows represent observations and the columns
 #'  represent predictor variables.
