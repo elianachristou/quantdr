@@ -4,10 +4,6 @@ author:
 - name: Eliana Christou
   affiliation: University of North Carolina at Charlotte
 output: rmarkdown::html_vignette
-header-includes: |
-  ```{=latex}
-  \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
-  ```
 vignette: >
   %\VignetteIndexEntry{Dimension Reduction Techniques for Conditional Quantiles in R: A Vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,6 +18,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+-------------
 
 # Introduction
 
