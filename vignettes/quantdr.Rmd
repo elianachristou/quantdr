@@ -81,7 +81,7 @@ The above two results imply the following:
 
 1. If the dimension of the $\tau$-CQS is known to be greater than one, then we can set $\boldsymbol{\beta}_{\tau, 0}=\boldsymbol{\beta}_{\tau}$ as the initial vector and then create more vectors using $\boldsymbol{\beta}_{\tau,j}=E\{Q_{\tau}(Y | \boldsymbol{\beta}_{\tau, j-1}^{\top}\mathbf{X})\mathbf{X}\}$, for $j=1, \dots, p-1$.  In order to obtain linearly independent vectors, we can perform an eigenvalue decomposition on $\mathbf{V}_{\tau}\mathbf{V}_{\tau}^{\top}$, where $\mathbf{V}_{\tau}=(\boldsymbol{\beta}_{\tau, 0}, \dots, \boldsymbol{\beta}_{\tau, p-1})$ and choose the eigenvectors corresponding to the $d_{\tau}$ nonzero eigenvalues.  
 
-1. If the dimension of the $\tau$-CQS is unknown, we can apply the procedure from 2. Then, we can estimate the dimension $d_{\tau}$ using the eigenvalues resulting from the eigenvalue decomposition and the modified-BIC type criterion of Zhu et al. (2010). 
+1. If the dimension of the $\tau$-CQS is unknown, we can apply the procedure from 2. Then, we can estimate the dimension $d_{\tau}$ using the eigenvalues resulting from the eigenvalue decomposition.  Existing techniques such as the Cross-Validation (CV) criterion or the modified-BIC type criterion of Zhu et al. (2010) can be used to determine the structural dimension. 
 
 All of the above are incorporated in the `cqs` function in `R`.
 
@@ -107,7 +107,7 @@ For this we use the `lm` function of the `stats` package.
     
 1.  We form the $p \times p$ matrix $\widehat{\mathbf{V}}_{\tau}=(\widehat{\boldsymbol{\beta}}_{\tau, 0}, \dots, \widehat{\boldsymbol{\beta}}_{\tau, p-1})$ and choose the $d_{\tau}$ eigenvectors corresponding to the $d_{\tau}$ largest eigenvalues of $\widehat{\mathbf{V}}_{\tau} \widehat{\mathbf{V}}_{\tau}^{\top}$.  For this we use the `eigen` function of the `base` package.  
 
-If $d_{\tau}$ is unknown, then we estimate it using the modified-BIC type criterion of Zhu et al. (2010).  For this we use the `bic_d` function of the presented package.  
+If $d_{\tau}$ is unknown, a suggested structural dimension can be estimated using the modified-BIC type criterion of Zhu et al. (2010).  For this we use the `bic_d` function of the presented package.  
 
 ## Output of `cqs`
 
@@ -122,21 +122,21 @@ n <- 100; p <- 10; tau <- 0.5
 x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 ```
-The `cqs` function proceeds by specifying an $n \times p$ design matrix $\mathbf{X}$, a vector of the response variable $Y$, and a quantile level $\tau$.  The rest of the arguments, i.e., $d$, the dimension of the central subspace spanned by $\mathbf{A}$, and $d_{\tau}$, the dimension of the $\tau$-CQS, are not required. Note that for this example $d=d_{\tau}=1$ for every quantile level $\tau$.  
+The `cqs` function proceeds by specifying an $n \times p$ design matrix $\mathbf{X}$, a vector of the response variable $Y$, and a quantile level $\tau$.  The dimension of the $\tau$-CQS, i.e., $d_{\tau}$, is optional. Note that for this example $d_{\tau}=1$ for every quantile level $\tau$.  
 
-We  now discuss the output of the `cqs` function. 
+We now discuss the output of the `cqs` function. 
 ```{r}
 out1 <- cqs(x, y, tau = tau, dtau = 1)
 out1
 ```
-When the dimension of the $\tau$-CQS is known to be one, the algorithm reports the ordinary least-squares slope vector as the basis vector of the subspace.  This is denoted by `qvectors`.  Moreover, the function `cqs` outputs `d` and `dtau`, which in this case are both specified by the user.
+When the dimension of the $\tau$-CQS is known to be one, the algorithm reports the ordinary least-squares slope vector as the basis vector of the subspace.  This is denoted by `qvectors`.  Moreover, the function `cqs` outputs `dtau`, which in this case is specified by the user.
 
 When the dimension of the $\tau$-CQS is unknown (or known to be greater than one), the algorithm continues, creates more vectors, and performs an eigenvalue decomposition.  Therefore, the output includes one more element, the eigenvalues provided by the eigenvalue decomposition and denoted by `qvalues`.
 ```{r}
 out2 <- cqs(x, y, tau = tau)
 out2
 ```
-Note that the dimensions `d` and `dtau` are correctly specified by the modified-BIC type criterion.  Therefore, this output suggests to take the first eigenvector as the basis vector for the $\tau$-CQS.  We can extract the direction using
+Note that the dimension `dtau` is correctly estimated by the modified-BIC type criterion.  Therefore, this output suggests to take the first eigenvector as the basis vector for the $\tau$-CQS.  We can extract the direction using
 ``` {r}
 out2$qvectors[, 1:out2$dtau]
 ```
@@ -155,17 +155,17 @@ We can continue further and estimate the conditional quantile function.  To do t
 ``` {r}
 newx <- x %*% beta_hat1
 ```
-We then estimate the conditional quantile using the `llqr` function of the presented package.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for which to perform the estimation, are not required.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth of Yu and Jones (1998) or the Cross-Validation (CV) criterion; the default choice is the rule-of-thumb.  Moreover, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example we use
+We then estimate the conditional quantile using the `llqr` function of the presented package.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for which to perform the estimation, are optional.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth of Yu and Jones (1998) or the CV criterion; the default choice is the rule-of-thumb.  However, the user needs to be careful about the bandwidth selection. When the dimension of the predictor variable is large compared to the sample size, local linear fitting meets the `curse of dimensionality' problem. In situations like that, the bandwidth selected by the rule-of-thumb or the CV criterion might be too small and cause the function to fail. For these cases, we advice the user to pre-specify the bandwidth in the function.  Finally, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example we use
 ``` {r}
 qhat1 <- llqr(newx, y, tau)
 qhat1
 ```
-The output consists of the estimation of the conditional quantile function at each point of the design matrix, i.e., $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top} \mathbf{X}_{i})$, $i=1, \dots, n$, and the bandwidth estimated using the rule-of-thumb.  For illustration purposes, we repeat the above using the CV criterion for the bandwidth selection
+The output consists of the estimation of the conditional quantile function at each point of the design matrix, i.e., $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top} \mathbf{X}_{i})$, $i=1, \dots, n$, and the estimation of the bandwidth using the rule-of-thumb.  For illustration purposes, we repeat the above using the CV criterion for the bandwidth selection.
 ``` {r}
 qhat2 <- llqr(newx, y, tau, method = "CV")
 qhat2
 ```
-If $h$ is specified, then the output reports the value given by the user, i.e.,
+If $h$ is pre-specified, then the output reports the value given by the user, i.e.,
 ``` {r}
 qhat3 <- llqr(newx, y, tau, h = 1)
 qhat3
@@ -200,7 +200,7 @@ for (i in 1:length(taus)) {
 
 ## A Real Data Application
 
-In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `getSymbols` function of the `quantmod` package in `R`.  The data consists of the daily returns from January 2016 to December 2018.       
+In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded in `R` from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `getSymbols` function of the `quantmod` package.  The data consists of the daily returns from January 2016 to December 2018.       
 ``` {r, message=FALSE, warning = FALSE}
 library(quantmod)
 BTC <- getSymbols("BTC-USD", from = "2016-01-01", to = "2018-12-31", src = "yahoo", auto.assign = FALSE)
@@ -225,7 +225,7 @@ xtemp2 <- cbind(xtemp[, 5], xtemp[, 4], xtemp[, 3], xtemp[, 2], xtemp[, 1])
 x <- cbind(xtemp2, abs(xtemp2))
 dim(x)
 ``` 
-We want to estimate $Q_{\tau}(Y|\mathbf{X})$ for $\tau=0.01, 0.025, 0.05$.  The reason to choose these values is because $Q_{\tau}(Y|\mathbf{X})$ is an important quantity in a financial risk setup, called the value-at-risk (VaR).  
+We want to estimate $Q_{\tau}(Y|\mathbf{X})$ for $\tau=0.01, 0.025, 0.05$.  The reason for choosing these values is because $Q_{\tau}(Y|\mathbf{X})$ is an important quantity in a financial risk setup, called the value-at-risk (VaR).  
 
 To do this, we first want to reduce the dimension of the predictor vector $\mathbf{X}$, and therefore, we estimate the $\tau$-CQS.  Since the dimension of each $\tau$-CQS is unknown, we do not specify `dtau` and instead, allow the function to estimate it using the modified-BIC type criterion.  This is done by
 ``` {r}
@@ -260,17 +260,14 @@ legend(840, 0.22, c("tau=0.01","tau=0.025","tau=0.05"), col=c("red", "blue", "gr
 
 To further illustrate the estimation of the conditional quantile function, we estimate the proportion of times the return is less than $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$, i.e., the proportion of times $Y < \widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$. 
 ``` {r}
-comp <- matrix(0, n, length(taus))
-for (i in 1:length(taus)) {
- comp[, i] <- (newy < qhat[, i]) 
-}
-apply(comp, 2, mean)
+colMeans(matrix(newy, dim(qhat)[1], dim(qhat)[2]) < qhat)
 taus
 ```
+Note that the estimated proportions are very close to the true values of $\tau$. 
 
 # Conclusion
 
-This vignette provides a brief introduction to the R package `quantdr` and presents a tutorial on how to implement the basic function `cqs`.  Performing dimension reduction techniques to conditional quantiles is an active research topic and therefore, updates and new functions will be incorporated into new versions of the package.  For this reason, this document will be updated accordingly and will be made available through the package.  Suggestions and recommendations from the users will be highly appreciated.  
+This vignette provides a brief introduction to the R package `quantdr` and presents a tutorial on how to implement the basic function `cqs`.  Performing dimension reduction techniques to conditional quantiles is an active research topic and therefore, updates and new functions will be incorporated into new versions of the package.  For this reason, this document will be updated accordingly and will be made available through the package.  Suggestions and recommendations from the users will be highly appreciated and welcomed.  
 
 
 # References
@@ -298,5 +295,3 @@ This vignette provides a brief introduction to the R package `quantdr` and prese
 1. Yu, K., and Jones, M. C. (1998) Local linear quantile regression. *Journal of the American Statistical Association*, 93, 228-238
 
 1. Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension reduction in regression through cumulative slicing estimation. *Journal of the American Statistical Association*, 105, 1455-1466
-
------
