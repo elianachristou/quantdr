@@ -41,7 +41,7 @@ and then use it during any `R` session by issuing the command
 ```{r}
 library(quantdr)
 ```
-For an overview on the available help files of the package use
+For an overview of the available help files of the package use
 ```{r, eval=FALSE}
 help(package = "quantdr")
 ```
@@ -105,7 +105,7 @@ For this we use the `lm` function of the `stats` package.
     
 1.  We form the $p \times p$ matrix $\widehat{\mathbf{V}}_{\tau}=(\widehat{\boldsymbol{\beta}}_{\tau, 0}, \dots, \widehat{\boldsymbol{\beta}}_{\tau, p-1})$ and choose the $d_{\tau}$ eigenvectors corresponding to the $d_{\tau}$ largest eigenvalues of $\widehat{\mathbf{V}}_{\tau} \widehat{\mathbf{V}}_{\tau}^{\top}$.  For this we use the `eigen` function of the `base` package.  
 
-If $d_{\tau}$ is unknown, a suggested structural dimension can be estimated using the modified-BIC type criterion of Zhu et al. (2010).  For this we use the `bic_d` function of the presented package.  
+If $d_{\tau}$ is unknown, a suggested structural dimension can be estimated using existing techniques such as the CV criterion or the modified-BIC type criterion of Zhu et al. (2010), among others.  In terms of the `cqs` function, the modified-BIC type criterion outputs a suggested dimension.  Note that the user can extract the eigenvalues and apply them to any other existing technique.  
 
 ## Output of `cqs`
 
@@ -153,7 +153,7 @@ We can continue further and estimate the conditional quantile function.  To do t
 ``` {r}
 newx <- x %*% beta_hat1
 ```
-We then estimate the conditional quantile using the `llqr` function of the presented package.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for which to perform the estimation, are optional.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth of Yu and Jones (1998) or the CV criterion; the default choice is the rule-of-thumb.  However, the user needs to be careful about the bandwidth selection. When the dimension of the predictor variable is large compared to the sample size, local linear fitting meets the `curse of dimensionality' problem. In situations like that, the bandwidth selected by the rule-of-thumb or the CV criterion might be too small and cause the function to fail. For these cases, we advice the user to pre-specify the bandwidth in the function.  Finally, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example we use
+We then estimate the conditional quantile using the `llqr` function of the presented package.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for which to perform the estimation, are optional.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth of Yu and Jones (1998) or the CV criterion; the default choice is the rule-of-thumb.  However, the user needs to be careful about the bandwidth selection. When the dimension of the predictor variable is large compared to the sample size, local linear fitting meets the 'curse of dimensionality' problem. In situations like that, the bandwidth selected by the rule-of-thumb or the CV criterion might be too small and cause the function to fail. For these cases, we advice the user to pre-specify the bandwidth in the function.  Finally, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example we use
 ``` {r}
 qhat1 <- llqr(newx, y, tau)
 qhat1
