@@ -50,7 +50,7 @@ The package includes the following functions:
 * `llqr` Local linear quantile regression
 * `llqrcv` Cross-Validation for bandwidth selection of local linear quantile regression
 * `cqs` Central quantile subspace
-* `bic_d` Modified-BIC type criterion for structural dimension selection
+<!-- * `bic_d` Modified-BIC type criterion for structural dimension selection -->
 
 To get help on a specific function type `help(function.name)` or `?function.name` for a convenient shorthand.  Try
 ```{r, eval=FALSE}
