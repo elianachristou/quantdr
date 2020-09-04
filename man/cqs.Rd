@@ -7,18 +7,21 @@
 cqs(x, y, tau = 0.5, dtau)
 }
 \arguments{
-\item{x}{A design matrix.  The rows represent observations and the columns
-represent predictor variables.}
+\item{x}{A design matrix (n x p).  The rows represent observations and the
+columns represent predictor variables.}
 
 \item{y}{A vector of the response variable.}
 
 \item{tau}{A quantile level, a number strictly between 0 and 1.}
 
-\item{dtau}{An optional dimension of the central quantile subspace. In the
-context of the algorithm, if \code{dtau} is one, then the algorithm stops
-after estimating the initial vector and saves computational time.  However,
-if \code{dtau} is greater than one, or unspecified, then the algorithm
-continues on creating more vectors.}
+\item{dtau}{An optional dimension of the central quantile subspace.  If
+specified, it should be an integer between 1 and p, the number of columns
+of the design matrix \code{x}.  In the context of the algorithm, if
+\code{dtau} is known to be one, i.e., the assumed model is a single-index
+model, then the algorithm stops after estimating the initial vector and
+saves computational time.  However, if \code{dtau} is greater than one, or,
+more realistically, unknown, then the algorithm continues on creating more
+vectors.}
 }
 \value{
 \code{cqs} computes the directions of the central quantile subspace,
@@ -33,10 +36,11 @@ continues on creating more vectors.}
   \code{dtau} is specified by the user, then the algorithm outputs the
   user-defined value.  If \code{dtau} is not specified by the user, then the
   algorithm outputs a suggested dimension using the modified-BIC type
-  criterion of Zhu et al. (2010).  Note that the user has the option to use
-  the eigenvalues \code{qvalues} on other criteria, like cross-validation or
-  a chi-square sequential test, and determine the estimated dimension of the
-  subspace.}}
+  criterion of Zhu et al. (2010).  Note that this is one suggested method to
+  estimate the structural dimension and is not necessarily a perfect one. The
+  user has the option to use the eigenvalues \code{qvalues} on other
+  criteria, like cross-validation, and determine the estimated dimension of
+  the subspace.}}
 }
 \description{
 \code{cqs} estimates the directions of the central quantile subspace.

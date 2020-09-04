@@ -15,15 +15,18 @@
 #' more vectors and applying an eigenvalue decomposition to extract linearly
 #' independent vectors.
 #'
-#' @param x A design matrix.  The rows represent observations and the columns
-#'   represent predictor variables.
+#' @param x A design matrix (n x p).  The rows represent observations and the
+#'   columns represent predictor variables.
 #' @param y A vector of the response variable.
 #' @param tau A quantile level, a number strictly between 0 and 1.
-#' @param dtau An optional dimension of the central quantile subspace. In the
-#'   context of the algorithm, if \code{dtau} is one, then the algorithm stops
-#'   after estimating the initial vector and saves computational time.  However,
-#'   if \code{dtau} is greater than one, or unspecified, then the algorithm
-#'   continues on creating more vectors.
+#' @param dtau An optional dimension of the central quantile subspace.  If
+#'   specified, it should be an integer between 1 and p, the number of columns
+#'   of the design matrix \code{x}.  In the context of the algorithm, if
+#'   \code{dtau} is known to be one, i.e., the assumed model is a single-index
+#'   model, then the algorithm stops after estimating the initial vector and
+#'   saves computational time.  However, if \code{dtau} is greater than one, or,
+#'   more realistically, unknown, then the algorithm continues on creating more
+#'   vectors.
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace,
 #'   and returns: \itemize{ \item{qvectors: }{The estimated directions of the
@@ -37,10 +40,12 @@
 #'   \code{dtau} is specified by the user, then the algorithm outputs the
 #'   user-defined value.  If \code{dtau} is not specified by the user, then the
 #'   algorithm outputs a suggested dimension using the modified-BIC type
-#'   criterion of Zhu et al. (2010).  Note that the user has the option to use
-#'   the eigenvalues \code{qvalues} on other criteria, like cross-validation or
-#'   a chi-square sequential test, and determine the estimated dimension of the
-#'   subspace.}}
+#'   criterion of Zhu et al. (2010).  Note that this is one suggested method to
+#'   estimate the structural dimension and is not necessarily a perfect one. The
+#'   user has the option to use the eigenvalues \code{qvalues} on other
+#'   criteria, like cross-validation, and determine the estimated dimension of
+#'   the subspace.}}
+#'
 #' @references Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
 #'   regression through cumulative slicing estimation. \emph{Journal of the
 #'   American Statistical Association}, 105, 1455-1466.
