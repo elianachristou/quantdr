@@ -14,16 +14,14 @@
 #'   reduction in regression through cumulative slicing estimation.
 #'   \emph{Journal of the American Statistical Association}, 105, 1455-1466.
 #'
-#' @keywords internal
+#' @noRd
 #' @examples
-#' \dontrun{
 #' set.seed(1234)
 #' n <- 100; p <- 10; tau <- 0.5
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 #' y <- 3 * x[, 1] + x[, 2] + error
 #' out <- cqs(x, y, tau)
 #' bic_d(out$qvalues, n)
-#' }
 #'
 bic_d <- function(lambdas, n) {
   lambdas <- sort(lambdas, decreasing = TRUE)
