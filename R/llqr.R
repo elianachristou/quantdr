@@ -138,6 +138,10 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
     stop(paste("number of observations in y (", length(y), ") should be
     greater than the number of columns of x (", dim(x)[2], ")", sep = ""))
   }
+  # checks if method is a character string of rule or CV
+  if (method != "rule" | method != "CV") {
+   stop(paste("Method is a character string of either 'rule' or 'CV' "))
+  }
 
   n <- length(y)
   p <- dim(x)[2]
