@@ -22,12 +22,14 @@ The function estimates the dimension of a subspace using the modified-BIC
 type criterion of Zhu et al. (2010).
 }
 \examples{
+\dontrun{
 set.seed(1234)
 n <- 100; p <- 10; tau <- 0.5
 x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 out <- cqs(x, y, tau)
 bic_d(out$qvalues, n)
+}
 
 }
 \references{
@@ -35,3 +37,4 @@ Zhu, L.-P., Zhu, L.-X., and Feng, Z.-H. (2010) Dimension
   reduction in regression through cumulative slicing estimation.
   \emph{Journal of the American Statistical Association}, 105, 1455-1466.
 }
+\keyword{internal}
