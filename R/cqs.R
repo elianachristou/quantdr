@@ -24,8 +24,8 @@
 #'   of the design matrix \code{x}.  In the context of the algorithm, if
 #'   \code{dtau} is known to be one, i.e., the assumed model is a single-index
 #'   model, then the algorithm stops after estimating the initial vector and
-#'   saves computational time.  However, if \code{dtau} is greater than one, or,
-#'   more realistically, unknown, then the algorithm continues on creating more
+#'   saves computational time.  However, if \code{dtau} is greater than one or
+#'   (more realistically) unknown, then the algorithm continues on creating more
 #'   vectors.
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace,
