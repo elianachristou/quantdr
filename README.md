@@ -28,7 +28,9 @@ conditional quantile function using `llqr`.
 ## Installation
 
 You can install the released version of quantdr from
-[CRAN](https://CRAN.R-project.org) with:
+[CRAN](https://CRAN.R-project.org) with: (this will work when the
+package is released to CRAN - this parenthesis will be removed once the
+package is available in CRAN)
 
 ``` r
 install.packages("quantdr") 
