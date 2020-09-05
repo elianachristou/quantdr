@@ -32,5 +32,5 @@ Suggests:
     MASS
 VignetteBuilder: knitr
 SystemRequirements: GNU make
-URL: http://github.com/elianachristou/quantdr
-BugReports: http://github.com/elianachristou/quantdr/issues 
+URL: https://github.com/elianachristou/quantdr
+BugReports: https://github.com/elianachristou/quantdr/issues 
