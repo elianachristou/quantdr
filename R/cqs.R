@@ -109,7 +109,7 @@ cqs <- function(x, y, tau = 0.5, dtau) {
   }
   # checks for NAs
   if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
-    stop(paste("Data include missing values. Fix this before applying the function."))
+    stop(paste("Data include missing values."))
   }
   # checks if n>p
   if (length(y) <= dim(x)[2]) {

@@ -25,7 +25,9 @@ vectors.}
 }
 \value{
 \code{cqs} computes the directions of the central quantile subspace,
-  and returns: \itemize{ \item{qvectors: }{The estimated directions of the
+  and returns:
+  \itemize{
+  \item{qvectors: }{The estimated directions of the
   \eqn{\tau}th central quantile subspace.}
 
   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
@@ -63,8 +65,10 @@ independent vectors.
 # Example 1
 # estimate the directions of a single-index model
 set.seed(1234)
-n <- 100; p <- 10
-x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+n <- 100
+p <- 10
+x <- matrix(rnorm(n * p), n, p)
+error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 tau <- 0.5
 out <- cqs(x, y, tau, dtau = 1)
@@ -77,8 +81,10 @@ out$qvectors[, 1:out$dtau]
 # Example 2
 # estimate the directions of a multi-index model
 set.seed(1234)
-n <- 100; p <- 10
-x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+n <- 100
+p <- 10
+x <- matrix(rnorm(n * p), n, p)
+error <- rnorm(n)
 y <- exp(x[, 1]) + x[, 2] + error
 tau <- 0.5
 cqs(x, y, tau)$qvectors[, 1:2]
