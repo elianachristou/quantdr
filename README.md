@@ -57,8 +57,11 @@ library(quantdr)
 
 # Setting
 set.seed(1234)
-n <- 100; p <- 10; taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
-x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+n <- 100
+p <- 10
+taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+x <- matrix(rnorm(n * p), n, p)
+error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 
 # true direction that spans each central quantile subspace
