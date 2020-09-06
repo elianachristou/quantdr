@@ -7,8 +7,8 @@
 llqr(x, y, tau = 0.5, h, method = "rule", x0)
 }
 \arguments{
-\item{x}{A design matrix.  The rows represent observations and the columns
-represent predictor variables.}
+\item{x}{A design matrix (n x p).  The rows represent observations and the
+columns represent predictor variables.}
 
 \item{y}{A vector of the response variable.}
 
@@ -30,9 +30,10 @@ performed on the design matrix \code{x}.}
 }
 \value{
 \code{llqr} computes the local linear \eqn{\tau}th conditional
- quantile function of \code{y} given \code{x}, and returns: \itemize{
- \item{ll_est: }{The estimated function value at the design points \code{x}
- or, if specified, at the point \code{x0}.}
+   quantile function of \code{y} given \code{x}, and returns:
+   \itemize{
+   \item{ll_est: }{The estimated function value at the design points \code{x}
+   or, if specified, at the point \code{x0}.}
 
  \item{h: }{The bandwidth for the local linear quantile regression fit.  If
  not specified by the user, \code{h} is estimated using either the
@@ -75,7 +76,9 @@ advice the user to specify a bandwidth in the function. See the last example
 # estimate the function for different quantile levels for simulated data
 set.seed(1234)
 n <- 100
-x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+x <- rnorm(n)
+error <- rnorm(n)
+y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
 taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
 par(mfrow=c(2, 3))
 for (i in 1:length(taus)) {
@@ -87,7 +90,9 @@ points(x, llqr(x, y, tau = taus[i])$ll_est, col = 'red', pch = 16)
 # estimate the function at a point x0
 set.seed(1234)
 n <- 100
-x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+x <- rnorm(n)
+error <- rnorm(n)
+y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
 tau <- 0.5
 x0 <- 1
 llqr(x, y, tau = tau, x0 = x0)
@@ -110,8 +115,10 @@ legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
 # demonstrate a situation where the dimension of the predictor is large and
 # the local linear fitting meets the 'curse of dimensionality' problem
 set.seed(1234)
-n <- 100; p <- 10
-x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+n <- 100
+p <- 10
+x <- matrix(rnorm(n * p), n, p)
+error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 tau <- 0.5
 \dontrun{

@@ -7,8 +7,8 @@
 llqrcv(x, y, tau = 0.5)
 }
 \arguments{
-\item{x}{A design matrix.  The rows represent observations and the columns
-represent predictor variables.}
+\item{x}{A design matrix (n x p).  The rows represent observations and the
+columns represent predictor variables.}
 
 \item{y}{A vector of the response variable.}
 
@@ -16,8 +16,8 @@ represent predictor variables.}
 }
 \value{
 \code{llqrcv} returns the optimal bandwidth selected using
- Cross-Validation criterion for the local linear fit of the \eqn{\tau}th
- conditional quantile of \code{y} given \code{x}.
+   Cross-Validation criterion for the local linear fit of the \eqn{\tau}th
+   conditional quantile of \code{y} given \code{x}.
 }
 \description{
 \code{llqrcv} estimates the bandwidth necessary for the local linear fit of
@@ -40,7 +40,9 @@ the function to fail. For these cases, we advice the user to directly use the
 \examples{
 set.seed(1234)
 n <- 100
-x <- rnorm(100); error <- rnorm(100); y <- x^2 + error
+x <- rnorm(100)
+error <- rnorm(100)
+y <- x^2 + error
 tau <- 0.5
 llqrcv(x, y, tau = tau)
 }
