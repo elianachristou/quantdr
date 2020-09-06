@@ -90,10 +90,8 @@ cqs <- function(x, y, tau = 0.5, dtau) {
 
   # compatibility checks
   # checks if y is univariate
-  if (is.matrix(y) == T) {
-    if (dim(y)[2] > 1) {
+  if (dim(y)[2] > 1) {
       stop(paste("y needs to be a univariate response. y is a", dim(y)[2], "-dimensional response in this case."))
-    }
   }
   # checks if the number of observations for x and y agree
   if (length(y) != dim(x)[1]) {
