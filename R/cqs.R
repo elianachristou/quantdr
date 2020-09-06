@@ -29,7 +29,9 @@
 #'   vectors.
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace,
-#'   and returns: \itemize{ \item{qvectors: }{The estimated directions of the
+#'   and returns:
+#'   \itemize{
+#'   \item{qvectors: }{The estimated directions of the
 #'   \eqn{\tau}th central quantile subspace.}
 #'
 #'   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
@@ -56,8 +58,10 @@
 #' # Example 1
 #' # estimate the directions of a single-index model
 #' set.seed(1234)
-#' n <- 100; p <- 10
-#' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+#' n <- 100
+#' p <- 10
+#' x <- matrix(rnorm(n * p), n, p)
+#' error <- rnorm(n)
 #' y <- 3 * x[, 1] + x[, 2] + error
 #' tau <- 0.5
 #' out <- cqs(x, y, tau, dtau = 1)
@@ -70,8 +74,10 @@
 #' # Example 2
 #' # estimate the directions of a multi-index model
 #' set.seed(1234)
-#' n <- 100; p <- 10
-#' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+#' n <- 100
+#' p <- 10
+#' x <- matrix(rnorm(n * p), n, p)
+#' error <- rnorm(n)
 #' y <- exp(x[, 1]) + x[, 2] + error
 #' tau <- 0.5
 #' cqs(x, y, tau)$qvectors[, 1:2]
@@ -80,50 +86,50 @@
 cqs <- function(x, y, tau = 0.5, dtau) {
 
   x <- as.matrix(x)
+  y <- as.matrix(y)
 
   # compatibility checks
   # checks if y is univariate
   if (is.matrix(y) == T) {
     if (dim(y)[2] > 1) {
-      stop(paste("y needs to be a univariate response."))
+      stop(paste("y needs to be a univariate response. y is a", dim(y)[2], "-dimensional response in this case."))
     }
   }
   # checks if the number of observations for x and y agree
   if (length(y) != dim(x)[1]) {
-    stop(paste("number of observations in y (", length(y), ") not equal
-    to the number of rows of x (", dim(x)[1], ")", sep = ""))
+    stop(paste("number of observations of y (", length(y), ") not equal to the number of rows of x (", dim(x)[1], ").", sep = ""))
   }
   # checks if the quantile level is one-dimensional
   if (length(tau) > 1) {
-    stop(paste("quantile level needs to be one number"))
+    stop(paste("quantile level needs to be one number."))
   }
   # checks if the quantile level is between 0 and 1 (strictly)
   if (tau >= 1 | tau <= 0) {
-    stop(paste("quantile level needs to be a number strictly between 0 and 1"))
+    stop(paste("quantile level needs to be a number strictly between 0 and 1."))
   }
   # checks for NAs
   if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
-    stop(paste("Data include NA/NaN. Fix this before applying the function."))
+    stop(paste("Data include missing values. Fix this before applying the function."))
   }
   # checks if n>p
   if (length(y) <= dim(x)[2]) {
-    stop(paste("number of observations in y (", length(y), ") should be
-    greater than the number of columns of x (", dim(x)[2], ")", sep = ""))
+    stop(paste("number of observations of y (", length(y), ") should be greater than the number of columns of x (", dim(x)[2], ").", sep = ""))
   }
   if (length(x) == length(y)) {
-    stop("x is one dimensional, no need for dimension reduction")
+    stop("x is one dimensional, no need for dimension reduction.")
   }
 
   # define the parameters
-  n <- length(y); p <- dim(x)[2]
+  n <- length(y)
+  p <- dim(x)[2]
   # standardize the predictor variables
   xc <- scale(x, scale = FALSE)
   sig <- var(x)
   signrt <- MTS::msqrt(sig)$invsqrt
   xstand <- xc %*% signrt
 
-  # use SIR for initial dimension reduction and apply BIC criterion
-  # to estimate d, the dimension of the central subspace
+  # use SIR for initial dimension reduction
+  # use bic_d to estimate d, the dimension of the central subspace
   output <- dr::dr(y ~ xstand)
   lambdas <- output$evalues
   d_hat <- bic_d(lambdas, n)
@@ -165,7 +171,7 @@ cqs <- function(x, y, tau = 0.5, dtau) {
     # produce more vectors
     # check that dtau is integer
     if (dtau<1 | dtau != as.integer(dtau) | dtau > p){
-      stop(paste("dtau needs to be an integer between 1 and p (", dim(x)[2], ")"))
+      stop(paste("dtau needs to be an integer between 1 and p (", dim(x)[2], ")."))
     }
     b <- matrix(0, p, p)
     b[, 1] <- beta_hat
@@ -186,7 +192,7 @@ cqs <- function(x, y, tau = 0.5, dtau) {
   } else {
     # check that dtau is integer
     if (dtau<1 | dtau != as.integer(dtau) | dtau > p){
-      stop(paste("dtau needs to be an integer between 1 and p (", dim(x)[2], ")"))
+      stop(paste("dtau needs to be an integer between 1 and p (", dim(x)[2], ")."))
     }
     # if dtau is known to be one, then the initial vector is sufficient
     out <- signrt %*% beta_hat
