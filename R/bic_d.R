@@ -5,7 +5,7 @@
 #' The function estimates the dimension of a subspace using the modified-BIC
 #' type criterion of Zhu et al. (2010).
 #'
-#' @param lambdas The eigenvalues of the matrix that spans the subspace
+#' @param lambdas The eigenvalues of the matrix that spans the subspace.
 #' @param n The number of observations.
 #'
 #' @return \code{bic_d} returns the dimension of the subspace.
@@ -17,7 +17,9 @@
 #' @noRd
 #' @examples
 #' set.seed(1234)
-#' n <- 100; p <- 10; tau <- 0.5
+#' n <- 100
+#' p <- 10
+#' tau <- 0.5
 #' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
 #' y <- 3 * x[, 1] + x[, 2] + error
 #' out <- cqs(x, y, tau)
@@ -31,5 +33,5 @@ bic_d <- function(lambdas, n) {
     gn[i] <- n * sum((lambdas[1:i])^2) / sum((lambdas)^2) -
       2 * (n^ (3 / 4) / p) * i * (i + 1) / 2
   }
-  return(which(gn == max(gn)))
+  which(gn == max(gn))
 }
