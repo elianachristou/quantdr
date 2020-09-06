@@ -116,8 +116,11 @@ Y=3X_{1}+X_{2}+\epsilon,
 where $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$ and the error $\epsilon$ are generated according to a standard normal distribution.  The $\tau$-CQS is spanned by $(3, 1, 0, \dots, 0)^{\top}$ for all $\tau$.  We focus on the estimation of the 0.5-CQS.    
 ``` {r}
 set.seed(1234)
-n <- 100; p <- 10; tau <- 0.5
-x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+n <- 100
+p <- 10
+tau <- 0.5
+x <- matrix(rnorm(n * p), n, p)
+error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 ```
 The `cqs` function proceeds by specifying an $n \times p$ design matrix $\mathbf{X}$, a vector of the response variable $Y$, and a quantile level $\tau$.  The dimension of the $\tau$-CQS, i.e., $d_{\tau}$, is optional. Note that for this example $d_{\tau}=1$ for every quantile level $\tau$.  
@@ -212,7 +215,8 @@ y <- as.vector(BTC$`BTC-USD.Adjusted`)
 r <- diff(log(y))
 lag <- 5
 newy <- r[ - c(1:lag)]
-n <- length(newy); p <- 10
+n <- length(newy)
+p <- 10
 
 xtemp <- matrix(0, n, lag)
 for (i in (lag + 1):(n + lag)){
