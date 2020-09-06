@@ -1,68 +1,71 @@
-#'Local linear quantile regression
+#' Local linear quantile regression
 #'
-#'\code{llqr} estimates the \eqn{\tau}th conditional quantile of \code{y} given
-#'\code{x} based on a local linear fit.  The estimation is performed at each of
-#'the design points or, if specified, at a single observation point \code{x0}.
+#' \code{llqr} estimates the \eqn{\tau}th conditional quantile of \code{y} given
+#' \code{x} based on a local linear fit.  The estimation is performed at each of
+#' the design points or, if specified, at a single observation point \code{x0}.
 #'
-#'The function computes the local linear quantile regression fit for a specified
-#'quantile level \eqn{\tau} at the design points of the matrix \code{x} or at a
-#'pre-specified point \code{x0}.  The estimation is based on a standard normal
-#'kernel and a univariate bandwidth.  The bandwidth, if not specified by the
-#'user, is defined using either the rule-of-thumb given by Yu and Jones (1994)
-#'or the cross-validation criterion.
+#' The function computes the local linear quantile regression fit for a specified
+#' quantile level \eqn{\tau} at the design points of the matrix \code{x} or at a
+#' pre-specified point \code{x0}.  The estimation is based on a standard normal
+#' kernel and a univariate bandwidth.  The bandwidth, if not specified by the
+#' user, is defined using either the rule-of-thumb given by Yu and Jones (1994)
+#' or the cross-validation criterion.
 #'
-#'The estimation applies to univariate and multivariate predictor variables. For
-#'the latter, the local linear fit uses the multivariate standard normal kernel.
-#'Note that if the estimation is performed at a pre-specified point \code{x0},
-#'then \code{x0} should be a scalar (for univariate predictor) or a vector (for
-#'multivariate predictor).
+#' The estimation applies to univariate and multivariate predictor variables. For
+#' the latter, the local linear fit uses the multivariate standard normal kernel.
+#' Note that if the estimation is performed at a pre-specified point \code{x0},
+#' then \code{x0} should be a scalar (for univariate predictor) or a vector (for
+#' multivariate predictor).
 #'
-#'@section Warning:
-#'The user needs to be careful about the bandwidth selection. When the
-#'dimension of the predictor variable is large compared to the sample size,
-#'local linear fitting meets the 'curse of dimensionality' problem. In
-#'situations like that, the bandwidth selected by the rule-of-thumb or the
-#'cross- validation criterion might be small and lead to a sparse
-#'neighborhood. This will cause the function to fail. For these cases, we
-#'advice the user to specify a bandwidth in the function. See the last example
-#below.
+#' @section Warning:
+#' The user needs to be careful about the bandwidth selection. When the
+#' dimension of the predictor variable is large compared to the sample size,
+#' local linear fitting meets the 'curse of dimensionality' problem. In
+#' situations like that, the bandwidth selected by the rule-of-thumb or the
+#' cross- validation criterion might be small and lead to a sparse
+#' neighborhood. This will cause the function to fail. For these cases, we
+#' advice the user to specify a bandwidth in the function. See the last example
+# below.
 #'
-#'@param x A design matrix.  The rows represent observations and the columns
-#'  represent predictor variables.
-#'@param y A vector of the response variable.
-#'@param tau A quantile level, a number strictly between 0 and 1.
-#'@param h A univariate bandwidth.  If not specified, the bandwidth is estimated
-#'  using either "\code{rule}" or "\code{CV}".  See \code{method} below for
-#'  details.
-#'@param method A character string specifying the method to select the
-#'  bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
-#'  bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
-#'  cross-validation.
-#'@param x0 A single observation for which to perform the estimation.  It needs
-#'  to be a singular value, for a univariate predictor, or a vector, for a
-#'  multivariate predictor.  If \code{x0} is missing, the estimation will be
-#'  performed on the design matrix \code{x}.
-#'@return \code{llqr} computes the local linear \eqn{\tau}th conditional
-#'  quantile function of \code{y} given \code{x}, and returns: \itemize{
-#'  \item{ll_est: }{The estimated function value at the design points \code{x}
-#'  or, if specified, at the point \code{x0}.}
+#' @param x A design matrix (n x p).  The rows represent observations and the
+#' columns represent predictor variables.
+#' @param y A vector of the response variable.
+#' @param tau A quantile level, a number strictly between 0 and 1.
+#' @param h A univariate bandwidth.  If not specified, the bandwidth is estimated
+#'    using either "\code{rule}" or "\code{CV}".  See \code{method} below for
+#'    details.
+#' @param method A character string specifying the method to select the
+#'    bandwidth, if it is missing.  Use "\code{rule}" for the rule-of-thumb
+#'    bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
+#'    cross-validation.
+#' @param x0 A single observation for which to perform the estimation.  It needs
+#'    to be a singular value, for a univariate predictor, or a vector, for a
+#'    multivariate predictor.  If \code{x0} is missing, the estimation will be
+#'    performed on the design matrix \code{x}.
+#' @return \code{llqr} computes the local linear \eqn{\tau}th conditional
+#'    quantile function of \code{y} given \code{x}, and returns:
+#'    \itemize{
+#'    \item{ll_est: }{The estimated function value at the design points \code{x}
+#'    or, if specified, at the point \code{x0}.}
 #'
 #'  \item{h: }{The bandwidth for the local linear quantile regression fit.  If
 #'  not specified by the user, \code{h} is estimated using either the
 #'  rule-of-thumb given by Yu and Jones (1994) or the cross-validation
 #'  criterion.} }
 #'
-#'@references Yu, K., and Jones, M.C. (1998), Local linear quantile regression.
+#' @references Yu, K., and Jones, M.C. (1998), Local linear quantile regression.
 #'  \emph{Journal of the American Statistical Association}, 93, 228-237.
-#'@import stats
-#'@include llqrcv.R
+#' @import stats
+#' @include llqrcv.R
 #' @examples
 #'
 #' # Example 1
 #' # estimate the function for different quantile levels for simulated data
 #' set.seed(1234)
 #' n <- 100
-#' x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+#' x <- rnorm(n)
+#' error <- rnorm(n)
+#' y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
 #' taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
 #' par(mfrow=c(2, 3))
 #' for (i in 1:length(taus)) {
@@ -74,7 +77,9 @@
 #' # estimate the function at a point x0
 #' set.seed(1234)
 #' n <- 100
-#' x <- rnorm(n); error <- rnorm(n); y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
+#' x <- rnorm(n)
+#' error <- rnorm(n)
+#' y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
 #' tau <- 0.5
 #' x0 <- 1
 #' llqr(x, y, tau = tau, x0 = x0)
@@ -97,8 +102,10 @@
 #' # demonstrate a situation where the dimension of the predictor is large and
 #' # the local linear fitting meets the 'curse of dimensionality' problem
 #' set.seed(1234)
-#' n <- 100; p <- 10
-#' x <- matrix(rnorm(n * p), n, p); error <- rnorm(n)
+#' n <- 100
+#' p <- 10
+#' x <- matrix(rnorm(n * p), n, p)
+#' error <- rnorm(n)
 #' y <- 3 * x[, 1] + x[, 2] + error
 #' tau <- 0.5
 #'\dontrun{
@@ -108,39 +115,38 @@
 #' fit.alt <- llqr(x, y, tau = tau, h=1)
 #' fit.alt
 #'
-#'@export
+#' @export
 llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
 
   x <- as.matrix(x)
+  y <- as.matrix(y)
 
   # compatibility checks
   # checks if y is univariate
   if (is.matrix(y) == T) {
     if (dim(y)[2] > 1) {
-      stop(paste("y needs to be a univariate response."))
+      stop(paste("y needs to be a univariate response. y is a", dim(y)[2], "-dimensional response in this case."))
     }
   }
   # checks if the number of observations for x and y agree
   if (length(y) != dim(x)[1]) {
-    stop(paste("number of observations in y (", length(y), ") not equal
-    to the number of rows of x (", dim(x)[1], ")", sep = ""))
+    stop(paste("number of observations of y (", length(y), ") not equal to the number of rows of x (", dim(x)[1], ").", sep = ""))
   }
   # checks if the quantile level is one-dimensional
   if (length(tau) > 1) {
-    stop(paste("quantile level needs to be one number"))
+    stop(paste("quantile level needs to be one number."))
   }
   # checks if the quantile level is between 0 and 1 (strictly)
   if (tau >= 1 | tau <= 0) {
-    stop(paste("quantile level needs to be a number strictly between 0 and 1"))
+    stop(paste("quantile level needs to be a number strictly between 0 and 1."))
   }
   # checks for NAs
   if (sum(is.na(y)) > 0 | sum(is.na(x)) > 0) {
-    stop(paste("Data include NA/NaN. Fix this before applying the function."))
+    stop(paste("Data include missing values."))
   }
   # checks if n>p
   if (length(y) <= dim(x)[2]) {
-    stop(paste("number of observations in y (", length(y), ") should be
-    greater than the number of columns of x (", dim(x)[2], ")", sep = ""))
+    stop(paste("number of observations of y (", length(y), ") should be greater than the number of columns of x (", dim(x)[2], ").", sep = ""))
   }
 
   n <- length(y)
@@ -184,8 +190,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
   } else {
     # checks if the dimension of x0 is the same as p
     if (length(x0) != p) {
-      stop(paste("x0 needs to be a p-dimensional vector, where p is
-      the dimension of x (", dim(x)[2], ")"))
+      stop(paste("x0 needs to be a p-dimensional vector, where p is the dimension of x (",dim(x)[2], ")."))
     }
     if (p == 1) {
       # perform estimation at the point x0
