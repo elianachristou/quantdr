@@ -108,7 +108,7 @@ for(i in 1:length(taus)) {
  fit <- llqr(times, accel, tau = taus[i])$ll_est
  lines(times, fit, lty = i)
 }
-legend(38, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
+legend(45, -50, c("tau=0.1","tau=0.25","tau=0.5","tau=0.75", "tau=0.9"),
     lty=1:length(taus))
 
 # Example 4
