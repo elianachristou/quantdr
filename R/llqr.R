@@ -165,12 +165,13 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
 
   # if x0 is missing, perform estimation at the entire design matrix
   if (missing(x0)) {
-    ll_est <- as.null(n)
+    ll_est <- list()
     # if the dimension of x is one, use univariate kernel, otherwise
     # use multivariate kernel
     if (p == 1) {
       # perform estimation at the design matrix x
       for (i in 1:dim(x)[1]) {
+        z <- list()
         z <- x - x[i, 1]
         w <- dnorm(z / h)
         q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
@@ -178,8 +179,8 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
       }
     } else {
       for (i in 1:dim(x)[1]) {
-        z <- matrix(0, n, p)
-        z <- x - t(matrix(rep(x[i, ], p * n), p, n))
+        z <- list()
+        z <- t(t(x) - x[i, ])
         w <- mvtnorm::dmvnorm(z / h)
         q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
         ll_est[i] <- q$coef[1]
@@ -192,17 +193,18 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
     }
     if (p == 1) {
       # perform estimation at the point x0
+      z <- list()
       z <- x - x0
       w <- dnorm(z / h)
       q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
       ll_est <- q$coef[1]
     } else {
-      z <- matrix(0, n, p)
-      z <- x - t(matrix(rep(x0, p * n), p, n))
+      z <- list()
+      z <- t(t(x) - x[i, ])
       w <- mvtnorm::dmvnorm(z / h)
       q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
       ll_est <- q$coef[1]
     }
   }
-  list(ll_est = ll_est, h = h)
+  list(ll_est = unlist(ll_est), h = h)
 }
