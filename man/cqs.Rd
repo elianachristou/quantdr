@@ -4,7 +4,7 @@
 \alias{cqs}
 \title{Central quantile subspace}
 \usage{
-cqs(x, y, tau = 0.5, dtau)
+cqs(x, y, tau = 0.5, dtau = NULL)
 }
 \arguments{
 \item{x}{A design matrix (n x p).  The rows represent observations and the

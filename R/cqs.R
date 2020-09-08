@@ -83,7 +83,7 @@
 #' cqs(x, y, tau)$qvectors[, 1:2]
 #'
 #' @export
-cqs <- function(x, y, tau = 0.5, dtau) {
+cqs <- function(x, y, tau = 0.5, dtau = NULL) {
 
   x <- as.matrix(x)
   y <- as.matrix(y)
@@ -146,7 +146,7 @@ cqs <- function(x, y, tau = 0.5, dtau) {
 
   # if dtau is missing, use the iterative procedure to produce all vectors
   # apply the BIC criterion to determine dtau
-  if (missing(dtau)) {
+  if (is.null(dtau)) {
     b <- matrix(0, p, p)
     b[, 1] <- beta_hat
     for (j in 2:(dim(x)[2])) {

@@ -4,7 +4,7 @@
 \alias{llqr}
 \title{Local linear quantile regression}
 \usage{
-llqr(x, y, tau = 0.5, h, method = "rule", x0)
+llqr(x, y, tau = 0.5, h = NULL, method = "rule", x0 = NULL)
 }
 \arguments{
 \item{x}{A design matrix (n x p).  The rows represent observations and the

@@ -116,7 +116,7 @@
 #' fit.alt
 #'
 #' @export
-llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
+llqr <- function(x, y, tau=0.5, h = NULL, method="rule", x0 = NULL) {
 
   x <- as.matrix(x)
   y <- as.matrix(y)
@@ -151,7 +151,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
   p <- dim(x)[2]
 
   # if bandwidth is missing, estimate it
-  if (missing(h)) {
+  if (is.null(h)) {
     if (method == "CV") {
       h <- llqrcv(x, y, tau)
     }
@@ -164,7 +164,7 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
   }
 
   # if x0 is missing, perform estimation at the entire design matrix
-  if (missing(x0)) {
+  if (is.null(x0)) {
     ll_est <- list()
     # if the dimension of x is one, use univariate kernel, otherwise
     # use multivariate kernel
