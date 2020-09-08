@@ -171,7 +171,6 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
     if (p == 1) {
       # perform estimation at the design matrix x
       for (i in 1:dim(x)[1]) {
-        z <- list()
         z <- x - x[i, 1]
         w <- dnorm(z / h)
         q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
@@ -193,7 +192,6 @@ llqr <- function(x, y, tau=0.5, h, method="rule", x0) {
     }
     if (p == 1) {
       # perform estimation at the point x0
-      z <- list()
       z <- x - x0
       w <- dnorm(z / h)
       q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
