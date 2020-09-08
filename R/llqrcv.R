@@ -27,8 +27,8 @@
 #' @examples
 #' set.seed(1234)
 #' n <- 100
-#' x <- rnorm(100)
-#' error <- rnorm(100)
+#' x <- rnorm(n)
+#' error <- rnorm(n)
 #' y <- x^2 + error
 #' tau <- 0.5
 #' llqrcv(x, y, tau = tau)
