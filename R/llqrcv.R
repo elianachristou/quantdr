@@ -60,9 +60,8 @@ llqrcv <- function(x, y, tau=0.5) {
   h_lower <- min(n^ (- 1 / 5), min(2, sd(y)) * n^ (- 1 / 5))
   h_upper <- max(n^ (- 1 / 5), min(2, sd(y)) * n^ (- 1 / 5))
   h <- seq(h_lower, h_upper, by = 0.1)
-  x <- as.matrix(x)
   qhat <- matrix(0, n, length(h))
-  cv <- as.null(length(h))
+  cv <- list()
 
   for (i in 1:length(h)) {
     for (j in 1:n) {
@@ -71,5 +70,5 @@ llqrcv <- function(x, y, tau=0.5) {
     }
     cv[i] <- mean((y - qhat[, i]) * (tau - (y < qhat[, i])))
   }
-  h[which(cv == min(cv))]
+  h[which(unlist(cv) == min(unlist(cv)))]
 }
