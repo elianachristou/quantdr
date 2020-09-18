@@ -28,9 +28,7 @@ conditional quantile function using `llqr`.
 ## Installation
 
 You can install the released version of quantdr from
-[CRAN](https://CRAN.R-project.org) with: (this will work when the
-package is released to CRAN - this parenthesis will be removed once the
-package is available in CRAN)
+[CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("quantdr") 
@@ -124,7 +122,8 @@ attach(Boston)
 # read the data 
 y <- medv
 x <- cbind(rm, log(tax), ptratio, log(lstat))
-n <- length(y); p <- dim(x)[2]
+n <- length(y)
+p <- dim(x)[2]
 
 # plot the estimated coefficient of each predictor variable for multiple quantiles
 tau <- seq(0.1, 0.9, by = 0.005)
