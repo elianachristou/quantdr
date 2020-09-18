@@ -87,7 +87,7 @@ x <- matrix(rnorm(n * p), n, p)
 error <- rnorm(n)
 y <- exp(x[, 1]) + x[, 2] + error
 tau <- 0.5
-cqs(x, y, tau)$qvectors[, 1:2]
+cqs(x, y, tau)$qvectors
 
 }
 \references{

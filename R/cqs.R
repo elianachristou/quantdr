@@ -80,7 +80,7 @@
 #' error <- rnorm(n)
 #' y <- exp(x[, 1]) + x[, 2] + error
 #' tau <- 0.5
-#' cqs(x, y, tau)$qvectors[, 1:2]
+#' cqs(x, y, tau)$qvectors
 #'
 #' @export
 cqs <- function(x, y, tau = 0.5, dtau = NULL) {
