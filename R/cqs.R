@@ -28,7 +28,7 @@
 #'   (more realistically) unknown, then the algorithm continues on creating more
 #'   vectors.
 #'
-#' @return \code{cqs} computes the directions of the central quantile subspace,
+#' @return \code{cqs} computes the directions of the central quantile subspace
 #'   and returns:
 #'   \itemize{
 #'   \item{qvectors: }{The estimated directions of the
@@ -39,8 +39,8 @@
 #'   If \code{dtau} is one, the \code{qvalues} output is not produced.}
 #'
 #'   \item{dtau: }{Suggested dimension of the central quantile subspae.  If
-#'   \code{dtau} is specified by the user, then the algorithm outputs the
-#'   user-defined value.  If \code{dtau} is not specified by the user, then the
+#'   \code{dtau} is specified by the user then the algorithm outputs the
+#'   user-defined value.  If \code{dtau} is not specified by the user then the
 #'   algorithm outputs a suggested dimension using the modified-BIC type
 #'   criterion of Zhu et al. (2010).  Note that this is one suggested method to
 #'   estimate the structural dimension and is not necessarily a perfect one. The
