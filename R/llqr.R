@@ -25,7 +25,7 @@
 #' cross- validation criterion might be small and lead to a sparse
 #' neighborhood. This will cause the function to fail. For these cases, we
 #' advice the user to specify a bandwidth in the function. See the last example
-# below.
+#' below.
 #'
 #' @param x A design matrix (n x p).  The rows represent observations and the
 #' columns represent predictor variables.
@@ -39,11 +39,11 @@
 #'    bandwidth of Yu and Jones (1994) or "\code{CV}" for the method of
 #'    cross-validation.
 #' @param x0 A single observation for which to perform the estimation.  It needs
-#'    to be a singular value, for a univariate predictor, or a vector, for a
-#'    multivariate predictor.  If \code{x0} is missing, the estimation will be
+#'    to be a scalar (for a univariate predictor) or a vector (for a
+#'    multivariate predictor).  If \code{x0} is missing, the estimation will be
 #'    performed on the design matrix \code{x}.
 #' @return \code{llqr} computes the local linear \eqn{\tau}th conditional
-#'    quantile function of \code{y} given \code{x}, and returns:
+#'    quantile function of \code{y} given \code{x} and returns:
 #'    \itemize{
 #'    \item{ll_est: }{The estimated function value at the design points \code{x}
 #'    or, if specified, at the point \code{x0}.}
