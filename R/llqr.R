@@ -28,7 +28,7 @@
 #' below.
 #'
 #' @param x A design matrix (n x p).  The rows represent observations and the
-#' columns represent predictor variables.
+#'     columns represent predictor variables.
 #' @param y A vector of the response variable.
 #' @param tau A quantile level, a number strictly between 0 and 1.
 #' @param h A univariate bandwidth.  If not specified, the bandwidth is estimated
