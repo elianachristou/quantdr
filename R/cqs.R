@@ -34,11 +34,11 @@
 #'   \item{qvectors: }{The estimated directions of the
 #'   \eqn{\tau}th central quantile subspace.}
 #'
-#'   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposion
+#'   \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposition
 #'   of the matrix with column vectors that span the central quantile subspace.
 #'   If \code{dtau} is one, the \code{qvalues} output is not produced.}
 #'
-#'   \item{dtau: }{Suggested dimension of the central quantile subspae.  If
+#'   \item{dtau: }{Suggested dimension of the central quantile subspace.  If
 #'   \code{dtau} is specified by the user then the algorithm outputs the
 #'   user-defined value.  If \code{dtau} is not specified by the user then the
 #'   algorithm outputs a suggested dimension using the modified-BIC type
