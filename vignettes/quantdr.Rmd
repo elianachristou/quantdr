@@ -25,11 +25,11 @@ knitr::opts_chunk$set(
 
 Data visualization and non-parametric fitting can become very challenging when data is *high-dimensional*.  This has led to the development of many dimension reduction techniques that focus on the entire conditional distribution of the data.  However, when specific aspects of the conditional distribution are of interest, these methods can provide more directions than necessary.  
 
-Quantile regression (QR) has received a lot of attention since its inception from Koenker and Bassett (1978) and it has been an attractive tool for research areas where non-central parts of the data are important.  Dimension reduction techniques for conditional quantiles have recently made an appearance and are still in development.  For some references, see Wu et al. (2010), Christou and Akritas (2016), Kong and Xia (2012, 2014), and Luo et al. (2014).
+Quantile regression (QR) has received a lot of attention since its inception from Koenker and Bassett (1978) and it has been an attractive tool for research areas where non-central parts of the data are important.  Dimension reduction techniques for conditional quantiles have recently made an appearance and are still in development.  For some references, see Wu et al. (2010), Kong and Xia (2012, 2014), Luo et al. (2014), and Christou and Akritas (2016).
 
 More recently, Christou (2020) proposed a new technique for finding the fewest linear combinations of the predictor variable $\mathbf{X}$ that contain all the information about the conditional quantile.  To give further intuition, for a univariate response $Y$ and a $p$-dimensional predictor $\mathbf{X}$, the method focuses on finding a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, for $\tau \in (0, 1)$ and $d_{\tau} \leq p$, such that $Y$ and $Q_{\tau}(Y|\mathbf{X})$ are conditionally independent given $\mathbf{B}_{\tau}^{\top} \mathbf{X}$, where $Q_{\tau}(Y|\mathbf{X})$ denotes the $\tau$th conditional quantile of $Y$ given $\mathbf{X}$.  The space spanned by $\mathbf{B}_{\tau}$ is called the *$\tau$th quantile dimension reduction subspace* for the regression of $Y$ on $\mathbf{X}$.  The intersection of all $\tau$th dimension reduction subspaces is called the *$\tau$th central quantile subspace* ($\tau$-CQS) and is denoted by $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$.  
 
-The purpose of this vignette is to demonstrate the implementation of the functions appearing in the `quantdr` package, along with some examples.  The main function of the package is `cqs`, which returns the estimated directions of the $\tau$-CQS.  
+The purpose of this vignette is to demonstrate the implementation of the functions appearing in the `quantdr` package, along with some examples.  The main function of the package is `cqs` which returns the estimated directions of the $\tau$-CQS.  
 
 # Getting Started
 
@@ -57,8 +57,7 @@ To get help on a specific function type `help(function.name)` or `?function.name
 help(cqs)
 ?cqs
 ```
-
-To run examples in `R` you can use the examples used to illustrate that the commands are executable by pasting them into the `R` session.
+For further examples, refer to the coding examples listed in the documentation for each `quantdr` function.  
 
 # Central quantile subspace
 ## Overview
@@ -81,7 +80,7 @@ The above two results imply the following:
 
 1. If the dimension of the $\tau$-CQS is unknown, we can apply the procedure from 2. Then, we can estimate the dimension $d_{\tau}$ using the eigenvalues resulting from the eigenvalue decomposition.  Existing techniques such as the Cross-Validation (CV) criterion or the modified-BIC type criterion of Zhu et al. (2010) can be used to determine the structural dimension. 
 
-All of the above are incorporated in the `cqs` function in `R`.
+All of the above are incorporated in the `cqs` function.
 
 ## The algorithm on a glance
 
@@ -105,7 +104,7 @@ For this we use the `lm` function of the `stats` package.
     
 1.  We form the $p \times p$ matrix $\widehat{\mathbf{V}}_{\tau}=(\widehat{\boldsymbol{\beta}}_{\tau, 0}, \dots, \widehat{\boldsymbol{\beta}}_{\tau, p-1})$ and choose the $d_{\tau}$ eigenvectors corresponding to the $d_{\tau}$ largest eigenvalues of $\widehat{\mathbf{V}}_{\tau} \widehat{\mathbf{V}}_{\tau}^{\top}$.  For this we use the `eigen` function of the `base` package.  
 
-If $d_{\tau}$ is unknown, a suggested structural dimension can be estimated using existing techniques such as the CV criterion or the modified-BIC type criterion of Zhu et al. (2010), among others.  In terms of the `cqs` function, the modified-BIC type criterion outputs a suggested dimension.  Note that the user can extract the eigenvalues and apply them to any other existing technique.  
+If $d_{\tau}$ is unknown, a suggested structural dimension can be estimated using existing techniques such as the CV criterion or the modified-BIC type criterion of Zhu et al. (2010).  In terms of the `cqs` function, the modified-BIC type criterion is utilized and returns a suggested dimension.  Note that the user can extract the eigenvalues and apply them to any other existing technique.  
 
 ## Output of `cqs`
 
@@ -156,7 +155,7 @@ We can continue further and estimate the conditional quantile function.  To do t
 ``` {r}
 newx <- x %*% beta_hat1
 ```
-We then estimate the conditional quantile using the `llqr` function of the presented package.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for which to perform the estimation, are optional.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth of Yu and Jones (1998) or the CV criterion; the default choice is the rule-of-thumb.  However, the user needs to be careful about the bandwidth selection. When the dimension of the predictor variable is large compared to the sample size, local linear fitting meets the 'curse of dimensionality' problem. In situations like that, the bandwidth selected by the rule-of-thumb or the CV criterion might be too small and cause the function to fail. For these cases, we advice the user to pre-specify the bandwidth in the function.  Finally, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example we use
+We then estimate the conditional quantile using the `llqr` function of the presented package.  The main arguments of the function are: the design matrix, which in this case is $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$, the vector of the response variable $Y$, and the quantile level $\tau$.  The rest of the arguments, i.e., the bandwidth $h$, the method for the estimation of $h$, and the single observation $x_0$ for which to perform the estimation, are optional.  If $h$ is not specified, then it will be determined using either the rule-of-thumb bandwidth of Yu and Jones (1998) or the CV criterion; the default choice is the rule-of-thumb.  However, the user needs to be careful about the bandwidth selection. When the dimension of the predictor variable is large compared to the sample size, local linear fitting meets the 'curse of dimensionality' problem. In situations like that, the bandwidth selected by the rule-of-thumb or the CV criterion might be small and cause the function to fail. For these cases, we advice the user to pre-specify the bandwidth in the function.  Finally, if $x_0$ is not specified, the estimation will be performed on the entire design matrix.  For this example we use
 ``` {r}
 qhat1 <- llqr(newx, y, tau)
 qhat1
