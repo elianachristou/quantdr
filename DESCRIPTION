@@ -14,8 +14,7 @@ Imports:
     dr,  
     KernSmooth,
     MTS,
-    mvtnorm,
-    quantreg
+    mvtnorm
 Depends: R (>= 3.1.0)
 RoxygenNote: 7.1.1
 Collate: 
@@ -29,7 +28,8 @@ Suggests:
     testthat,
     pracma,
     quantmod,
-    MASS
+    MASS, 
+    quantreg
 VignetteBuilder: knitr
 SystemRequirements: GNU make
 URL: https://github.com/elianachristou/quantdr
