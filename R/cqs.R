@@ -55,7 +55,6 @@
 #' @include bic_d.R
 #'
 #' @examples
-#' # Example 1
 #' # estimate the directions of a single-index model
 #' set.seed(1234)
 #' n <- 100
@@ -70,17 +69,6 @@
 #' out <- cqs(x, y, tau)
 #' out
 #' out$qvectors[, 1:out$dtau]
-#'
-#' # Example 2
-#' # estimate the directions of a multi-index model
-#' set.seed(1234)
-#' n <- 100
-#' p <- 10
-#' x <- matrix(rnorm(n * p), n, p)
-#' error <- rnorm(n)
-#' y <- exp(x[, 1]) + x[, 2] + error
-#' tau <- 0.5
-#' cqs(x, y, tau)$qvectors
 #'
 #' @export
 cqs <- function(x, y, tau = 0.5, dtau = NULL) {
