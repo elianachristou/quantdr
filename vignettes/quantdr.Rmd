@@ -200,19 +200,18 @@ for (i in 1:length(taus)) {
 
 ## A Real Data Application
 
-In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded in `R` from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `getSymbols` function of the `quantmod` package.  The data consists of the daily returns from January 2016 to December 2018.       
+In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded in `R` from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `BatchGetSymbols` package.  The data consists of the daily returns from January 2016 to December 2018.       
 ``` {r, message=FALSE, warning = FALSE}
-library(quantmod)
-options("getSymbols.warning4.0"=FALSE)
-options("getSymbols.yahoo.warning"=FALSE)
-BTC <- getSymbols("BTC-USD", from = "2016-01-01", to = "2018-12-31", src = "yahoo", auto.assign = FALSE)
+library(BatchGetSymbols)
+BTC <- BatchGetSymbols("BTC-USD", first.date = "2016-01-01", last.date = "2018-12-31")
+BTC <- BTC$df.tickers
 
-head(BTC)
+names(BTC)
 dim(BTC)
 ```
 We consider $Y$ as the log return and $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$, where $X_{1}, \dots, X_{5}$ are the returns in the past five days, and $X_{6}, \dots, X_{10}$ are the absolute values of those returns.  
 ``` {r}
-y <- as.vector(BTC$`BTC-USD.Adjusted`)
+y <- BTC$price.adjusted
 r <- diff(log(y))
 lag <- 5
 newy <- r[ - c(1:lag)]
