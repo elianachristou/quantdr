@@ -203,6 +203,8 @@ for (i in 1:length(taus)) {
 In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded in `R` from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `getSymbols` function of the `quantmod` package.  The data consists of the daily returns from January 2016 to December 2018.       
 ``` {r, message=FALSE, warning = FALSE}
 library(quantmod)
+options("getSymbols.warning4.0"=FALSE)
+options("getSymbols.yahoo.warning"=FALSE)
 BTC <- getSymbols("BTC-USD", from = "2016-01-01", to = "2018-12-31", src = "yahoo", auto.assign = FALSE)
 
 head(BTC)
