@@ -60,18 +60,15 @@
 #' @examples
 #'
 #' # Example 1
-#' # estimate the function for different quantile levels for simulated data
+#' # estimate the function at a specific quantile level for simulated data
 #' set.seed(1234)
 #' n <- 100
 #' x <- rnorm(n)
 #' error <- rnorm(n)
 #' y <- (x + 1)^3 + 0.1 * (x - 2)^3 + error
-#' taus <- c(0.1, 0.25, 0.5, 0.75, 0.9)
-#' par(mfrow=c(2, 3))
-#' for (i in 1:length(taus)) {
-#' plot(x, y, main = taus[i])
-#' points(x, llqr(x, y, tau = taus[i])$ll_est, col = 'red', pch = 16)
-#' }
+#' tau <- 0.5
+#' plot(x, y, main = tau)
+#' points(x, llqr(x, y, tau = tau)$ll_est, col = 'red', pch = 16)
 #'
 #' # Example 2
 #' # estimate the function at a point x0
