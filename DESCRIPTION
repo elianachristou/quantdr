@@ -28,7 +28,6 @@ Suggests:
     rmarkdown,
     testthat,
     pracma,
-    BatchGetSymbols,
     MASS
 VignetteBuilder: knitr
 SystemRequirements: GNU make
