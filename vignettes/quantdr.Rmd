@@ -198,74 +198,76 @@ for (i in 1:length(taus)) {
 }
 ```
 
-## A Real Data Application
+<!-- !!!!!!!! When you uncomment the follow, remember to include BatchGetSymbols in Suggests of Description!!!!!!!!!!!!! -->
 
-In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded in `R` from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `BatchGetSymbols` package.  The data consists of the daily returns from January 2016 to December 2018.       
-``` {r, message=FALSE, warning = FALSE}
-library(BatchGetSymbols)
-BTC <- BatchGetSymbols("BTC-USD", first.date = "2016-01-01", last.date = "2018-12-31")
-BTC <- BTC$df.tickers
+<!-- ## A Real Data Application -->
 
-names(BTC)
-dim(BTC)
-```
-We consider $Y$ as the log return and $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$, where $X_{1}, \dots, X_{5}$ are the returns in the past five days, and $X_{6}, \dots, X_{10}$ are the absolute values of those returns.  
-``` {r}
-y <- BTC$price.adjusted
-r <- diff(log(y))
-lag <- 5
-newy <- r[ - c(1:lag)]
-n <- length(newy)
-p <- 10
+<!-- In this section, we demonstrate an example presented in Christou (2020) concerning the Bitcoin data set (Nakamoto 2008), a cryptocurrency characterized by great volatility.  The data can be downloaded in `R` from [https://finance.yahoo.com/](https://finance.yahoo.com/) using the `BatchGetSymbols` package.  The data consists of the daily returns from January 2016 to December 2018. -->
+<!-- ``` {r, message=FALSE, warning = FALSE} -->
+<!-- library(BatchGetSymbols) -->
+<!-- BTC <- BatchGetSymbols("BTC-USD", first.date = "2016-01-01", last.date = "2018-12-31") -->
+<!-- BTC <- BTC$df.tickers -->
 
-xtemp <- matrix(0, n, lag)
-for (i in (lag + 1):(n + lag)){
-xtemp[i - lag, ] <- r[(i - lag):(i - 1)]  
-}
-xtemp2 <- cbind(xtemp[, 5], xtemp[, 4], xtemp[, 3], xtemp[, 2], xtemp[, 1])
+<!-- names(BTC) -->
+<!-- dim(BTC) -->
+<!-- ``` -->
+<!-- We consider $Y$ as the log return and $\mathbf{X}=(X_{1}, \dots, X_{10})^{\top}$, where $X_{1}, \dots, X_{5}$ are the returns in the past five days, and $X_{6}, \dots, X_{10}$ are the absolute values of those returns. -->
+<!-- ``` {r} -->
+<!-- y <- BTC$price.adjusted -->
+<!-- r <- diff(log(y)) -->
+<!-- lag <- 5 -->
+<!-- newy <- r[ - c(1:lag)] -->
+<!-- n <- length(newy) -->
+<!-- p <- 10 -->
 
-x <- cbind(xtemp2, abs(xtemp2))
-dim(x)
-``` 
-We want to estimate $Q_{\tau}(Y|\mathbf{X})$ for $\tau=0.01, 0.025, 0.05$.  The reason for choosing these values is because $Q_{\tau}(Y|\mathbf{X})$ is an important quantity in a financial risk setup, called the value-at-risk (VaR).  
+<!-- xtemp <- matrix(0, n, lag) -->
+<!-- for (i in (lag + 1):(n + lag)){ -->
+<!-- xtemp[i - lag, ] <- r[(i - lag):(i - 1)] -->
+<!-- } -->
+<!-- xtemp2 <- cbind(xtemp[, 5], xtemp[, 4], xtemp[, 3], xtemp[, 2], xtemp[, 1]) -->
 
-To do this, we first want to reduce the dimension of the predictor vector $\mathbf{X}$, and therefore, we estimate the $\tau$-CQS.  Since the dimension of each $\tau$-CQS is unknown, we do not specify `dtau` and instead, allow the function to estimate it using the modified-BIC type criterion.  This is done by
-``` {r}
-taus <- c(0.01, 0.025, 0.05)
-out1 <- cqs(x, newy, tau = taus[1])
-out2 <- cqs(x, newy, tau = taus[2])
-out3 <- cqs(x, newy, tau = taus[3])
+<!-- x <- cbind(xtemp2, abs(xtemp2)) -->
+<!-- dim(x) -->
+<!-- ``` -->
+<!-- We want to estimate $Q_{\tau}(Y|\mathbf{X})$ for $\tau=0.01, 0.025, 0.05$.  The reason for choosing these values is because $Q_{\tau}(Y|\mathbf{X})$ is an important quantity in a financial risk setup, called the value-at-risk (VaR). -->
 
-out1$dtau; out2$dtau; out3$dtau
-```
-Since the dimension of the $\tau$-CQS for all quantile levels is estimated to be one, we take the first eigenvector as its estimated basic vector.
-``` {r}
-beta_hat1 <- out1$qvectors[, 1] 
-beta_hat2 <- out2$qvectors[, 1] 
-beta_hat3 <- out3$qvectors[, 1] 
-beta_hat <- cbind(beta_hat1, beta_hat2, beta_hat3)
-```
-To estimate the conditional quantile function, we form the new sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$ and use the `llqr` function.
-``` {r fig3, fig.height = 5.5, fig.width = 7, fig.align = "center"}
-newx <- x %*% beta_hat
-qhat <- matrix(0, n, length(taus))
-for (i in 1:length(taus)) {
-  qhat[, i] <- llqr(newx[, i], newy, tau = taus[i])$ll_est
-}
+<!-- To do this, we first want to reduce the dimension of the predictor vector $\mathbf{X}$, and therefore, we estimate the $\tau$-CQS.  Since the dimension of each $\tau$-CQS is unknown, we do not specify `dtau` and instead, allow the function to estimate it using the modified-BIC type criterion.  This is done by -->
+<!-- ``` {r} -->
+<!-- taus <- c(0.01, 0.025, 0.05) -->
+<!-- out1 <- cqs(x, newy, tau = taus[1]) -->
+<!-- out2 <- cqs(x, newy, tau = taus[2]) -->
+<!-- out3 <- cqs(x, newy, tau = taus[3]) -->
 
-plot.ts(newy, ylab = "returns")
-lines(qhat[, 1], col = "red")
-lines(qhat[, 2], col = "blue")
-lines(qhat[, 3], col = "green")
-legend(840, 0.22, c("tau=0.01","tau=0.025","tau=0.05"), col=c("red", "blue", "green"), lty = 1)
-```
+<!-- out1$dtau; out2$dtau; out3$dtau -->
+<!-- ``` -->
+<!-- Since the dimension of the $\tau$-CQS for all quantile levels is estimated to be one, we take the first eigenvector as its estimated basic vector. -->
+<!-- ``` {r} -->
+<!-- beta_hat1 <- out1$qvectors[, 1] -->
+<!-- beta_hat2 <- out2$qvectors[, 1] -->
+<!-- beta_hat3 <- out3$qvectors[, 1] -->
+<!-- beta_hat <- cbind(beta_hat1, beta_hat2, beta_hat3) -->
+<!-- ``` -->
+<!-- To estimate the conditional quantile function, we form the new sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X}$ and use the `llqr` function. -->
+<!-- ``` {r fig3, fig.height = 5.5, fig.width = 7, fig.align = "center"} -->
+<!-- newx <- x %*% beta_hat -->
+<!-- qhat <- matrix(0, n, length(taus)) -->
+<!-- for (i in 1:length(taus)) { -->
+<!--   qhat[, i] <- llqr(newx[, i], newy, tau = taus[i])$ll_est -->
+<!-- } -->
 
-To further illustrate the estimation of the conditional quantile function, we estimate the proportion of times the return is less than $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$, i.e., the proportion of times $Y < \widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$. 
-``` {r}
-colMeans(matrix(newy, dim(qhat)[1], dim(qhat)[2]) < qhat)
-taus
-```
-Note that the estimated proportions are very close to the true values of $\tau$. 
+<!-- plot.ts(newy, ylab = "returns") -->
+<!-- lines(qhat[, 1], col = "red") -->
+<!-- lines(qhat[, 2], col = "blue") -->
+<!-- lines(qhat[, 3], col = "green") -->
+<!-- legend(840, 0.22, c("tau=0.01","tau=0.025","tau=0.05"), col=c("red", "blue", "green"), lty = 1) -->
+<!-- ``` -->
+
+<!-- To further illustrate the estimation of the conditional quantile function, we estimate the proportion of times the return is less than $\widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$, i.e., the proportion of times $Y < \widehat{Q}_{\tau}(Y|\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{X})$. -->
+<!-- ``` {r} -->
+<!-- colMeans(matrix(newy, dim(qhat)[1], dim(qhat)[2]) < qhat) -->
+<!-- taus -->
+<!-- ``` -->
+<!-- Note that the estimated proportions are very close to the true values of $\tau$. -->
 
 # Conclusion
 
@@ -288,9 +290,7 @@ This vignette provides a brief introduction to the R package `quantdr` and prese
 1. Li, K.-C. (1991) Sliced inverse regression for dimension reduction. *Journal of the American Statistical Association*, 86, 316-327
 
 1. Luo, W., Li, B., and Yin, X. (2014) On efficient dimension reduction with respect to a statistical functional of interest. *Annals of Statistics*, 42, 382-412 
-
-1. Nakamoto, S. (2008) Bitcoin: a peer-to-peer electronic cash system. Available online. [https://bitcoin.org/bitcoin.pdf](https://bitcoin.org/bitcoin.pdf) 
-
+<!-- 1. Nakamoto, S. (2008) Bitcoin: a peer-to-peer electronic cash system. Available online. [https://bitcoin.org/bitcoin.pdf](https://bitcoin.org/bitcoin.pdf)  -->
 1. Wu, T. Z., Yu, K., and Yu, Y. (2010) Single index quantile regression. *Journal of Multivariate Analysis*, 101, 1607-1621
 
 1. Yu, K., and Jones, M. C. (1998) Local linear quantile regression. *Journal of the American Statistical Association*, 93, 228-238
