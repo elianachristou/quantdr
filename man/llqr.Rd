@@ -97,7 +97,6 @@ llqr(x, y, tau = tau, x0 = x0)
 
 # Example 3
 # estimate the function for different quantile levels
-par(mfrow = c(1, 1))
 data(mcycle, package = "MASS")
 attach(mcycle)
 plot(times, accel, xlab = "milliseconds", ylab = "acceleration")
