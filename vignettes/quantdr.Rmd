@@ -190,15 +190,17 @@ out3
 Similarly, we can plot the data along with the estimated conditional quantile functions for the various quantile levels.  
 ``` {r fig2, fig.height = 5.5, fig.width = 7, fig.align = "center"}
 newx <- x %*% out3
+oldpar <- par(no.readonly = TRUE)
 par(mfrow=c(2,3))
 for (i in 1:length(taus)) {
   plot(true_dir, y, xlab = "sufficient direction", ylab = "y", main = taus[i], pch = 16)
   qhat_tau <- llqr(newx[, i], y, tau = taus[i])$ll_est
   points(true_dir, qhat_tau, pch = 16, col = "red")
 }
+par(oldpar)
 ```
 
-<!-- !!!!!!!! When you uncomment the follow, remember to include BatchGetSymbols in Suggests of Description!!!!!!!!!!!!! -->
+<!-- !!!!!!!! If you uncomment the following in a future version of the package, remember to include BatchGetSymbols in Suggests of Description!!!!!!!!!!!!! -->
 
 <!-- ## A Real Data Application -->
 
