@@ -119,10 +119,7 @@ x <- matrix(rnorm(n * p), n, p)
 error <- rnorm(n)
 y <- 3 * x[, 1] + x[, 2] + error
 tau <- 0.5
-\dontrun{
-fit1 <- llqr(x, y, tau = tau)
-fit2 <- llqr(x, y, tau = tau, method = "CV")
-}
+# use the following instead of llqr(x, y, tau = tau)
 fit.alt <- llqr(x, y, tau = tau, h=1)
 fit.alt
 
