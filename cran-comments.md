@@ -1,7 +1,7 @@
 ## Resubmission
 This is a resubmission.  In this version I have:
 
-* Removed the \dontrun{} example fron the llqr.R file.
+* Removed the \dontrun{} example from the llqr.R file. 
 
 * Reset to user's par() after I changed it in the vignette.
 
