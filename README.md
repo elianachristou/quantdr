@@ -103,12 +103,14 @@ print(subspace(out[, i], beta_true) / (pi / 2)) # the angle is measured in radia
 
 # Estimate and plot the conditional quantile function using the new sufficient predictors
 newx <- x %*% out
+oldpar <- par(no.readonly = TRUE) 
 par(mfrow=c(2,3))
 for (i in 1:length(taus)) {
   plot(dir1, y, xlab = "sufficient direction", ylab = "y", main = taus[i], pch = 16)
   qhat <- llqr(newx[, i], y, tau = taus[i])$ll_est
   points(dir1, qhat, pch = 16, col = "red")
 }
+par(oldpar)
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
@@ -133,7 +135,8 @@ for (k in 1:length(tau)) {
   out <- cqs(x, y, tau = tau[k])
   beta_hat[, k] <- out$qvectors[, 1:out$dtau] # the suggested dimension of the central quantile subspace is 1
 }
-   
+
+oldpar <- par(no.readonly = TRUE)   
 par(mfrow=c(2,2))
 plot(tau, beta_hat[1, ], type = 'l', xlab = 'Quantile', main = 'RM', ylab = 'Coefficient')
 plot(tau, beta_hat[2, ], type = 'l', xlab = 'Quantile', main = 'log(TAX)', ylab = 'Coefficient')
@@ -142,3 +145,7 @@ plot(tau, beta_hat[4, ], type = 'l', xlab = 'Quantile', main = 'log(LSTAT)', yla
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+par(oldpar)
+```
