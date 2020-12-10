@@ -82,7 +82,7 @@ The above two results imply the following:
 
 All of the above are incorporated in the `cqs` function.
 
-## The algorithm on a glance
+## The algorithm at a glance
 
 The first step of the algorithm requires to fit a linear regression model of $Q_{\tau}(Y|\mathbf{A}^{\top}\mathbf{X})$ on $\mathbf{X}$, which implies the non-parametric estimation of the conditional quantile.  The second step of the algorithm relies on estimating a conditional expectation and performing an eigenvalue decomposition.  Specifically,
 
