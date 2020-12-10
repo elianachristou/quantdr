@@ -190,8 +190,7 @@ llqr <- function(x, y, tau=0.5, h = NULL, method="rule", x0 = NULL) {
       q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
       ll_est <- q$coef[1]
     } else {
-      z <- list()
-      z <- t(t(x) - x[i, ])
+      z <- t(t(x) - x0)
       w <- mvtnorm::dmvnorm(z / h)
       q <- quantreg::rq(y ~ z, weights = w, tau = tau, ci = FALSE)
       ll_est <- q$coef[1]
