@@ -130,7 +130,7 @@ cqs <- function(x, y, tau = 0.5, dtau = NULL) {
 
   # define the initial vector, i.e., the ordinary least squares estimator from
   # regressing qhat on x
-  beta_hat <- lm(qhat ~ xstand)$coef[-1]
+  beta_hat <- (solve(crossprod(cbind(1, xstand))) %*% crossprod(cbind(1, xstand), qhat))[-1]
 
   # if dtau is missing, use the iterative procedure to produce all vectors
   # apply the BIC criterion to determine dtau
