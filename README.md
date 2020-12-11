@@ -104,18 +104,20 @@ print(subspace(out[, i], beta_true) / (pi / 2)) # the angle is measured in radia
 #> [1] 0.06126765
 
 # Estimate and plot the conditional quantile function using the new sufficient predictors
+library(ggplot2)
 newx <- x %*% out
-oldpar <- par(no.readonly = TRUE) 
-par(mfrow=c(2,3))
+qhat <- as.null()
 for (i in 1:length(taus)) {
-  plot(dir1, y, xlab = "sufficient direction", ylab = "y", main = taus[i], pch = 16)
-  qhat <- llqr(newx[, i], y, tau = taus[i])$ll_est
-  points(dir1, qhat, pch = 16, col = "red")
-}
-par(oldpar)
+  qhat <- c(qhat, llqr(newx[, i], y, tau = taus[i])$ll_est)
+}  
+data1 <- data.frame(rep(dir1, n), rep(y, n), c(newx), rep(taus, each = n), qhat)
+names(data1) <- c("dir1", "y", "newx", "quantiles", 'qhat')
+ggplot(data1, aes(x = dir1, y = y)) + geom_point() + 
+  geom_point(aes(x = dir1, qhat), colour = 'red') +
+  facet_wrap(~quantiles, ncol = 3) + xlab('sufficient direction')
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" />
 
 Another example using the Boston housing data from the `MASS` library in
 `R`.
@@ -138,16 +140,11 @@ for (k in 1:length(tau)) {
   beta_hat[, k] <- out$qvectors[, 1:out$dtau] # the suggested dimension of the central quantile subspace is 1
 }
 
-oldpar <- par(no.readonly = TRUE)   
-par(mfrow=c(2,2))
-plot(tau, beta_hat[1, ], type = 'l', xlab = 'Quantile', main = 'RM', ylab = 'Coefficient')
-plot(tau, beta_hat[2, ], type = 'l', xlab = 'Quantile', main = 'log(TAX)', ylab = 'Coefficient')
-plot(tau, beta_hat[3, ], type = 'l', xlab = 'Quantile', main = 'PTRATIO', ylab = 'Coefficient')
-plot(tau, beta_hat[4, ], type = 'l', xlab = 'Quantile', main = 'log(LSTAT)', ylab = 'Coefficient')
+data2 <- data.frame(c(t(beta_hat)), rep(tau, p), rep(c('RM', 'log(TAX)', 'PTRATIO', 'log(LSTAT)'), each = length(tau)))
+names(data2) <- c('beta_hat', 'tau', 'coefficient')
+ggplot(data2, aes(x = tau, y = beta_hat)) + geom_line() + 
+  facet_wrap(~coefficient, ncol = 2, scales = "free_y") + 
+  ylab('Coefficient') + xlab('Quantile')
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
-
-``` r
-par(oldpar)
-```

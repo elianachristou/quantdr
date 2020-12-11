@@ -24,6 +24,7 @@ Collate:
     'llqr.R'
     'cqs.R'
 Suggests: 
+    ggplot2,
     knitr,
     rmarkdown,
     testthat,
