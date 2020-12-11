@@ -112,8 +112,8 @@ for (i in 1:length(taus)) {
 }  
 data1 <- data.frame(rep(dir1, n), rep(y, n), c(newx), rep(taus, each = n), qhat)
 names(data1) <- c("dir1", "y", "newx", "quantiles", 'qhat')
-ggplot(data1, aes(x = dir1, y = y)) + geom_point() + 
-  geom_point(aes(x = dir1, qhat), colour = 'red') +
+ggplot(data1, aes(x = dir1, y = y)) + geom_point(size = 1) + 
+  geom_point(aes(x = dir1, qhat), colour = 'red', size = 1) +
   facet_wrap(~quantiles, ncol = 3) + xlab('sufficient direction')
 ```
 
