@@ -110,6 +110,7 @@ qhat <- as.null()
 for (i in 1:length(taus)) {
   qhat <- c(qhat, llqr(newx[, i], y, tau = taus[i])$ll_est)
 }  
+
 data1 <- data.frame(rep(dir1, n), rep(y, n), c(newx), rep(taus, each = n), qhat)
 names(data1) <- c("dir1", "y", "newx", "quantiles", 'qhat')
 ggplot(data1, aes(x = dir1, y = y)) + geom_point(size = 1) + 

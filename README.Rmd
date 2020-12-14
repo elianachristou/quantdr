@@ -91,6 +91,7 @@ qhat <- as.null()
 for (i in 1:length(taus)) {
   qhat <- c(qhat, llqr(newx[, i], y, tau = taus[i])$ll_est)
 }  
+
 data1 <- data.frame(rep(dir1, n), rep(y, n), c(newx), rep(taus, each = n), qhat)
 names(data1) <- c("dir1", "y", "newx", "quantiles", 'qhat')
 ggplot(data1, aes(x = dir1, y = y)) + geom_point(size = 1) + 
@@ -100,7 +101,7 @@ ggplot(data1, aes(x = dir1, y = y)) + geom_point(size = 1) +
 
 Another example using the Boston housing data from the `MASS` library in `R`. 
 
-```{r, warning = FALSE, fig.height = 8, fig.width = 9, fig.align = "center"}
+```{r, warning = FALSE, fig.height = 7, fig.width = 8, fig.align = "center"}
 library(MASS)
 attach(Boston)
 # read the data 
