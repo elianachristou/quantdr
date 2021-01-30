@@ -1,3 +1,11 @@
+# quantdr 2.1.0
+
+## Major changes
+
+## Minor changes
+
+* Choose one bandwidth in case llqrcv outputs more (if there is a tie)
+
 # quantdr 1.1.0
 
 ## Major changes
