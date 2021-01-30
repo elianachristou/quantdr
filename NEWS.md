@@ -9,6 +9,7 @@
 
 * Choose one bandwidth in case llqrcv.R outputs more (if there is a tie)
 * Adjust bandwidth selection for cqs.R and llqr.R to accomodate for Value-at-Risk calculation
+* Add the PerformanceAnalytics under Suggests in DESCRIPTION to accomodate for the examples in the ValAR.R function
 
 # quantdr 1.1.0
 
