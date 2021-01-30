@@ -144,7 +144,7 @@ ValAR <- function(y, p, tau, movwind = NULL, chronological = TRUE){
   beta_hat <- as.matrix(out$qvectors[, 1:out$dtau])
   newx = X %*% beta_hat
   x0 = as.vector(newy[(n - p + 1):n] %*% beta_hat)
-  qhat_est <- llqr(newx, newy, tau, x0 = x0)$ll_est
+  qhat_est <- as.numeric(llqr(newx, newy, tau, x0 = x0)$ll_est)
 
   return(VaR = qhat_est)
 }
