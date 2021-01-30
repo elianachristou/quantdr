@@ -151,6 +151,9 @@ llqr <- function(x, y, tau=0.5, h = NULL, method="rule", x0 = NULL) {
     if (method == "rule") {
       h <- KernSmooth::dpill(x, y)
       h <- h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
+      if (h == 'NaN') {
+        h <- max(n^(-1 / (p + 4)), min(2, sd(y)) * n^(- 1 / (p + 4)))
+      }
     }
   } else {
     h <- h
