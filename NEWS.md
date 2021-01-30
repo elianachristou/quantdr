@@ -2,6 +2,9 @@
 
 ## Major changes
 
+* Add the ValAR.R function for estimating the value-at-Risk
+* Update the vignette to include explanations for the ValAR.R function
+
 ## Minor changes
 
 * Choose one bandwidth in case llqrcv.R outputs more (if there is a tie)
