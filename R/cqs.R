@@ -124,7 +124,7 @@ cqs <- function(x, y, tau = 0.5, dtau = NULL) {
   d <- d_hat
 
   # define the bandwidth and estimate the conditional quantile
-  h <- 2 * sd(y) * n^ (-1 / (d + 4))
+  h <- max(n^(-1 / (d + 4)), min(2, sd(y)) * n^(- 1 / (d + 4)))
   non_par <- llqr(newx, y, tau = tau, h = h)
   qhat <- non_par$ll_est
 
