@@ -70,5 +70,5 @@ llqrcv <- function(x, y, tau=0.5) {
     }
     cv[i] <- mean((y - qhat[, i]) * (tau - (y < qhat[, i])))
   }
-  h[which(unlist(cv) == min(unlist(cv)))]
+  min(h[which(unlist(cv) == min(unlist(cv)))])
 }
