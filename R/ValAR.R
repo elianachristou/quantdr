@@ -84,7 +84,7 @@ ValAR <- function(y, p, tau, movwind = NULL, chronological = TRUE){
   # compatibility checks
   # check whether y is a vector
   if (is.vector(y) == FALSE) {
-    stop(paste("y needs to be  a vector"))
+    stop(paste("y needs to be  a vector."))
   }
   # checks for NAs
   if (sum(is.na(y)) > 0) {
@@ -92,7 +92,7 @@ ValAR <- function(y, p, tau, movwind = NULL, chronological = TRUE){
   }
   #  checks if n >  p
   if (length(y) <= p){
-    stop(paste("number of observations of y (", length(y), ") should be  greater than p"))
+    stop(paste("number of observations of y (", length(y), ") should be  greater than p."))
   }
   # checks if the quantile level is one-dimensional
   if (length(tau) > 1) {
@@ -145,7 +145,7 @@ ValAR <- function(y, p, tau, movwind = NULL, chronological = TRUE){
     n <- length(newy)
   }
 
-  # one-day ahead prediction
+  # one-step ahead prediction
   out <- cqs(x = X, y = newy, tau = tau)
   beta_hat <- as.matrix(out$qvectors[, 1:out$dtau])
   newx = X %*% beta_hat
