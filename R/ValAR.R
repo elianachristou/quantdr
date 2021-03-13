@@ -1,4 +1,4 @@
-#' Calculate Value-at-Risk using the central quantile subspace
+#' Value-at-Risk estimation using the central quantile subspace
 #'
 #' \code{ValAR} estimates the one-step ahead \eqn{\tau}th Value-at-Risk for a
 #' vector of returns.
