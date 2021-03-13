@@ -2,7 +2,7 @@
 
 ## Major changes
 
-* Add the ValAR.R function for estimating the value-at-Risk
+* Add the ValAR.R function for estimating the Value-at-Risk
 * Update the vignette to include explanations for the ValAR.R function
 
 ## Minor changes
