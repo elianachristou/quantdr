@@ -34,7 +34,7 @@ The purpose of this vignette is to demonstrate the implementation of the functio
 # Getting Started
 
 To get started you need to first install the package using the command 
-```{r, eval=FALSE}
+```{r}
 install.packages("quantdr")
 ```
 and then use it during any `R` session by issuing the command
@@ -50,6 +50,7 @@ The package includes the following functions:
 * `llqr` Local linear quantile regression
 * `llqrcv` Cross-Validation for bandwidth selection of local linear quantile regression
 * `cqs` Central quantile subspace
+* `ValAR` Value-at-Risk estimation using the central quantile subspace
 <!-- * `bic_d` Modified-BIC type criterion for structural dimension selection -->
 
 To get help on a specific function type `help(function.name)` or `?function.name` for a convenient shorthand.  Try
