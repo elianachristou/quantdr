@@ -2,7 +2,7 @@
 % Please edit documentation in R/ValAR.R
 \name{ValAR}
 \alias{ValAR}
-\title{Calculate Value-at-Risk using the central quantile subspace}
+\title{Value-at-Risk estimation using the central quantile subspace}
 \usage{
 ValAR(y, p, tau, movwind = NULL, chronological = TRUE)
 }
