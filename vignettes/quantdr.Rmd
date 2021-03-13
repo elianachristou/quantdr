@@ -34,7 +34,7 @@ The purpose of this vignette is to demonstrate the implementation of the functio
 # Getting Started
 
 To get started you need to first install the package using the command 
-```{r}
+```{r, eval=FALSE}
 install.packages("quantdr")
 ```
 and then use it during any `R` session by issuing the command
@@ -212,9 +212,9 @@ ggplot(data2, aes(x = true_dir, y = y)) + geom_point(size = 1) +
 # Value-at-Risk Estimation
 ## Overview
 
-Value-at-risk (VaR) is an important financial quantity directly related to the quantile regression framework.  Specifically, for $\{r_{t}\}_{t=1}^{n}$ a time series of returns, the $\tau$th VaR at time $t$, denoted by $VaR_{\tau}(t)$, is the smallest number for which $P\{r_{t} < -VaR_{\tau}(t) | \mathcal{F}_{t-1}\} = \tau$, where $\mathcal{F}_{t-1}$ denotes the information set at time $t-1$.  Therefore, $-VaR_{\tau}(t)$ is the $\tau$th conditional quantile of $r_{t}$, and we can write $Q_{\tau}(r_{t} | \mathcal{F}_{t-1}) = -VaR_{\tau}(t)$.   
+Value-at-risk (VaR) is an important financial quantity directly related to the QR framework.  Specifically, for $\{r_{t}\}_{t=1}^{n}$ a time series of returns, the $\tau$th VaR at time $t$, denoted by $VaR_{\tau}(t)$, is the smallest number for which $P\{r_{t} < -VaR_{\tau}(t) | \mathcal{F}_{t-1}\} = \tau$, where $\mathcal{F}_{t-1}$ denotes the information set at time $t-1$.  Therefore, $-VaR_{\tau}(t)$ is the $\tau$th conditional quantile of $r_{t}$, and we can write $Q_{\tau}(r_{t} | \mathcal{F}_{t-1}) = -VaR_{\tau}(t)$.   
 
-For the estimation of $Q_{\tau}(r_{t} | \mathcal{F}_{t-1})$ we will use the methodology proposed by Christou (2020).  Specifically, let $r_{t}$ denote a daily return and $\mathbf{r}_{t}$ denote a $p$-dimensional vector of covariates consisting of the $p$ past returns, i.e., $\mathbf{r}_{t,p} = (r_{t-1},\dots, r_{t-p})^{\top}$.  We want to estimate $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$ at time $t$ by assuming that there exists a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, $d_{\tau} \leq p$, such that $Q_{\tau}(r_{t} | \mathbf{r}_{t,p}) = Q_{\tau}(r_{t} | \mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p})$.  This implies that $\mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p}$ contains all the information about $r_{t}$ that is available from $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$.  Once $\mathbf{B}_{\tau}$ is estimated using the `cqs` function, the sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p}$ are formed and $Q_{\tau}(r_{t} | \widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p})$ is estimated using the `llqr` function.   
+For the estimation of $Q_{\tau}(r_{t} | \mathcal{F}_{t-1})$ we will use the methodology proposed by Christou (2020).  Specifically, let $r_{t}$ denote a daily return and $\mathbf{r}_{t}$ denote a $p$-dimensional vector of covariates consisting of the $p$ past returns, i.e., $\mathbf{r}_{t,p} = (r_{t-1},\dots, r_{t-p})^{\top}$.  We want to estimate $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$ at time $t$ by assuming that there exists a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, $d_{\tau} \leq p$, such that $Q_{\tau}(r_{t} | \mathbf{r}_{t,p}) = Q_{\tau}(r_{t} | \mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p})$.  This implies that $\mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p}$ contains all the information about $r_{t}$ that is available from $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$.  Once $\mathbf{B}_{\tau}$ is estimated using the `cqs` function, the sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p}$ are formed and $Q_{\tau}(r_{t} | \widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p})$ is estimated using the `llqr` function. Christou and Grabchak (2019) considered such an estimation for VaR and compared it with that of commonly-used methods.     
 
 ## Output of `ValAR`
 
@@ -224,12 +224,12 @@ library(PerformanceAnalytics)
 data(edhec, package = "PerformanceAnalytics")
 head(edhec)
 ```
-To estimate the VaR of the next day we need a vector of returns.  For the purpose of this, we will select the 'Convertible Arbitrage' as a vector of daily returns.  The `ValAR` function proceeds by specifying $p$, the number of past observations to be used as the predictor variables, the quantile level $\tau$, and a moving window for the number of observations to be used for fitting the model.  If a moving window is not specified, then all the observations will be used to estimate the conditional quantile.  Note that, typical values for moving windows are 250 and 500, corresponding to one or two years of daily returns.  A moving window will be useful if the number of observations is large and returns from way in the past will not be of any value to the prediction.  Moreover, if the number of observations is large, a moving window will also speed up the algorithm, since $n$ will be smaller.  Finally, if the returns are in reversed chronological order, then the user should either reverse the vector of daily returns or indicate that using the `chronological` option of the function. 
+To estimate the one-step ahead VaR we need a vector of returns in a standard chronological order.  For this, we will select the 'Convertible Arbitrage' as a vector of daily returns.  The `ValAR` function proceeds by specifying $p$, the number of past observations to be used as the predictor variables, the quantile level $\tau$, and a moving window for the number of observations to be used for fitting the model.  If a moving window is not specified, then all the observations will be used to estimate the conditional quantile.  Note that, typical values for moving windows are 250 and 500, corresponding to one or two years of daily returns.  A moving window will be useful if the number of observations is large and past returns will not be of any value to the prediction.  Moreover, if the number of observations is large, a moving window will also speed up the algorithm, since the number of used observations will be smaller.  Finally, if the returns are in reversed chronological order, then the user should either reverse the vector of daily returns or indicate that using the `chronological` option of the function. 
 
-For this example, we will use $p = 5$, $\tau = 0.05$, and will not specify any moving window since the number of observations is 275.  Note that, the last day of returns is ... and therefore, we are predicting the 5\% VaR for ....    
+For this example, we will use $p = 5$, $\tau = 0.05$, and will not specify any moving window since the number of observations is 275.  Note that, the last day of returns is 2019-11-30 and therefore, we are predicting the 5\% VaR for 2019-12-31.     
 
 ```{r}
-y <- as.vector(edhec[, 1])
+y <- as.vector(edhec[, 2])
 n <- length(y)
 p <- 5
 tau <- 0.05
@@ -239,6 +239,46 @@ ValAR(y, p = p, tau = tau)
 If we want to compare this number with the 5\% VaR estimated by the historical method, we can use
 ```{r}
 VaR(y, 0.95, method = 'historical')
+```
+
+Now, let's say we want to predict the 5\% VaR for the last 50 observations.  We can do that in a loop.  
+```{r}
+size <- 100
+
+VaRest <- as.null(size)
+for (i in 1:size){
+  VaRest[i] <- ValAR(y[1:(n - size + i - 1)], p, tau)
+}
+```
+To visualize the results, we can ...
+```{r}
+plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = 'returns')
+lines(VaRest, col = 'red')
+```
+Moreover, to see .... 
+```{r}
+sum(y[(n - size + 1):n] < VaRest) / size 
+```
+which is really close to 0.05. 
+
+We can repeat that for $\tau= 0.01, 0.025$ and add the lines.
+```{r}
+taus <- c(0.01, 0.025, 0.05)
+VaRest <- matrix(0, size, length(taus))
+for (i in 1:size) {
+  for (j in 1:length(taus)) {
+  VaRest[i, j] <- ValAR(y[1:(n - size + i - 1)], p, taus[j])
+  }
+}  
+
+plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = 'returns')
+lines(VaRest[, 1], col = 'red')
+lines(VaRest[, 2], col = 'blue')
+lines(VaRest[, 3], col = 'green')
+
+sum(y[(n - size + 1):n] < VaRest[, 1]) / size 
+sum(y[(n - size + 1):n] < VaRest[, 2]) / size 
+sum(y[(n - size + 1):n] < VaRest[, 3]) / size 
 ```
 
 ## A Real Data Application 
@@ -324,6 +364,8 @@ This vignette provides a brief introduction to the R package `quantdr` and prese
 1. Christou, E. (2020) Central quantile subspace. *Statistics and Computing*, 30, 677–695
 
 1. Christou, E. and Akritas, M. (2016) Single index quantile regression for heteroscedastic data. *Journal of Multivariate Analysis*, 150, 169-182
+
+1.  Christou, E. and Grabchak, M. (2019) Estimation of value-at-risk using single index quantile regression.  *Journal of Applied Statistics*, 46(13), 2418–2433
 
 1. Guerre, E., and Sabbah, C. (2012) Uniform bias study and Bahadur representation for local polynomial estimators of the conditional quantile function. *Econometric Theory*, 28, 87-129
 
