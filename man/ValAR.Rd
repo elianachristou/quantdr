@@ -12,7 +12,8 @@ ValAR(y, p, tau, movwind = NULL, chronological = TRUE)
 \item{p}{An integer for the number of past observations to be used as
 predictor variables.  This will form the n x p design matrix.}
 
-\item{tau}{A quantile level, a number strictly between 0 and 1.}
+\item{tau}{A quantile level, a number strictly between 0 and 1. Commonly
+used choices are 0.01, 0.025, and 0.05.}
 
 \item{movwind}{An optional integer number for the moving window.
 If not specified, all n observations will be used to fit the model.
@@ -20,42 +21,44 @@ If specified, it should be an integer between p and n.  Typical values
 for moving windows are 250 or 500 (one or two years of return values).}
 
 \item{chronological}{A logical operator to indicate whether the returns are
-in increasing chronological order.  The default value is TRUE.
-If the returns are in reverse chronological order, the function
-will rearrange them.}
+in standard chronological order (from oldest to newest).  The default
+value is TRUE.  If the returns are in reverse chronological order, the
+function will rearrange them.}
 }
 \value{
-\code{ValAR} returns the \eqn{\tau}th Value-at-Risk of the next day.
+\code{ValAR} returns the one-step ahead \eqn{\tau}th Value-at-Risk.
 }
 \description{
-\code{ValAR} estimates the \eqn{\tau}th Value-at-Risk of the next day
-for a vector of returns.
+\code{ValAR} estimates the one-step ahead \eqn{\tau}th Value-at-Risk for a
+vector of returns.
 }
 \details{
-The function calculates the \eqn{\tau}th Value-at-Risk of the next day, i.e.,
-that number such that the probability that the returns fall below its negative
-part is \eqn{\tau}.  The parameter \eqn{\tau} is typically chosen to be a small
-number such as 0.01, 0.025, or 0.05.  By definition, the \eqn{\tau}th Value-at-
-Risk is the \eqn{\tau}th conditional quantile.  Therefore, the estimation is
-performed using a local linear conditional quantile estimation.  However,
-prior to this nonparametric estimation, a dimension reduction technique is
-performed to select linear combinations of the predictor variables.
+The function calculates the \eqn{\tau}th Value-at-Risk of the next time occurence,
+i.e., that number such that the probability that the returns fall below its
+negative value is \eqn{\tau}.  The parameter \eqn{\tau} is typically chosen to be a
+small number such as 0.01, 0.025, or 0.05.  By definition, the negative value of the
+\eqn{\tau}th Value-at-Risk is the \eqn{\tau}th conditional quantile.  Therefore,
+the estimation is performed using a local linear conditional quantile estimation.
+However, prior to this nonparametric estimation, a dimension reduction technique
+is performed to select linear combinations of the predictor variables.
 
 Specifically, the user provides a vector of returns \code{y} and an integer
 \code{p} for the number of past observations to be used as the predictor
 variables.  The function then forms the n x p design matrix x, where n is
-either the number of returns (if the user wants to use all observations) or
-the moving window (if the user provides an integer for the moving window).
-Value-at-Risk is assumed to be the \eqn{\tau}th conditional quantile of y
-given x.  However, to aid the nonparametric estimation of the \eqn{\tau}th
-conditional quantile, the \code{cqs} function is applied to estimate the
-fewest linear combinations of the predictor \code{x} that contain all the
-information available on the conditional quantile function.  Finally, the
-\code{llqr} function is applied to estimate the local linear conditional
-quantile of y using the extracted directions as the predictor variables.
+either the number of all returns (if the user wants to use all observations)
+or the number of returns defined by the moving window (if the user provides
+an integer for the moving window). Value-at-Risk is assumed to be minus the
+\eqn{\tau}th conditional quantile of y given x.  However, to aid the
+nonparametric estimation of the \eqn{\tau}th conditional quantile, the
+\code{cqs} function of the package is applied to estimate the fewest linear
+combinations of the predictor \code{x} that contain all the information available
+on the conditional quantile function.  Finally, the \code{llqr} function is
+applied to estimate the local linear conditional quantile of y using the extracted
+directions as the predictor variables.
 
-For more details on the method and for an application to the Bitcoin data
-set, see Christou (2020).
+For more details on the method and for an application to the Bitcoin data, see
+Christou (2020).  Moreover, see Christou and Grabchak (2019) for a thorough
+comparison between the proposed methodology and commonly used methods.
 }
 \examples{
 # Example 1
@@ -84,4 +87,7 @@ PerformanceAnalytics::VaR(y, 0.95, method = 'historical')
 \references{
 Christou, E. (2010) Central quantile subspace. \emph{Statistics and
 Computing}, 30, 677–695.
+
+Christou, E., Grabchak, M. (2019) Estimation of value-at-risk using single index
+quantile regression.  \emph{Journal of Applied Statistics}, 46(13), 2418–2433.
 }
