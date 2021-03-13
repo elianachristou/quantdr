@@ -77,7 +77,6 @@
 #'
 #' @export
 #'
-#' @examples
 
 ValAR <- function(y, p, tau, movwind = NULL, chronological = TRUE){
 
