@@ -16,7 +16,7 @@ Imports:
     MTS,
     mvtnorm,
     quantreg
-Depends: R (>= 3.1.0)
+Depends: R (>= 3.2.0)
 RoxygenNote: 7.1.1
 Collate: 
     'ValAR.R'
