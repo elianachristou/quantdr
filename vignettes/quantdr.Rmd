@@ -248,7 +248,7 @@ for (i in 1:size){
 }
 ```
 To visualize the results, we can plot the time series of returns with the one-step ahead 5\% VaR forecasts.  
-```{r fig3, fig.height = 4.5, fig.width = 6, fig.align = "center"}
+```{r fig3, fig.height = 4.5, fig.width = 6.5, fig.align = "center"}
 plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = 'returns')
 lines(VaRest, col = 'red')
 ```
@@ -258,7 +258,7 @@ sum(y[(n - size + 1):n] < VaRest) / size
 ```
 
 We can repeat the above procedure for multiple quantile levels, i.e., for $\tau= 0.01, 0.025$.
-```{r fig4, fig.height = 4.5, fig.width = 6, fig.align = "center"}
+```{r fig4, fig.height = 4.5, fig.width = 6.5, fig.align = "center"}
 taus <- c(0.01, 0.025, 0.05)
 VaRest <- matrix(0, size, length(taus))
 for (i in 1:size) {
