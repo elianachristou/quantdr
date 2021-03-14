@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 Data visualization and non-parametric fitting can become very challenging when data is *high-dimensional*.  This has led to the development of many dimension reduction techniques that focus on the entire conditional distribution of the data.  However, when specific aspects of the conditional distribution are of interest, these methods can provide more directions than necessary.  
 
-Quantile regression (QR) has received a lot of attention since its inception from Koenker and Bassett (1978) and it has been an attractive tool for research areas where non-central parts of the data are important.  Dimension reduction techniques for conditional quantiles have recently made an appearance and are still in development.  For some references, see Wu et al. (2010), Kong and Xia (2012, 2014), Luo et al. (2014), and Christou and Akritas (2016).
+Quantile regression (QR) has received a lot of attention since its inception from Koenker and Bassett (1978) and it has been an attractive tool for research areas where non-central parts of the data are important.  Dimension reduction techniques for conditional quantiles have recently made an appearance and are still in development.  For some references see Wu et al. (2010), Kong and Xia (2012, 2014), Luo et al. (2014), and Christou and Akritas (2016).
 
 More recently, Christou (2020) proposed a new technique for finding the fewest linear combinations of the predictor variable $\mathbf{X}$ that contain all the information about the conditional quantile.  To give further intuition, for a univariate response $Y$ and a $p$-dimensional predictor $\mathbf{X}$, the method focuses on finding a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, for $\tau \in (0, 1)$ and $d_{\tau} \leq p$, such that $Y$ and $Q_{\tau}(Y|\mathbf{X})$ are conditionally independent given $\mathbf{B}_{\tau}^{\top} \mathbf{X}$, where $Q_{\tau}(Y|\mathbf{X})$ denotes the $\tau$th conditional quantile of $Y$ given $\mathbf{X}$.  The space spanned by $\mathbf{B}_{\tau}$ is called the *$\tau$th quantile dimension reduction subspace* for the regression of $Y$ on $\mathbf{X}$.  The intersection of all $\tau$th dimension reduction subspaces is called the *$\tau$th central quantile subspace* ($\tau$-CQS) and is denoted by $\mathcal{S}_{Q_{\tau}(Y|\mathbf{X})}$.  
 
@@ -85,7 +85,7 @@ All of the above are incorporated in the `cqs` function.
 
 ## The algorithm at a glance
 
-The first step of the algorithm requires to fit a linear regression model of $Q_{\tau}(Y|\mathbf{A}^{\top}\mathbf{X})$ on $\mathbf{X}$, which implies the non-parametric estimation of the conditional quantile.  The second step of the algorithm relies on estimating a conditional expectation and performing an eigenvalue decomposition.  Specifically,
+The first step of the algorithm requires to fit a linear regression model of $Q_{\tau}(Y|\mathbf{A}^{\top}\mathbf{X})$ on $\mathbf{X}$, which implies the non-parametric estimation of the conditional quantile.  The second step of the algorithm relies on estimating an expectation and performing an eigenvalue decomposition.  Specifically,
 
 1.  We use a dimension reduction technique to estimate the basis matrix $\mathbf{A}$ of the central subspace, denoted by $\widehat{\mathbf{A}}$, and form the new sufficient predictors $\widehat{\mathbf{A}}^{\top} \mathbf{X}_{i}$, $i=1, \dots, n$.  For this we use the function `dr` from the package `dr`.
 
@@ -173,13 +173,10 @@ qhat3
 ```
 To illustrate the median regression, compared with the original data, we can use
 ``` {r fig1, fig.height = 4.5, fig.width = 4.5, fig.align = "center"}
-library(ggplot2)
 true_dir <- x %*% beta_true
-data1 <- data.frame(true_dir, y, qhat1$ll_est)
 
-ggplot(data1, aes(x = true_dir, y=y)) + geom_point(size = 1) + 
-  geom_point(aes(x = true_dir, qhat1$ll_est), colour = 'red', size = 1) +
-  xlab('sufficient direction')
+plot(true_dir, y, xlab = "sufficient direction", ylab = "y", pch = 16)
+points(true_dir, qhat1$ll_est, pch = 16, col = 'red')
 ```
 
 The same procedure can be performed for multiple quantile levels.  For example, we estimate the $\tau$-CQS for $\tau= 0.1, 0.25, 0.5, 0.75, 0.9$.  
@@ -195,26 +192,26 @@ out3
 Similarly, we can plot the data along with the estimated conditional quantile functions for the various quantile levels.  
 ``` {r fig2, fig.height = 5.5, fig.width = 7, fig.align = "center"}
 newx <- x %*% out3
+
+oldpar <- par(no.readonly = TRUE)
+par(mfrow=c(2,3))
 qhat_tau <- as.null()
 for (i in 1:length(taus)) {
-  qhat_tau <- c(qhat_tau, llqr(newx[, i], y, tau = taus[i])$ll_est)
+  plot(true_dir, y, xlab = "sufficient direction", ylab = "y", main = taus[i], pch = 16)
+  qhat_tau <- llqr(newx[, i], y, tau = taus[i])$ll_est
+  points(true_dir, qhat_tau, pch = 16, col = "red")
 }
-
-data2 <- data.frame(rep(true_dir, n), rep(y, n), qhat_tau, rep(taus, each = n))
-names(data2) <- c("true_dir", "y", "qhat_tau", "quantiles")
-ggplot(data2, aes(x = true_dir, y = y)) + geom_point(size = 1) + 
-  geom_point(aes(x = true_dir, qhat_tau), colour = 'red', size = 1) +
-  facet_wrap(~quantiles, ncol = 3) + xlab('sufficient direction')
+par(oldpar)
 ```
 
-## A Real Data Application
+<!--  ## A Real Data Application -->
 
 # Value-at-Risk Estimation
 ## Overview
 
 Value-at-risk (VaR) is an important financial quantity directly related to the QR framework.  Specifically, for $\{r_{t}\}_{t=1}^{n}$ a time series of returns, the $\tau$th VaR at time $t$, denoted by $VaR_{\tau}(t)$, is the smallest number for which $P\{r_{t} < -VaR_{\tau}(t) | \mathcal{F}_{t-1}\} = \tau$, where $\mathcal{F}_{t-1}$ denotes the information set at time $t-1$.  Therefore, $-VaR_{\tau}(t)$ is the $\tau$th conditional quantile of $r_{t}$, and we can write $Q_{\tau}(r_{t} | \mathcal{F}_{t-1}) = -VaR_{\tau}(t)$.   
 
-For the estimation of $Q_{\tau}(r_{t} | \mathcal{F}_{t-1})$ we will use the methodology proposed by Christou (2020).  Specifically, let $r_{t}$ denote a daily return and $\mathbf{r}_{t}$ denote a $p$-dimensional vector of covariates consisting of the $p$ past returns, i.e., $\mathbf{r}_{t,p} = (r_{t-1},\dots, r_{t-p})^{\top}$.  We want to estimate $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$ at time $t$ by assuming that there exists a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, $d_{\tau} \leq p$, such that $Q_{\tau}(r_{t} | \mathbf{r}_{t,p}) = Q_{\tau}(r_{t} | \mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p})$.  This implies that $\mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p}$ contains all the information about $r_{t}$ that is available from $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$.  Once $\mathbf{B}_{\tau}$ is estimated using the `cqs` function, the sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p}$ are formed and $Q_{\tau}(r_{t} | \widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p})$ is estimated using the `llqr` function. Christou and Grabchak (2019) considered such an estimation for VaR and compared it with that of commonly-used methods.     
+Christou and Grabchak (2019) used the methodology proposed by Christou (2020) to estimate VaR and compare it with existing commonly-used methods.  The estimation of $VaR_{\tau}(t)$ and time $t$ reduces to the estimation of $Q_{\tau}(r_{t} | \mathcal{F}_{t-1})$, which can be performed using the \code{cqs} and \code{llqr} function of the presented package.  Specifically, let $r_{t}$ denote a daily return and $\mathbf{r}_{t}$ denote a $p$-dimensional vector of covariates consisting of the $p$ past returns, i.e., $\mathbf{r}_{t,p} = (r_{t-1},\dots, r_{t-p})^{\top}$.  We want to estimate $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$ at time $t$ by assuming that there exists a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, $d_{\tau} \leq p$, such that $Q_{\tau}(r_{t} | \mathbf{r}_{t,p}) = Q_{\tau}(r_{t} | \mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p})$.  This implies that $\mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p}$ contains all the information about $r_{t}$ that is available from $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$.  Once $\mathbf{B}_{\tau}$ is estimated using the `cqs` function, the sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p}$ are formed and $Q_{\tau}(r_{t} | \widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p})$ is estimated using the `llqr` function.    
 
 ## Output of `ValAR`
 
@@ -224,9 +221,9 @@ library(PerformanceAnalytics)
 data(edhec, package = "PerformanceAnalytics")
 head(edhec)
 ```
-To estimate the one-step ahead VaR we need a vector of returns in a standard chronological order.  For this, we will select the 'Convertible Arbitrage' as a vector of daily returns.  The `ValAR` function proceeds by specifying $p$, the number of past observations to be used as the predictor variables, the quantile level $\tau$, and a moving window for the number of observations to be used for fitting the model.  If a moving window is not specified, then all the observations will be used to estimate the conditional quantile.  Note that, typical values for moving windows are 250 and 500, corresponding to one or two years of daily returns.  A moving window will be useful if the number of observations is large and past returns will not be of any value to the prediction.  Moreover, if the number of observations is large, a moving window will also speed up the algorithm, since the number of used observations will be smaller.  Finally, if the returns are in reversed chronological order, then the user should either reverse the vector of daily returns or indicate that using the `chronological` option of the function. 
+To estimate the one-step ahead VaR we need a vector of returns in a standard chronological order.  For this, we will select the 'CTA Global Distressed' as a vector of daily returns.  The `ValAR` function proceeds by specifying the vector of returns $y$, the number $p$ of past observations to be used as the predictor variables, the quantile level $\tau$, a moving window for the number of observations to be used for fitting the model, and a logical operator to indicate whether the returns are given in a standard chronological order (oldest to newest) or not.  If a moving window is not specified, then all the observations will be used to estimate the conditional quantile.  Note that, typical values for a moving window are 250 and 500, corresponding to one or two years of daily returns.  A moving window will be useful if the number of observations is large and old returns will not be of any value to the prediction.  Moreover, if the number of observations is large, a moving window will also speed up the algorithm, since the number of used observations to be used will be smaller.  Finally, if the returns are in reversed chronological order, then the user should either reverse the vector of daily returns or indicate that using the `chronological` option of the function. 
 
-For this example, we will use $p = 5$, $\tau = 0.05$, and will not specify any moving window since the number of observations is 275.  Note that, the last day of returns is 2019-11-30 and therefore, we are predicting the 5\% VaR for 2019-12-31.     
+For this example, we will use $p = 5$, $\tau = 0.05$, and will not specify any moving window since the number of observations is 275.  Also, the returns are given in standard chronological order and, since this is the default setting, we do not specify anything for `chronological`.  Note that, the last day of returns is 2019-11-30 and therefore, we are predicting the 5\% VaR for 2019-12-31.     
 
 ```{r}
 y <- as.vector(edhec[, 2])
@@ -250,19 +247,18 @@ for (i in 1:size){
   VaRest[i] <- ValAR(y[1:(n - size + i - 1)], p, tau)
 }
 ```
-To visualize the results, we can ...
-```{r}
+To visualize the results, we can plot the time series of returns with the one-step ahead 5\% VaR forecasts.  
+```{r fig3, fig.height = 4.5, fig.width = 6, fig.align = "center"}
 plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = 'returns')
 lines(VaRest, col = 'red')
 ```
-Moreover, to see .... 
+Moreover, we can calculate the number of exceptions, i.e., the number of times $-\widehat{VaR}_{\tau}(t) < r_{t}$ and calculate the number of proportions.  This number should be a reasonable estimate for $\tau$.  In this case we can see that the estimated proportion is actually 0.05.   
 ```{r}
 sum(y[(n - size + 1):n] < VaRest) / size 
 ```
-which is really close to 0.05. 
 
-We can repeat that for $\tau= 0.01, 0.025$ and add the lines.
-```{r}
+We can repeat the above procedure for multiple quantile levels, i.e., for $\tau= 0.01, 0.025$.
+```{r fig4, fig.height = 4.5, fig.width = 6, fig.align = "center"}
 taus <- c(0.01, 0.025, 0.05)
 VaRest <- matrix(0, size, length(taus))
 for (i in 1:size) {
@@ -271,17 +267,21 @@ for (i in 1:size) {
   }
 }  
 
+# plots
 plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = 'returns')
 lines(VaRest[, 1], col = 'red')
 lines(VaRest[, 2], col = 'blue')
 lines(VaRest[, 3], col = 'green')
 
+# proportion of exceptions
 sum(y[(n - size + 1):n] < VaRest[, 1]) / size 
 sum(y[(n - size + 1):n] < VaRest[, 2]) / size 
 sum(y[(n - size + 1):n] < VaRest[, 3]) / size 
 ```
+We can see that the estimated proportion of exceptions are very close to the true values of 0.01, 0.025, and 0.05.  
 
-## A Real Data Application 
+
+<!-- ## A Real Data Application -->
 
 
 <!-- !!!!!!!! If you uncomment the following in a future version of the package, remember to include BatchGetSymbols in Suggests of Description!!!!!!!!!!!!! -->
