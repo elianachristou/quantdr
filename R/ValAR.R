@@ -12,19 +12,19 @@
 #' However, prior to this nonparametric estimation, a dimension reduction technique
 #' is performed to select linear combinations of the predictor variables.
 #'
-#' Specifically, the user provides a vector of returns \code{y} and an integer
-#' \code{p} for the number of past observations to be used as the predictor
-#' variables.  The function then forms the n x p design matrix x, where n is
+#' Specifically, the user provides a vector of returns \code{y} (usually log-returns)
+#' and an integer \code{p} for the number of past observations to be used as the
+#' predictor variables.  The function then forms the n x p design matrix x, where n is
 #' either the number of all returns (if the user wants to use all observations)
 #' or the number of returns defined by the moving window (if the user provides
-#' an integer for the moving window). Value-at-Risk is assumed to be minus the
-#' \eqn{\tau}th conditional quantile of y given x.  However, to aid the
+#' an integer for the moving window). Value-at-Risk is then defined as the negative
+#' value of the \eqn{\tau}th conditional quantile of y given x.  However, to aid the
 #' nonparametric estimation of the \eqn{\tau}th conditional quantile, the
-#' \code{cqs} function of the package is applied to estimate the fewest linear
-#' combinations of the predictor \code{x} that contain all the information available
-#' on the conditional quantile function.  Finally, the \code{llqr} function is
-#' applied to estimate the local linear conditional quantile of y using the extracted
-#' directions as the predictor variables.
+#' \code{cqs} function is applied to estimate the fewest linear combinations of the
+#' predictor \code{x} that contain all the information available on the conditional
+#' quantile function.  Finally, the \code{llqr} function is applied to estimate the
+#' local linear conditional quantile of y using the extracted directions as the
+#' predictor variables.
 #'
 #' For more details on the method and for an application to the Bitcoin data, see
 #' Christou (2020).  Moreover, see Christou and Grabchak (2019) for a thorough
@@ -46,32 +46,19 @@
 #'
 #' @return \code{ValAR} returns the one-step ahead \eqn{\tau}th Value-at-Risk.
 #'
-#' @references Christou, E. (2010) Central quantile subspace. \emph{Statistics and
+#' @references Christou, E. (2020) Central quantile subspace. \emph{Statistics and
 #' Computing}, 30, 677–695.
 #'
 #' Christou, E., Grabchak, M. (2019) Estimation of value-at-risk using single index
 #' quantile regression.  \emph{Journal of Applied Statistics}, 46(13), 2418–2433.
 #'
 #' @examples
-#' # Example 1
-#' # estimate the Value-at-Risk for the next day without a moving window
+#' # estimate the one-step ahead Value-at-Risk without a moving window
 #' data(edhec, package = "PerformanceAnalytics")
 #' y <- as.vector(edhec[, 1]) # Convertible Arbitrage
-#' length(y)
-#' p <- 5 # use the last 5 as predictor variables
+#' p <- 5 # use the 5 most recent observations as predictor variables
 #' tau <- 0.05
-#' ValAR(y, p, tau)
-#' # compare it with the historical Value-at-Risk calculation
-#' PerformanceAnalytics::VaR(y, 0.95, method = 'historical')
-#'
-#' # Example 2
-#' # estimate the Value-at-Risk for the next day with a moving window
-#' data(edhec, package = "PerformanceAnalytics")
-#' y <- as.vector(edhec[, 2]) # CTA Global
-#' p <- 5 # use the last 5 as predictor variables
-#' tau <- 0.05
-#' movwind = 250
-#' ValAR(y, p, tau, movwind)
+#' ValAR(y, p, tau) # the data is already in standard chronological order
 #' # compare it with the historical Value-at-Risk calculation
 #' PerformanceAnalytics::VaR(y, 0.95, method = 'historical')
 #'
@@ -83,7 +70,7 @@ ValAR <- function(y, p, tau, movwind = NULL, chronological = TRUE){
   # compatibility checks
   # check whether y is a vector
   if (is.vector(y) == FALSE) {
-    stop(paste("y needs to be  a vector."))
+    stop(paste("y needs to be a vector."))
   }
   # checks for NAs
   if (sum(is.na(y)) > 0) {
