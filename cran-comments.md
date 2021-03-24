@@ -1,8 +1,3 @@
-## Resubmission
-This is a resubmission.  In this version I have:
-
-* Replaced the URL in README with the valid one: https://cran.r-project.org/package=quantdr
-
 ## Test environments
 * local R installation, R 4.0.2
 * ubuntu 16.04 (on travis-ci), R 4.0.2
