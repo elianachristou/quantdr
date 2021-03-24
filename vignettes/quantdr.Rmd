@@ -211,7 +211,7 @@ par(oldpar)
 
 Value-at-risk (VaR) is an important financial quantity directly related to the QR framework.  Specifically, for $\{r_{t}\}_{t=1}^{n}$ a time series of returns, the $\tau$th VaR at time $t$, denoted by $VaR_{\tau}(t)$, is the smallest number for which $P\{r_{t} < -VaR_{\tau}(t) | \mathcal{F}_{t-1}\} = \tau$, where $\mathcal{F}_{t-1}$ denotes the information set at time $t-1$.  Therefore, $-VaR_{\tau}(t)$ is the $\tau$th conditional quantile of $r_{t}$, and we can write $Q_{\tau}(r_{t} | \mathcal{F}_{t-1}) = -VaR_{\tau}(t)$.   
 
-Christou and Grabchak (2019) used the methodology proposed by Christou (2020) to estimate VaR and compare it with existing commonly-used methods.  The estimation of $VaR_{\tau}(t)$ and time $t$ reduces to the estimation of $Q_{\tau}(r_{t} | \mathcal{F}_{t-1})$, which can be performed using the \code{cqs} and \code{llqr} function of the presented package.  Specifically, let $r_{t}$ denote a daily return and $\mathbf{r}_{t}$ denote a $p$-dimensional vector of covariates consisting of the $p$ past returns, i.e., $\mathbf{r}_{t,p} = (r_{t-1},\dots, r_{t-p})^{\top}$.  We want to estimate $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$ at time $t$ by assuming that there exists a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, $d_{\tau} \leq p$, such that $Q_{\tau}(r_{t} | \mathbf{r}_{t,p}) = Q_{\tau}(r_{t} | \mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p})$.  This implies that $\mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p}$ contains all the information about $r_{t}$ that is available from $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$.  Once $\mathbf{B}_{\tau}$ is estimated using the `cqs` function, the sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p}$ are formed and $Q_{\tau}(r_{t} | \widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p})$ is estimated using the `llqr` function.    
+Christou and Grabchak (2019) used the methodology proposed by Christou (2020) to estimate VaR and compare it with existing commonly-used methods.  The estimation of $VaR_{\tau}(t)$ at time $t$ reduces to the estimation of $Q_{\tau}(r_{t} | \mathcal{F}_{t-1})$, which can be performed using the `cqs` and `llqr` functions of the presented package.  Specifically, let $r_{t}$ denote a daily return (usually log-return) and $\mathbf{r}_{t}$ denote a $p$-dimensional vector of covariates consisting of the $p$ past returns, i.e., $\mathbf{r}_{t,p} = (r_{t-1},\dots, r_{t-p})^{\top}$.  We want to estimate $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$ at time $t$ by assuming that there exists a $p \times d_{\tau}$ matrix $\mathbf{B}_{\tau}$, $d_{\tau} \leq p$, such that $Q_{\tau}(r_{t} | \mathbf{r}_{t,p}) = Q_{\tau}(r_{t} | \mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p})$.  This implies that $\mathbf{B}_{\tau}^{\top}\mathbf{r}_{t,p}$ contains all the information about $r_{t}$ that is available from $Q_{\tau}(r_{t} | \mathbf{r}_{t,p})$.  Once $\mathbf{B}_{\tau}$ is estimated using the `cqs` function, the sufficient predictors $\widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p}$ are formed and $Q_{\tau}(r_{t} | \widehat{\mathbf{B}}_{\tau}^{\top}\mathbf{r}_{t,p})$ is estimated using the `llqr` function.    
 
 ## Output of `ValAR`
 
@@ -221,7 +221,7 @@ library(PerformanceAnalytics)
 data(edhec, package = "PerformanceAnalytics")
 head(edhec)
 ```
-To estimate the one-step ahead VaR we need a vector of returns in a standard chronological order.  For this, we will select the 'CTA Global Distressed' as a vector of daily returns.  The `ValAR` function proceeds by specifying the vector of returns $y$, the number $p$ of past observations to be used as the predictor variables, the quantile level $\tau$, a moving window for the number of observations to be used for fitting the model, and a logical operator to indicate whether the returns are given in a standard chronological order (oldest to newest) or not.  If a moving window is not specified, then all the observations will be used to estimate the conditional quantile.  Note that, typical values for a moving window are 250 and 500, corresponding to one or two years of daily returns.  A moving window will be useful if the number of observations is large and old returns will not be of any value to the prediction.  Moreover, if the number of observations is large, a moving window will also speed up the algorithm, since the number of used observations to be used will be smaller.  Finally, if the returns are in reversed chronological order, then the user should either reverse the vector of daily returns or indicate that using the `chronological` option of the function. 
+To estimate the one-step ahead VaR we need a vector of returns in a standard chronological order.  For this, we will select the 'CTA Global Distressed' as a vector of returns.  The `ValAR` function proceeds by specifying the vector of returns $y$, the number $p$ of past observations to be used as the predictor variables, the quantile level $\tau$, a moving window for the number of observations to be used for fitting the model, and a logical operator to indicate whether the returns are given in a standard chronological order (oldest to newest) or not.  If a moving window is not specified, then all the observations will be used to estimate the conditional quantile.  Note that, typical values for a moving window correspond to one or two years of returns.  A moving window will be useful if the number of observations is large and old returns will not be of much value to the prediction.  Moreover, if the number of observations is large, a moving window will also speed up the algorithm, since the number of observations to be used will be smaller.  Finally, if the returns are in reversed chronological order, then the user should either reverse the vector of returns or indicate that using the `chronological` option of the function. 
 
 For this example, we will use $p = 5$, $\tau = 0.05$, and will not specify any moving window since the number of observations is 275.  Also, the returns are given in standard chronological order and, since this is the default setting, we do not specify anything for `chronological`.  Note that, the last day of returns is 2019-11-30 and therefore, we are predicting the 5\% VaR for 2019-12-31.     
 
@@ -238,7 +238,7 @@ If we want to compare this number with the 5\% VaR estimated by the historical m
 VaR(y, 0.95, method = 'historical')
 ```
 
-Now, let's say we want to predict the 5\% VaR for the last 50 observations.  We can do that in a loop.  
+For illustration purposes, we will use the last 100 observations as a testing data set for one-step ahead VaR estimation and the rest of the observations as historical data.  Specifically, for each of the time points, $t$, of the obesrvations not included in the historical data, we estimate the model based on all of the data up to time $t-1$ and report the 5\% VaR.     
 ```{r}
 size <- 100
 
@@ -252,12 +252,12 @@ To visualize the results, we can plot the time series of returns with the one-st
 plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = 'returns')
 lines(VaRest, col = 'red')
 ```
-Moreover, we can calculate the number of exceptions, i.e., the number of times $-\widehat{VaR}_{\tau}(t) < r_{t}$ and calculate the number of proportions.  This number should be a reasonable estimate for $\tau$.  In this case we can see that the estimated proportion is actually 0.05.   
+Moreover, we can calculate the proportion of exceptions, i.e., the number of times $r_{t} < -\widehat{VaR}_{\tau}(t)$ for each time point $t$ of the last 100 observations.  This number should be a reasonable estimate for $\tau$.  In this case we can see that the estimated proportion is actually 0.05.   
 ```{r}
 sum(y[(n - size + 1):n] < VaRest) / size 
 ```
 
-We can repeat the above procedure for multiple quantile levels, i.e., for $\tau= 0.01, 0.025$.
+We can repeat the above procedure for multiple quantile levels, i.e., for $\tau= 0.01, 0.025, 0.05$.
 ```{r fig4, fig.height = 4.5, fig.width = 6.5, fig.align = "center"}
 taus <- c(0.01, 0.025, 0.05)
 VaRest <- matrix(0, size, length(taus))
@@ -272,6 +272,8 @@ plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = '
 lines(VaRest[, 1], col = 'red')
 lines(VaRest[, 2], col = 'blue')
 lines(VaRest[, 3], col = 'green')
+legend('top', legend = c("1%", "2.5%", "5%"), col = c("red", "blue", "green"),
+       lty=1, cex=1.3, horiz = T, bty = "n")
 
 # proportion of exceptions
 sum(y[(n - size + 1):n] < VaRest[, 1]) / size 
