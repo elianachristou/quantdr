@@ -27,7 +27,7 @@
 #' predictor variables.
 #'
 #' For more details on the method and for an application to the Bitcoin data, see
-#' Christou (2020).  Moreover, see Christou and Grabchak (2019) for a thorough
+#' Christou (2020).  Also, see Christou and Grabchak (2019) for a thorough
 #' comparison between the proposed methodology and commonly used methods.
 #'
 #' @param y A vector of returns (1 x n).
