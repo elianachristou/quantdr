@@ -33,7 +33,7 @@ function will rearrange them.}
 vector of returns.
 }
 \details{
-The function calculates the \eqn{\tau}th Value-at-Risk of the next time occurence,
+The function calculates the \eqn{\tau}th Value-at-Risk of the next time occurrence,
 i.e., that number such that the probability that the returns fall below its
 negative value is \eqn{\tau}.  The parameter \eqn{\tau} is typically chosen to be a
 small number such as 0.01, 0.025, or 0.05.  By definition, the negative value of the
