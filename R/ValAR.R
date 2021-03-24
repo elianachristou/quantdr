@@ -38,7 +38,7 @@
 #' @param movwind An optional integer number for the moving window.
 #'     If not specified, all n observations will be used to fit the model.
 #'     If specified, it should be an integer between p and n.  Typical values
-#'     for moving windows are 250 or 500 (one or two years of return values).
+#'     for moving windows correspond to one or two years of return values.
 #' @param chronological A logical operator to indicate whether the returns are
 #'      in standard chronological order (from oldest to newest).  The default
 #'      value is TRUE.  If the returns are in reverse chronological order, the
