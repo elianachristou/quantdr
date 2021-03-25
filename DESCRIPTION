@@ -1,7 +1,7 @@
 Package: quantdr
 Type: Package
 Title: Dimension Reduction Techniques for Conditional Quantiles
-Version: 2.1.0
+Version: 1.2.0
 Authors@R: person("Eliana", "Christou", email="echris15@uncc.edu",
     role = c("aut", "cre"), comment = c(ORCID = "https://orcid.org/0000-0001-5044-0969"))
 Description: An implementation of dimension reduction techniques

@@ -1,14 +1,14 @@
-# quantdr 2.1.0
+# quantdr 1.2.0
 
 ## Major changes
 
 * Add the ValAR.R function for estimating the one-step ahead Value-at-Risk
-* Update the vignette to include explanations for the ValAR.R function
+* Adjust bandwidth selection for cqs.R and llqr.R to accommodate for Value-at-Risk calculation
 
 ## Minor changes
 
+* Update the vignette to include explanations for the ValAR.R function
 * Choose one bandwidth in case llqrcv.R outputs more (if there is a tie)
-* Adjust bandwidth selection for cqs.R and llqr.R to accommodate for Value-at-Risk calculation
 * Add the PerformanceAnalytics under Suggests in DESCRIPTION to accommodate for the example in the ValAR.R function
 * Add tests for the ValAR.R function
 
