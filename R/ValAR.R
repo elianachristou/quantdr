@@ -134,7 +134,7 @@ ValAR <- function(y, p, tau, movwind = NULL, chronological = TRUE){
     X <- X[(n - movwind + 1):n, ]
     n <- length(newy)
   } else {
-    movwind <- min(250, length(newy) - p)
+    movwind <- min(250, length(newy))
     newy <- newy[(n - movwind + 1):n]
     X <- X[(n - movwind + 1):n, ]
     n <- length(newy)
