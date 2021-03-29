@@ -62,6 +62,7 @@
 #' p <- 5 # use the 5 most recent observations as predictor variables
 #' tau <- 0.05
 #' ValAR(y, p, tau) # the data is already in standard chronological order
+#'
 #' # compare it with the historical Value-at-Risk calculation
 #' PerformanceAnalytics::VaR(y, 0.95, method = 'historical')
 #'

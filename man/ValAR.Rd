@@ -48,16 +48,16 @@ is performed to select linear combinations of the predictor variables.
 
 Specifically, the user provides a vector of returns \code{y} (usually log-returns)
 and an integer \code{p} for the number of past observations to be used as the
-predictor variables.  The function then forms the n x p design matrix x, where n is
-either the number of all returns (if the user wants to use all observations)
-or the number of returns defined by the moving window (default value is min(250, n - p)).
-Value-at-Risk is then defined as the negative value of the \eqn{\tau}th conditional
-quantile of y given x.  However, to aid the nonparametric estimation of the
-\eqn{\tau}th conditional quantile, the \code{cqs} function is applied to estimate
-the fewest linear combinations of the predictor \code{x} that contain all the
-information available on the conditional quantile function.  Finally, the \code{llqr}
-function is applied to estimate the local linear conditional quantile of y using the
-extracted directions as the predictor variables.
+predictor variables.  The function then forms the m x p design matrix x, where m is
+the number of used observations.  For example, m can be n - p if the user wants to
+use all observations, or m can be equal to the moving window (default value is
+min(250, n - p)).  Value-at-Risk is then defined as the negative value of the
+\eqn{\tau}th conditional quantile of y given x.  However, to aid the nonparametric
+estimation of the \eqn{\tau}th conditional quantile, the \code{cqs} function is
+applied to estimate the fewest linear combinations of the predictor \code{x} that
+contain all the information available on the conditional quantile function.  Finally,
+the \code{llqr} function is applied to estimate the local linear conditional quantile
+of y using the extracted directions as the predictor variables.
 
 For more details on the method and for an application to the Bitcoin data, see
 Christou (2020).  Also, see Christou and Grabchak (2019) for a thorough
@@ -70,6 +70,7 @@ y <- as.vector(edhec[, 1]) # Convertible Arbitrage
 p <- 5 # use the 5 most recent observations as predictor variables
 tau <- 0.05
 ValAR(y, p, tau) # the data is already in standard chronological order
+
 # compare it with the historical Value-at-Risk calculation
 PerformanceAnalytics::VaR(y, 0.95, method = 'historical')
 
