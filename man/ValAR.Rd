@@ -15,10 +15,13 @@ predictor variables.  This will form the n x p design matrix.}
 \item{tau}{A quantile level, a number strictly between 0 and 1. Commonly
 used choices are 0.01, 0.025, and 0.05.}
 
-\item{movwind}{An optional integer number for the moving window.
-If not specified, all n observations will be used to fit the model.
-If specified, it should be an integer between p and n.  Typical values
-for moving windows correspond to one or two years of return values.}
+\item{movwind}{An optional integer number for the moving window.  The
+default value is min(250, n), i.e., if the number of observations is
+less than 250, then all the observations will be used.  The moving
+window should be an integer between p and n.  Typical values for
+moving windows correspond to one or two years of return values.  If the
+user wants to use all n observations to fit the model, then the moving
+window should be equal to the sample size n.}
 
 \item{chronological}{A logical operator to indicate whether the returns are
 in standard chronological order (from oldest to newest).  The default
@@ -46,22 +49,21 @@ Specifically, the user provides a vector of returns \code{y} (usually log-return
 and an integer \code{p} for the number of past observations to be used as the
 predictor variables.  The function then forms the n x p design matrix x, where n is
 either the number of all returns (if the user wants to use all observations)
-or the number of returns defined by the moving window (if the user provides
-an integer for the moving window). Value-at-Risk is then defined as the negative
-value of the \eqn{\tau}th conditional quantile of y given x.  However, to aid the
-nonparametric estimation of the \eqn{\tau}th conditional quantile, the
-\code{cqs} function is applied to estimate the fewest linear combinations of the
-predictor \code{x} that contain all the information available on the conditional
-quantile function.  Finally, the \code{llqr} function is applied to estimate the
-local linear conditional quantile of y using the extracted directions as the
-predictor variables.
+or the number of returns defined by the moving window (default value is min(250, n)).
+Value-at-Risk is then defined as the negative value of the \eqn{\tau}th conditional
+quantile of y given x.  However, to aid the nonparametric estimation of the
+\eqn{\tau}th conditional quantile, the \code{cqs} function is applied to estimate
+the fewest linear combinations of the predictor \code{x} that contain all the
+information available on the conditional quantile function.  Finally, the \code{llqr}
+function is applied to estimate the local linear conditional quantile of y using the
+extracted directions as the predictor variables.
 
 For more details on the method and for an application to the Bitcoin data, see
 Christou (2020).  Also, see Christou and Grabchak (2019) for a thorough
 comparison between the proposed methodology and commonly used methods.
 }
 \examples{
-# estimate the one-step ahead Value-at-Risk without a moving window
+# estimate the one-step ahead Value-at-Risk with default moving window
 data(edhec, package = "PerformanceAnalytics")
 y <- as.vector(edhec[, 1]) # Convertible Arbitrage
 p <- 5 # use the 5 most recent observations as predictor variables
