@@ -152,13 +152,13 @@ llqr <- function(x, y, tau=0.5, h = NULL, method="rule", x0 = NULL) {
       red_dim <- floor(0.2 * n) # find the 20% of the observations
       index_y <- order(y)[red_dim:(n - red_dim)] # subtract the smallest 20% and the largest 20% of the observations
       h <- KernSmooth::dpill(x[index_y, ], y[index_y])
-      h <- h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
+      h <- 1.25 * h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
       if (h == 'NaN') {
         h <- 1.25 * max(n^(-1 / (p + 4)), min(2, sd(y)) * n^(- 1 / (p + 4)))
       }
     }
   } else {
-    h <- 1.25 * h
+    h <- h
   }
 
   # if x0 is missing, perform estimation at the entire design matrix
