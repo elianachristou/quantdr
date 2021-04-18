@@ -128,8 +128,11 @@ cqs <- function(x, y, tau = 0.5, dtau = NULL) {
   index_y <- order(y)[red_dim:(n - red_dim)] # subtract the smallest 20% and the largest 20% of the observations
   h <- KernSmooth::dpill(newx[index_y, ], y[index_y])
   h <- h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
-
-  h <- max(n^(-1 / (d + 4)), min(2, sd(y)) * n^(- 1 / (d + 4)), h) # maximum of all bandwidths
+  if (h == 'NaN') {
+    h <- max(n^(-1 / (d + 4)), min(2, sd(y)) * n^(- 1 / (d + 4)))
+  } else {
+    h <- max(n^(-1 / (d + 4)), min(2, sd(y)) * n^(- 1 / (d + 4)), h) # maximum of all bandwidths
+  }
   non_par <- llqr(newx, y, tau = tau, h = h)
   qhat <- non_par$ll_est
 
