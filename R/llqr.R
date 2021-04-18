@@ -154,11 +154,11 @@ llqr <- function(x, y, tau=0.5, h = NULL, method="rule", x0 = NULL) {
       h <- KernSmooth::dpill(x[index_y, ], y[index_y])
       h <- h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
       if (h == 'NaN') {
-        h <- max(n^(-1 / (p + 4)), min(2, sd(y)) * n^(- 1 / (p + 4)))
+        h <- 2 * max(n^(-1 / (p + 4)), min(2, sd(y)) * n^(- 1 / (p + 4)))
       }
     }
   } else {
-    h <- h
+    h <- 2 * h
   }
 
   # if x0 is missing, perform estimation at the entire design matrix
