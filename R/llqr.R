@@ -149,7 +149,7 @@ llqr <- function(x, y, tau=0.5, h = NULL, method="rule", x0 = NULL) {
       h <- llqrcv(x, y, tau)
     }
     if (method == "rule") {
-      red_dim <- floor(0.2 * n) # find the 20% of the observations
+      red_dim <- floor(0.2 * n) # find how many observations correspond to a 20%
       index_y <- order(y)[red_dim:(n - red_dim)] # subtract the smallest 20% and the largest 20% of the observations
       h <- KernSmooth::dpill(x[index_y, ], y[index_y])
       h <- 1.25 * h * (tau * (1 - tau) / (dnorm(qnorm(tau)))^2)^.2
