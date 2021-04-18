@@ -34,8 +34,8 @@ The purpose of this vignette is to demonstrate the implementation of the functio
 # Getting Started
 
 To get started you need to first install the package using the command 
-```{r, eval=FALSE}
-install.packages("quantdr")
+```{r}
+devtools::install_github("elianachristou/quantdr")
 ```
 and then use it during any `R` session by issuing the command
 ```{r setup}
