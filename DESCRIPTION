@@ -9,7 +9,6 @@ Description: An implementation of dimension reduction techniques
     conditional quantiles is also available.  
 License: GPL-2 | GPL-3
 Encoding: UTF-8
-LazyData: true
 Imports: 
     dr,  
     KernSmooth,
