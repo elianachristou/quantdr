@@ -239,7 +239,7 @@ VaR(y, 0.95, method = 'historical')
 ```
 
 For illustration purposes, we will use the last 100 observations as a testing data set for one-step ahead VaR estimation and the rest of the observations as historical data.  Specifically, for each of the time points, $t$, of the observations not included in the historical data, we estimate the model based on all of the data up to time $t-1$ and report the 5\% VaR.     
-```{r}
+```{r, eval=FALSE}
 size <- 100
 
 VaRest <- as.null(size)
@@ -248,17 +248,24 @@ for (i in 1:size){
 }
 ```
 To visualize the results, we can plot the time series of returns with the one-step ahead 5\% VaR forecasts.  
-```{r fig3, fig.height = 4.8, fig.width = 6.5, fig.align = "center"}
+```{r fig3, fig.height = 4.8, fig.width = 6.5, fig.align = "center", eval=FALSE}
 plot.ts(y[(n - size + 1):n], ylim = range(y[(n - size + 1):n], VaRest), ylab = 'returns')
 lines(VaRest, col = 'red')
 ```
+
+```{r fig.height = 4.8, fig.width = 6.5, include=TRUE, fig.align = "center", echo = FALSE}
+img <- png::readPNG("returns1.png")
+grid::grid.raster(img)
+```
+
 Moreover, we can calculate the proportion of exceptions, i.e., the number of times $r_{t} < -\widehat{VaR}_{\tau}(t)$ for each time point $t$ of the last 100 observations.  This number should be a reasonable estimate for $\tau$.  In this case we can see that the estimated proportion is actually 0.05.   
-```{r}
+```{r, eval=FALSE}
 sum(y[(n - size + 1):n] < VaRest) / size 
+#> [1] 0.05
 ```
 
 We can repeat the above procedure for multiple quantile levels, i.e., for $\tau= 0.01, 0.025, 0.05$.
-```{r fig4, fig.height = 4.8, fig.width = 6.5, fig.align = "center"}
+```{r fig4, fig.height = 4.8, fig.width = 6.5, fig.align = "center", eval=FALSE}
 taus <- c(0.01, 0.025, 0.05)
 VaRest <- matrix(0, size, length(taus))
 for (i in 1:size) {
@@ -274,11 +281,21 @@ lines(VaRest[, 2], col = 'blue')
 lines(VaRest[, 3], col = 'green')
 legend('top', legend = c("1%", "2.5%", "5%"), col = c("red", "blue", "green"),
        lty=1, cex=1, horiz = T, bty = "n")
+```
 
+```{r fig.height = 4.8, fig.width = 6.5, include=TRUE, fig.align = "center", echo = FALSE}
+img <- png::readPNG("returns2.png")
+grid::grid.raster(img)
+```
+
+```{r, eval=FALSE}
 # proportion of exceptions
 sum(y[(n - size + 1):n] < VaRest[, 1]) / size 
+#> [1] 0.03
 sum(y[(n - size + 1):n] < VaRest[, 2]) / size 
+#> [1] 0.03
 sum(y[(n - size + 1):n] < VaRest[, 3]) / size 
+#> [1] 0.05
 ```
 We can see that the estimated proportion of exceptions are very close to the true values of 0.01, 0.025, and 0.05.  
 
