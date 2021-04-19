@@ -30,7 +30,8 @@ Suggests:
     testthat,
     pracma,
     MASS, 
-    PerformanceAnalytics
+    PerformanceAnalytics,
+    png
 VignetteBuilder: knitr
 SystemRequirements: GNU make
 URL: https://github.com/elianachristou/quantdr
