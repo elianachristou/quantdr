@@ -1,3 +1,9 @@
+# quantdr 1.2.1
+
+## Minor changes
+
+* Remove the dependency with the MTS package
+
 # quantdr 1.2.0
 
 ## Major changes
