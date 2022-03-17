@@ -113,7 +113,7 @@ cqs <- function(x, y, tau = 0.5, dtau = NULL) {
   sig <- var(x)
   sig <- (sig + t(sig))/2
   sig2 <- eigen(sig)
-  signrt <- sig2$vectors%*%diag((sig2$values)^alpha)%*%
+  signrt <- sig2$vectors%*%diag((sig2$values)^(-1/2))%*%
     t(sig2$vectors)
   xstand <- xc %*% signrt
 
