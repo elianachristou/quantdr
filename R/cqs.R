@@ -111,7 +111,10 @@ cqs <- function(x, y, tau = 0.5, dtau = NULL) {
   # standardize the predictor variables
   xc <- scale(x, scale = FALSE)
   sig <- var(x)
-  signrt <- MTS::msqrt(sig)$invsqrt
+  sig <- (sig + t(sig))/2
+  sig2 <- eigen(sig)
+  signrt <- sig2$vectors%*%diag((sig2$values)^alpha)%*%
+    t(sig2$vectors)
   xstand <- xc %*% signrt
 
   # use SIR for initial dimension reduction

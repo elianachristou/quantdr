@@ -12,7 +12,6 @@ Encoding: UTF-8
 Imports: 
     dr,  
     KernSmooth,
-    MTS,
     mvtnorm,
     quantreg
 Depends: R (>= 3.2.0)
