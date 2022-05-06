@@ -1,5 +1,11 @@
 # quantdr 1.2.1
 
+* This is a resubmission.  The package was removed from CRAN due to dependency issues with MTS package.  
+However, the dependence was removed when the 1.2.1 version was submitted.  The communication was not
+clear and, although the dependency was resolved, the package was removed from CRAN.  
+
+# quantdr 1.2.1
+
 ## Minor changes
 
 * Remove the dependency with the MTS package
