@@ -29,39 +29,57 @@
 #####################################################################
 #     dr is the primary function
 #####################################################################
-dr <-
-  function(formula, data, subset, group=NULL, na.action=na.fail, weights,...)
-  {
-    mf <- match.call(expand.dots=FALSE)
-    mf$na.action <- na.action
-    if(!is.null(mf$group)) {
-      mf$group <- eval(parse(text=as.character(group)[2]),
-                       data,environment(group)) }
-    mf$... <- NULL # ignore ...
-    mf[[1]] <- as.name("model.frame")
-    mf <- eval(mf, sys.frame(sys.parent()))
-    mt <- attr(mf,"terms")
-    Y <- model.extract(mf,"response")
-    X <- model.matrix(mt, mf)
-    y.name <- if(is.matrix(Y)) colnames(Y) else
-      as.character(attr(mt, "variables")[2])
-    int <- match("(Intercept)", dimnames(X)[[2]], nomatch=0)
-    if (int > 0) X <- X[, -int, drop=FALSE] # drop the intercept from X
-    weights <- mf$"(weights)"
-    if(is.null(weights)){                   # create weights if not present
-      weights <- rep(1,dim(X)[1])} else
-      {
-        if(any(weights<0))stop("Negative weights")
-        pos.weights <- weights > 1.e-30
-        weights <- weights[pos.weights]
-        weights <- dim(X)[1]*weights/sum(weights)
-        X <- X[pos.weights,]
-        Y <- if(is.matrix(Y)) Y[pos.weights,] else Y[pos.weights]}
-    ans <- dr.compute(X,Y,weights=weights,group=mf$"(group)",...)
-    ans$call <- match.call()
-    ans$y.name <- y.name
-    ans$terms <- mt
-    ans
+dr <- function(formula, data, subset, group = NULL, na.action = na.fail,
+               weights,...) {
+
+  # Capture the function call and prepare model frame
+  mf <- match.call(expand.dots = FALSE)
+  mf$na.action <- na.action
+
+  # Evaluate the group expression in the context of the data if it exists
+  if(!is.null(mf$group)) {
+   mf$group <- eval(parse(text = as.character(group)[2]), data,
+                    environment(group)) }
+  # Remoove unusued ... arguments for model.frame
+  mf$... <- NULL
+  mf[[1]] <- as.name("model.frame")
+
+  # Evaluate the model frame with the current environment
+  mf <- eval(mf, sys.frame(sys.parent()))
+
+  # Extract model terms and response
+  mt <- attr(mf, "terms")
+  Y <- model.extract(mf, "response")
+  X <- model.matrix(mt, mf)
+
+  # Extract response name
+  y.name <- if(is.matrix(Y)) colnames(Y) else as.character(attr(mt, "variables")[2])
+
+  # Drop the intercept column from model matrix
+  int <- match("(Intercept)", dimnames(X)[[2]], nomatch = 0)
+  if (int > 0) X <- X[, -int, drop = FALSE]
+
+  # Extract weights or assign equal weights
+  weights <- mf$"(weights)"
+  if(is.null(weights)) {
+    weights <- rep(1, dim(X)[1])
+    } else {
+      if(any(weights < 0)) stop("Negative weights")
+      pos.weights <- weights > 1.e-30
+      weights <- weights[pos.weights]
+      weights <- dim(X)[1] * weights / sum(weights) # normalize
+      X <- X[pos.weights, ]
+      Y <- if (is.matrix(Y)) Y[pos.weights, ] else Y[pos.weights]
+    }
+
+  # Run the main dimension reduction computation
+  ans <- dr.compute(X, Y, weights = weights, group = mf$"(group)", ...)
+
+  # Attach metadata and return
+  ans$call <- match.call()
+  ans$y.name <- y.name
+  ans$terms <- mt
+  ans
   }
 
 dr.compute <-
