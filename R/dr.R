@@ -506,110 +506,166 @@ dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
 #  Original by S. Weisberg; modified by Yongwu Shao 4/27/2006
 #  to compute the A array needed for dimension tests
 #####################################################################
-
-dr.M.save<-function(object,nslices=NULL,slice.function=dr.slices,sel=NULL,...) {
+#' SAVE kernel matrix computation
+#'
+#' Computes the kernel maaatrix \eqn{M} used in Sliced Average Variance Estimation
+#' (SAVE) along with a 3D array \eqn{A} for use in hypothesis testing.
+#'
+#' @param object A fitted \code{dr} object.
+#' @param nslices Number of slices.  Default is \code{max(8, p + 3)} where \code{p}
+#' is the number of predictors.
+#' @param slice.function A function to slice the response.  Default is \code{dr.slices}.
+#' @param sel Optional index vector selecting a subset of observations to use.
+#' @param ... Additional arguments paassed to the slicing function.
+#'
+#' @retturn A list with components:
+#' \item{M}{The SAVE kerel matrix.}
+#' \item{A}{A 3D array used for testing coordinate hypotheses.}
+#' \item{slice.info}{Information about the slicing.}
+#'
+#' @noRd
+#' @method dr.M save
+#' @exportS3Method
+dr.M.save <- function(object, nslices = NULL, slice.function = dr.slices,
+                      sel=NULL, ...) {
   sel <- if(is.null(sel)) 1:dim(dr.z(object))[1] else sel
-  z <- dr.z(object)[sel,]
+  z <- dr.z(object)[sel, ]
   y <- dr.y(object)
-  y <- if (is.matrix(y)) y[sel,] else y[sel]
+  y <- if (is.matrix(y)) y[sel, ] else y[sel]
   wts <- dr.wts(object)[sel]
   h <- if (!is.null(nslices)) nslices else max(8, ncol(z) + 3)
-  slices <- slice.function(y,h)
-  #slices <- if (is.null(slice.info)) dr.slices(y, h) else slice.info
-  # initialize M
+  slices <- slice.function(y, h)
+
   M <- matrix(0, NCOL(z), NCOL(z))
-  # A is a new 3D array, needed to compute tests.
-  A <- array(0,c(slices$nslices,NCOL(z),NCOL(z)))
+  A <- array(0, c(slices$nslices, NCOL(z), NCOL(z))) # for coordinate tests
   ws <- rep(0, slices$nslices)
-  # Compute weighted within-slice covariance matrices, skipping any slice with
-  # total weight smaller than 1
+
   wvar <- function(x, w) {
-    (if (sum(w) > 1) {(length(w) - 1)/(sum(w) - 0)} else {0}) *
+    (if (sum(w) > 1) {(length(w) - 1) / (sum(w) - 0)} else {0}) *
       var(sweep(x, 1, sqrt(w), "*"))}
+
   for (j in 1:slices$nslices) {
     ind <- slices$slice.indicator == j
     IminusC <- diag(rep(1, NCOL(z))) - wvar(z[ind, ], wts[ind])
     ws[j] <- sum(wts[ind])
-    A[j,,] <- sqrt(ws[j])*IminusC  # new
+    A[j,,] <- sqrt(ws[j]) * IminusC
     M <- M + ws[j] * IminusC %*% IminusC
   }
-  M <- M/sum(ws)
-  A <- A/sqrt(sum(ws)) # new
+  M <- M / sum(ws)
+  A <- A / sqrt(sum(ws)) # new
   return(list(M = M, A = A, slice.info = slices))
 }
 
 # Written by Yongwu Shao, 4/27/2006
-dr.test.save<-function(object,numdir=object$numdir,...) {
-  p<-length(object$evalues)
-  n<-object$cases
-  h<-object$slice.info$nslices
-  st.normal<-df.normal<-st.general<-df.general<-0
-  pv.normal<-pv.general<-0
-  nt<-numdir
-  A<-object$A
-  M<-object$M
-  D<-eigen(M)
-  or<-rev(order(abs(D$values)))
-  evectors<-D$vectors[,or]
-  for (i in 1:nt-1) {
-    theta<-evectors[,(i+1):p]
-    st.normal[i+1]<-0
+#' Dimension test for SAVE
+#'
+#' Performs booth normal and generall dimension tests for SAVE using the A array.
+#'
+#' @param object A fitted \code{dr} object with method \code{save}.
+#' @param numdir Number of directions to test.
+#' @param ... Additional arguments (currently unused).
+#'
+#' @return A daata frame containing ttest statistics and p-values under both the
+#' normal and general assumptions.
+#'
+#' @noRd
+#' @method dr.test save
+#' @exportS3Method
+dr.test.save <- function(object, numdir = object$numdir, ...) {
+  p <- length(object$evalues)
+  n <- object$cases
+  h <- object$slice.info$nslices
+  st.normal <- df.normal <- st.general <- df.general <- 0
+  pv.normal <- pv.general <- 0
+  nt <- numdir
+  A <- object$A
+  M <- object$M
+  D <- eigen(M)
+  or <- rev(order(abs(D$values)))
+  evectors <- D$vectors[, or]
+
+  for (i in 1:(nt -  1)) {
+    theta <- evectors[, (i + 1):p, drop = FALSE]
+
+    # Normal test statistic
+    st.normal[i + 1] <- 0
     for (j in 1:h) {
-      st.normal[i+1]<-st.normal[i+1] +
-        sum((t(theta) %*% A[j,,] %*% theta)^2)*n/2
+      st.normal[i + 1] <- st.normal[i + 1] +
+        sum((t(theta) %*% A[j, , ] %*% theta)^2) * n / 2
     }
-    df.normal[i+1]<-(h-1)*(p-i)*(p-i+1)/2
-    pv.normal[i+1]<-1-pchisq(st.normal[i+1],df.normal[i+1])
-    # general test
-    HZ<- dr.z(object) %*% theta
-    ZZ<-array(0,c(n,(p-i)*(p-i)))
-    for (j in 1:n) ZZ[j,]<- t(t(HZ[j,])) %*% t(HZ[j,])
-    Sigma<-cov(ZZ)/2
-    df.general[i+1]<-sum(diag(Sigma))^2/sum(Sigma^2)*(h-1)
-    st.general[i+1]<-st.normal[i+1] *sum(diag(Sigma))/sum(Sigma^2)
-    pv.general[i+1]<-1-pchisq(st.general[i+1],df.general[i+1])
+
+    df.normal[i + 1] <- (h - 1) * (p - i) * (p - i + 1) / 2
+    pv.normal[i + 1] <- 1 - pchisq(st.normal[i + 1], df.normal[i + 1])
+
+    # General test statistic
+    HZ <- dr.z(object) %*% theta
+    ZZ <- array(0, c(n, (p - i) * (p - i)))
+    for (j in 1:n) ZZ[j, ] <- t(t(HZ[j, ])) %*% t(HZ[j, ])
+    Sigma <- cov(ZZ) / 2
+    df.general[i + 1] <- sum(diag(Sigma))^2 / sum(Sigma^2) * (h - 1)
+    st.general[i + 1] <- st.normal[i + 1] * sum(diag(Sigma)) / sum(Sigma^2)
+    pv.general[i + 1] <- 1 - pchisq(st.general[i + 1], df.general[i + 1])
   }
-  z<-data.frame(cbind(st.normal,df.normal,pv.normal,pv.general))
-  rr<-paste(0:(nt-1),"D vs >= ",1:nt,"D",sep="")
-  dimnames(z)<-list(rr,c("Stat","df(Nor)","p.value(Nor)","p.value(Gen)"))
+
+  z <- data.frame(cbind(st.normal, df.normal, pv.normal, pv.general))
+  rr <- paste(0:(nt - 1), "D vs >= ", 1:nt, "D", sep = "")
+  dimnames(z) <- list(rr, c("Stat", "df(Nor)", "p.value(Nor)", "p.value(Gen)"))
   z
 }
 
 # Written by Yongwu Shao, 4/27/2006
-dr.coordinate.test.save <-
-  function (object, hypothesis, d=NULL, chi2approx=object$chi2approx,...)
+#' Coordinate test for SAVE
+#'
+#' Performs a hypothesis test on a coordinate subspace using SAVE and the A array.
+#' @param object A fitted \code{dr} object using the SAVE method.
+#' @param hypothesis A matrix or formula specifying thee hypothesized coordinate
+#'     subspace.
+#' @param d Number of directions to test.  If \code{NIULL}, set automatically.
+#' @param chi2approx Method for chi-square approximation.
+#' @param ... Additional arguments (currently unusued).
+#'
+#' @return A daata frame with the test statistic, degrees of freedom, and p-values.
+#'
+#' @noRd
+#' @method dr.coordinate.test save
+#' @exportS3Method
+dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
+                                     chi2approx = object$chi2approx, ...) {
+  gamma <- if (inherits(hypothesis, "formula"))
+    coord.hyp.basis(object, hypothesis)
+  else as.matrix(hypothesis)
+
+  p <- length(object$evalues)
+  n <- object$cases
+  h <- object$slice.info$nslices
+  st <- df <- pv <- 0
+  gamma <- (dr.R(object)) %*% gamma
+  r <- p - dim(gamma)[2]
+
+  H <- as.matrix(qr.Q(qr(gamma), complete = TRUE)[, (p - r + 1):p])
+  A <- object$A
+
+  # Normal theory test
+  st <- 0
+  for (j in 1:h) {
+    st <- st + sum((t(H) %*% A[j, , ] %*% H)^2) * n / 2
+  }
+  df.normal <- (h - 1) * r * (r + 1) / 2
+  pv.normal  <- 1 - pchisq(st, df.normal)
+
+  # General test
   {
-    gamma <- if (inherits(hypothesis, "formula"))
-      coord.hyp.basis(object, hypothesis)
-    else as.matrix(hypothesis)
-    p <- length(object$evalues)
-    n <- object$cases
-    h <- object$slice.info$nslices
-    st <- df <- pv <- 0
-    gamma <- (dr.R(object)) %*% gamma
-    r <- p - dim(gamma)[2]
-    H <- as.matrix(qr.Q(qr(gamma), complete = TRUE)[, (p - r +
-                                                         1):p])
-    A <- object$A
-    st <- 0
-    for (j in 1:h) {
-      st <- st + sum((t(H) %*% A[j, , ] %*% H)^2) * n/2
+    HZ <- dr.z(object) %*% H
+    ZZ <- array(0, c(n, r^2))
+    for (j in 1:n) {
+      ZZ[j, ] <- t(t(HZ[j, ])) %*% t(HZ[j, ])
     }
-    # Normal predictors
-    df.normal <- (h - 1) * r * (r + 1)/2
-    pv.normal  <- 1 - pchisq(st, df.normal)
-    # General predictors
-    {
-      HZ <- dr.z(object) %*% H
-      ZZ <- array(0, c(n, r^2))
-      for (j in 1:n) {
-        ZZ[j, ] <- t(t(HZ[j, ])) %*% t(HZ[j, ])
-      }
-      wts <- rep(eigen( ((n-1)/n)*cov(ZZ)/2)$values,h-1)
-      testg <- dr.pvalue(wts[wts>0],st,a=chi2approx)
-    }
-    z <- data.frame(cbind(st, df.normal, pv.normal, testg$pval.adj))
-    dimnames(z) <- list("Test", c("Statistic", "df(Nor)", "p.val(Nor)",
+    wts <- rep(eigen(((n - 1) / n) * cov(ZZ) / 2)$values, h - 1)
+    testg <- dr.pvalue(wts[wts > 0], st, a = chi2approx)
+  }
+
+  z <- data.frame(cbind(st, df.normal, pv.normal, testg$pval.adj))
+  dimnames(z) <- list("Test", c("Statistic", "df(Nor)", "p.val(Nor)",
                                   "p.val(Gen)"))
     z
   }
