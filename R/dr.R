@@ -262,26 +262,60 @@ dr.fit.default <- function(object, numdir = 4, ...) {
 }
 
 #####################################################################
-###
-###  dr methods. Each method REQUIRES a dr.M function, and
-###  may also have a dr.y function and an function method.
-###
+# dr methods. Each method REQUIRES a dr.M function, and may also have
+# a dr.y function and an function method.
 #####################################################################
 
 #####################################################################
-###  generic functions
+# generic functions
 #####################################################################
-
+#' @noRd
+#' @exportS3Method
 dr.M <- function(object, ...){UseMethod("dr.M")}
+
+#' @noRd
+#' @exportS3Method
 dr.y <- function(object) {UseMethod("dr.y")}
-dr.y.default <- function(object){object$y}
-dr.test <- function(object, numdir,...){  UseMethod("dr.test")}
-dr.test.default <-function(object, numdir,...) {NULL}
-dr.coordinate.test <- function(object,hypothesis,d,chi2approx,...)
-{  UseMethod("dr.coordinate.test")  }
-dr.coordinate.test.default <-
-  function(object, hypothesis,d,chi2approx,...) {NULL}
-dr.joint.test <- function(object,...){ UseMethod("dr.joint.test")}
+
+#' Default method for dr.y
+#' @noRd
+#' @method dr.y default
+#' @exportS3Method
+dr.y.default <- function(object, ...){object$y}
+
+#' Generic functioon for performing dimension reduction test
+#' @noRd
+#' @exportS3Method
+dr.test <- function(object, numdir, ...){  UseMethod("dr.test")}
+
+#' Default method for dr.test (returns NULL)
+#' @noRd
+#' @method dr.test default
+#' @exportS3Method
+dr.test.default <-function(object, numdir, ...) {NULL}
+
+#' Generic frunction for coordinate-wise hypothesis tests
+#' @noRd
+#' @exportS3Method
+dr.coordinate.test <- function(object, hypothesis, d, chi2approx, ...) {
+  UseMethod("dr.coordinate.test")
+}
+
+#' Default method for dr.coordinate.test (returns NULL)
+#' @noRd
+#' @method dr.coordinate.test default
+#' @exportS3Method
+dr.coordinate.test.default <- function(object, hypothesis, d, chi2approx, ...) {NULL}
+
+#' Generic function for joint hypothesis testing
+#' @noRd
+#' @exportS3Method
+dr.joint.test <- function(object, ...){ UseMethod("dr.joint.test")}
+
+#' Default method for dr.joint.test (returns NULL)
+#' @noRd
+#' @method dr.joint.test default
+#' @exportS3Method
 dr.joint.test.default <- function(object,...){NULL}
 
 #####################################################################
