@@ -162,7 +162,7 @@ dr.qr <- function(object) {object$qr}
 
 #' Generic function for computing Q from a dr object
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
 #' @method dr.Q default
@@ -171,7 +171,8 @@ dr.Q.default <- function(object) {
   qr.Q(dr.qr(object))[, 1:object$qr$rank]
   }
 
-#' @exportS3Method
+#' @noRd
+#' @export
 dr.R <- function(object) {UseMethod("dr.R")}
 
 #' @method dr.R default
@@ -192,7 +193,7 @@ dr.yname <- function(object) {object$y.name}
 
 #' Generic function for extracting basis vectoors from a dr object
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
 #' @method dr.basis default
@@ -202,7 +203,7 @@ dr.basis.default <- function(object, numdir = object$numdir) {
   }
 
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.evalues <- function(object, ...) {UseMethod("dr.evalues")}
 
 #' @method dr.evalues default
@@ -214,7 +215,7 @@ dr.evalues.default <- function(object, ...) object$evalues
 #' This is the generic function for fitting a dimension reduction model.
 #' Specific methods are dispatched based on the class of the object.
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.fit <- function(object, numdir = 4, ...) UseMethod("dr.fit")
 
 #' @method dr.fit default
@@ -270,11 +271,11 @@ dr.fit.default <- function(object, numdir = 4, ...) {
 # generic functions
 #####################################################################
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.M <- function(object, ...){UseMethod("dr.M")}
 
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.y <- function(object) {UseMethod("dr.y")}
 
 #' Default method for dr.y
@@ -283,9 +284,9 @@ dr.y <- function(object) {UseMethod("dr.y")}
 #' @exportS3Method
 dr.y.default <- function(object, ...){object$y}
 
-#' Generic functioon for performing dimension reduction test
+#' Generic function for performing dimension reduction test
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.test <- function(object, numdir, ...){  UseMethod("dr.test")}
 
 #' Default method for dr.test (returns NULL)
@@ -294,9 +295,9 @@ dr.test <- function(object, numdir, ...){  UseMethod("dr.test")}
 #' @exportS3Method
 dr.test.default <-function(object, numdir, ...) {NULL}
 
-#' Generic frunction for coordinate-wise hypothesis tests
+#' Generic function for coordinate-wise hypothesis tests
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.coordinate.test <- function(object, hypothesis, d, chi2approx, ...) {
   UseMethod("dr.coordinate.test")
 }
@@ -309,7 +310,7 @@ dr.coordinate.test.default <- function(object, hypothesis, d, chi2approx, ...) {
 
 #' Generic function for joint hypothesis testing
 #' @noRd
-#' @exportS3Method
+#' @export
 dr.joint.test <- function(object, ...){ UseMethod("dr.joint.test")}
 
 #' Default method for dr.joint.test (returns NULL)
@@ -332,7 +333,6 @@ dr.M.ols <- function(object, ...) {
   # Compute OLS projection of response onto predictors
   ols <- t(dr.z(object)) %*% (sqrt(dr.wts(object)) * dr.y(object))
   return(list(M = ols %*% t(ols), numdir = 1))}
-
 
 #####################################################################
 #     Sliced Inverse Regression and multivariate SIR
