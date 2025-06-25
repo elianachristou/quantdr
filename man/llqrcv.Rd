@@ -16,8 +16,8 @@ columns represent predictor variables.}
 }
 \value{
 \code{llqrcv} returns the optimal bandwidth selected using
-   Cross-Validation criterion for the local linear fit of the \eqn{\tau}th
-   conditional quantile of \code{y} given \code{x}.
+Cross-Validation criterion for the local linear fit of the \eqn{\tau}th
+conditional quantile of \code{y} given \code{x}.
 }
 \description{
 \code{llqrcv} estimates the bandwidth necessary for the local linear fit of
