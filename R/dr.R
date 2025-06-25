@@ -161,6 +161,7 @@ dr.wts <- function(object) {object$weights}
 dr.qr <- function(object) {object$qr}
 
 #' Generic function for computing Q from a dr object
+#' @noRd
 #' @exportS3Method
 dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
@@ -190,6 +191,7 @@ dr.z <- function(object) {
 dr.yname <- function(object) {object$y.name}
 
 #' Generic function for extracting basis vectoors from a dr object
+#' @noRd
 #' @exportS3Method
 dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
