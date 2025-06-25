@@ -25,24 +25,24 @@ vectors.}
 }
 \value{
 \code{cqs} computes the directions of the central quantile subspace
-  and returns:
-  \itemize{
-  \item{qvectors: }{The estimated directions of the
-  \eqn{\tau}th central quantile subspace.}
+and returns:
+\itemize{
+\item{qvectors: }{The estimated directions of the
+\eqn{\tau}th central quantile subspace.}
 
-  \item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposition
-  of the matrix with column vectors that span the central quantile subspace.
-  If \code{dtau} is one, the \code{qvalues} output is not produced.}
+\item{qvalues: }{The eigenvalues resulting from the eigenvalue decomposition
+of the matrix with column vectors that span the central quantile subspace.
+If \code{dtau} is one, the \code{qvalues} output is not produced.}
 
-  \item{dtau: }{Suggested dimension of the central quantile subspace.  If
-  \code{dtau} is specified by the user then the algorithm outputs the
-  user-defined value.  If \code{dtau} is not specified by the user then the
-  algorithm outputs a suggested dimension using the modified-BIC type
-  criterion of Zhu et al. (2010).  Note that this is one suggested method to
-  estimate the structural dimension and is not necessarily a perfect one. The
-  user has the option to use the eigenvalues \code{qvalues} on other
-  criteria, like cross-validation, and determine the estimated dimension of
-  the subspace.}}
+\item{dtau: }{Suggested dimension of the central quantile subspace.  If
+\code{dtau} is specified by the user then the algorithm outputs the
+user-defined value.  If \code{dtau} is not specified by the user then the
+algorithm outputs a suggested dimension using the modified-BIC type
+criterion of Zhu et al. (2010).  Note that this is one suggested method to
+estimate the structural dimension and is not necessarily a perfect one. The
+user has the option to use the eigenvalues \code{qvalues} on other
+criteria, like cross-validation, and determine the estimated dimension of
+the subspace.}}
 }
 \description{
 \code{cqs} estimates the directions of the central quantile subspace.
@@ -80,6 +80,6 @@ out$qvectors[, 1:out$dtau]
 }
 \references{
 Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
-  regression through cumulative slicing estimation. \emph{Journal of the
-  American Statistical Association}, 105, 1455-1466.
+regression through cumulative slicing estimation. \emph{Journal of the
+American Statistical Association}, 105, 1455-1466.
 }
