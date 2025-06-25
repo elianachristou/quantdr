@@ -25,10 +25,6 @@
 #'   \item{other elements}{As returned by the specific dimension reduction method
 #'       in \code{dr.compute}.}
 #' @noRd
-
-#####################################################################
-#     dr is the primary function
-#####################################################################
 dr <- function(formula, data, subset, group = NULL, na.action = na.fail,
                weights,...) {
 
@@ -84,20 +80,25 @@ dr <- function(formula, data, subset, group = NULL, na.action = na.fail,
 
 #' Internal computation function for dr
 #'
-#' Prepares and fits the initial dimension reduction object.
-#' This function is not intended to be called directly by the user.
+#' Prepares and fits the initial dimension reduction object.  This function
+#' is called internally by \code{dr()} and is not intended for direct use by end
+#' users.
 #'
-#' @param x A numeric matrix of predictors.
-#' @param y A response variable (vector or matrix).
-#' @param weights Observation weights (non-negative numeric vector).
-#' @param group Optional grouping variable.
-#' @param method A character string specifying the DR method (e.g., "sir").
-#' @param chi2approx A character string for chi-square approximation type.
+#' @param x A numeric matrix of predictors (n x p).
+#' @param y A response variable (vector or matrix), with the same number of rows
+#'     as \code{x}.
+#' @param weights A numeric vector of non-negative weights (length n).
+#' @param group Optional grouping variable (e.g., for sliced inverse regression
+#'     variants).
+#' @param method A character string specifying the DR method to use (e.g., "sir",
+#'     "save").
+#' @param chi2approx A character string specifying the chi-square approximation
+#'     to use (default: "bx").
 #' @param ... Additional arguments passed to the method-specific fitting functions.
 #'
-#' @return An object of class \code{dr} and method-specific subclass.
+#' @return An object of class \code{dr}, with additional method-specific subclass
+#'     tags.
 #' @noRd
-
 dr.compute <-
   function(x,y,weights,group=NULL,method="sir",chi2approx="bx",...)
   {
