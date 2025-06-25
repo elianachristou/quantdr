@@ -164,15 +164,34 @@ dr.qr <- function(object) {object$qr}
 #' @exportS3Method
 dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
-#' @method dr Q.default
+#' @method dr.Q default
 #' @exportS3Method
-dr.Q.default <- function(object){ qr.Q(dr.qr(object))[,1:object$qr$rank] }
+dr.Q.default <- function(object) {
+  qr.Q(dr.qr(object))[, 1:object$qr$rank]
+  }
 
-dr.R <- function(object){UseMethod("dr.R")}
-dr.R.default <- function(object){ qr.R(dr.qr(object))[1:object$qr$rank,1:object$qr$rank]}
-dr.z <- function(object) { sqrt(object$cases) * dr.Q(object) }
+#' @exportS3Method
+dr.R <- function(object) {UseMethod("dr.R")}
+
+#' @method dr.R default
+#' @exportS3Method
+dr.R.default <- function(object) {
+  qr.R(dr.qr(object))[1:object$qr$rank, 1:object$qr$rank]
+}
+
+#' Accessor for Z matrix from a dr object
+#' @noRd
+dr.z <- function(object) {
+  sqrt(object$cases) * dr.Q(object)
+}
+
+#' Accessoor for response variable name from a dr object
+#' @noRd
 dr.yname <- function(object) {object$y.name}
-dr.basis <- function(object,numdir) {UseMethod("dr.basis")}
+
+#' Generic function for extracting basis vectoors from a dr object
+#' @exportS3Method
+dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
 #' @method dr basis.default
 #' @exportS3Method
