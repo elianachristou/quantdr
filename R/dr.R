@@ -195,13 +195,19 @@ dr.yname <- function(object) {object$y.name}
 #' @exportS3Method
 dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
-#' @method dr basis.default
+#' @method dr.basis default
 #' @exportS3Method
-dr.basis.default <- function(object,numdir=object$numdir){
-  object$evectors[,1:numdir]}
+dr.basis.default <- function(object, numdir = object$numdir) {
+  object$evectors[, 1:numdir]
+  }
 
-dr.evalues <- function(object) {UseMethod("dr.evalues")}
-dr.evalues.default <- function(object) object$evalues
+#' @noRd
+#' @exportS3Method
+dr.evalues <- function(object, ...) {UseMethod("dr.evalues")}
+
+#' @method dr.evalues default
+#' @exportS3Method
+dr.evalues.default <- function(object, ...) object$evalues
 
 #####################################################################
 #     Fitting function
