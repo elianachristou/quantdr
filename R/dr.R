@@ -99,27 +99,26 @@ dr <- function(formula, data, subset, group = NULL, na.action = na.fail,
 #' @return An object of class \code{dr}, with additional method-specific subclass
 #'     tags.
 #' @noRd
-dr.compute <-
-  function(x,y,weights,group=NULL,method="sir",chi2approx="bx",...)
-  {
+dr.compute <- function(x, y, weights, group = NULL, method = "sir",
+                       chi2approx = "bx", ...) {
     if (NROW(y) != nrow(x))     #check lengths
       stop("The response and predictors have different number of observations")
     if (NROW(y) < ncol(x))
       stop("The methods in dr require more observations than predictors")
     #set the class name
-    classname<- if (is.matrix(y)) c(paste("m",method,sep=""),method) else
-      if(!is.null(group)) c(paste("p",method,sep=""),method) else
+    classname<- if (is.matrix(y)) c(paste("m", method, sep = ""), method) else
+      if(!is.null(group)) c(paste("p", method, sep = ""), method) else
         method
-    genclassname<-"dr"
+    genclassname <- "dr"
     sweights <- sqrt(weights)
-    qrz <- qr(scale(apply(x,2,function(a, sweights) a  * sweights, sweights),
-                    center=TRUE, scale=FALSE))  # QR decomp of WEIGHTED x matrix
+    qrz <- qr(scale(apply(x, 2, function(a, sweights) a  * sweights, sweights),
+                    center = TRUE, scale = FALSE))  # QR decomp of WEIGHTED x matrix
     #initialize the object and then call the fit method
-    ans <- list(x=x,y=y,weights=weights,method=method,cases=NROW(y),qr=qrz,
-                group=group,chi2approx=chi2approx)
-    class(ans) <-  c(classname,genclassname)   #set the class
-    ans <- dr.fit(object=ans,...)   # ... contains args for the method
-    ans$x <- ans$x[,qrz$pivot[1:qrz$rank]] # reorder x and reduce to full rank
+    ans <- list(x = x, y = y, weights = weights, method = method, cases = NROW(y),
+                qr = qrz, group = group, chi2approx = chi2approx)
+    class(ans) <-  c(classname, genclassname)   #set the class
+    ans <- dr.fit(object = ans, ...)   # ... contains args for the method
+    ans$x <- ans$x[, qrz$pivot[1:qrz$rank]] # reorder x and reduce to full rank
     ans #return the object
   }
 
