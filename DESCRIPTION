@@ -22,6 +22,7 @@ Collate:
     'llqrcv.R'
     'llqr.R'
     'cqs.R'
+    'dr.R'
 Suggests: 
     ggplot2,
     knitr,
