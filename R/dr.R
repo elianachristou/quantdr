@@ -321,11 +321,17 @@ dr.joint.test.default <- function(object,...){NULL}
 #####################################################################
 #     OLS
 #####################################################################
-#' @method dr M.ols
+#' Computes the OLS kernel matri for dimension reduction
+#'
+#' This method computes the kernel matrix (M) for ordinary least squares (OLS),
+#' which is a special case of dimension reduction with a univariate response.
+#' @noRd
+#' @method dr.M ols
 #' @exportS3Method
-dr.M.ols <- function(object,...) {
+dr.M.ols <- function(object, ...) {
+  # Compute OLS projection of response onto predictors
   ols <- t(dr.z(object)) %*% (sqrt(dr.wts(object)) * dr.y(object))
-  return(list( M= ols %*% t(ols), numdir=1))}
+  return(list(M = ols %*% t(ols), numdir = 1))}
 
 
 #####################################################################
