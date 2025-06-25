@@ -423,47 +423,79 @@ dr.test.sir<-function(object, numdir = object$numdir, ...) {
 }
 
 #  Written by Yongwu Shao, May 2006
-#' @method dr coordinate.test.sir
+#' Coordinate test for SIR dimension reduction
+#'
+#' Performs the coordinate test for dimension reduction using the SIR method.
+#' It tests a hypothesis on the dimension reduction subspace specified by
+#' \code{hypothesis}.
+#'
+#' @noRd
+#' @method dr.coordinate.test sir
 #' @exportS3Method
-dr.coordinate.test.sir<-function(object,hypothesis,d=NULL,
-                                 chi2approx=object$chi2approx,pval="general",...){
+dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
+                                 chi2approx = object$chi2approx,
+                                 pval = "general", ...) {
+
+  # Convert hypothesis to matrix if formula is given
   gamma <- if (inherits(hypothesis, "formula"))
     coord.hyp.basis(object, hypothesis)
   else as.matrix(hypothesis)
-  p<-length(object$evalues)
-  n<-object$cases
+
+  p <- length(object$evalues)
+  n <- object$cases
   z <- dr.z(object)
   ev <- object$evalues
-  slices<-object$slice.info
-  h<-slices$nslices
+  slices <- object$slice.info
+  h <- slices$nslices
+
+  # Number of directions of defaults to min(h, length of eigenvalues)
   d <- if(is.null(d)) min(h,length(ev)) else d
-  M<-object$M
-  r<-p-dim(gamma)[2]
-  H<- (dr.R(object)) %*% gamma
-  H <- qr.Q(qr(H),complete=TRUE) # a p times p matrix
-  QH<- H[,1:(p-r)] # first p-r columns
-  H <- H[,(p-r+1):p] # last r columns
-  st<-n*sum(ev[1:d])-n*sum(sort(eigen(t(QH)%*%M%*%QH)$values,
-                                decreasing=TRUE)[1:min(d,p-r)])
-  wts <- 1-ev[1:min(d,h-1)]
-  # each eigenvalue occurs r times.
-  testr <- dr.pvalue(rep(wts,r),st,chi2approx=chi2approx)
-  # general test
-  epsilon<-array(0,c(n,h))
-  zmeans<-array(0,c(p,h))
+
+  M <- object$M
+  r <- p - dim(gamma)[2]
+
+  # Compute the matrix H and its QR decomposition (complete)
+  H <- (dr.R(object)) %*% gamma
+  H <- qr.Q(qr(H), complete = TRUE) # a p x p orthogonal matrix
+
+  # Partition H into two parts
+  QH <- H[, 1:(p - r), drop = FALSE] # first p-r columns
+  H <- H[, (p - r + 1):p, drop = FALSE] # last r columns
+
+  # Test statistic based on eigenvalues
+  st <- n * sum(ev[1:d]) - n * sum(sort(eigen(t(QH) %*% M %*% QH)$values,
+                                decreasing = TRUE)[1:min(d,p - r)])
+
+  # Weights for test statistic
+  wts <- 1 - ev[1:min(d, h - 1)]
+
+  # Restricted test p-value
+  testr <- dr.pvalue(rep(wts, r), st, chi2approx = chi2approx)
+
+  # General test calculation
+  epsilon <- array(0, c(n, h))
+  zmeans <- array(0, c(p, h))
+
   for (i in 1:h) {
-    sel<-(slices$slice.indicator==i)
-    f_k<-sum(sel)/n
-    zmeans[,i]<-apply(z[sel,],2,mean)
-    epsilon[,i]<-(sel-f_k-z%*%zmeans[,i]*f_k)/sqrt(f_k)
+    sel <- (slices$slice.indicator == i)
+    f_k <- sum(sel) / n
+    zmeans[, i] <- apply(z[sel, , drop = FALSE], 2, mean)
+    epsilon[, i] <- (sel - f_k - z %*% zmeans[, i] * f_k) / sqrt(f_k)
   }
-  HZ<- z%*%H
-  Phi<-svd(zmeans,nv=h)$v[,1:min(d,h)]
-  epsilonHZ<-array(0,c(n,r*d))
-  for (j in 1:n) epsilonHZ[j,]<-t(Phi)%*%t(t(epsilon[j,]))%*%t(HZ[j,])
-  wts <- eigen(((n-1)/n)*cov(epsilonHZ))$values
-  testg<-dr.pvalue(wts[wts>0],st,chi2approx=chi2approx)
-  pv <- if (pval=="restricted") testg$pval.adj else testr$pval.adj
+
+  HZ <- z %*% H
+  Phi <- svd(zmeans, nv = h)$v[, 1:min(d,h), drop = FALSE]
+
+  epsilonHZ <- array(0, c(n, r * d))
+  for (j in 1:n) epsilonHZ[j, ] <- t(Phi)% *%t (t(epsilon[j, ])) %*% t(HZ[j, ])
+
+  wts <- eigen(((n - 1) / n) * cov(epsilonHZ))$values
+  testg <- dr.pvalue(wts[wts > 0], st, chi2approx = chi2approx)
+
+  # Select p-value according to user input
+  pv <- if (pval == "restricted") testg$pval.adj else testr$pval.adj
+
+  # Return test statistic and p-value as a data frame
   z <- data.frame(cbind(st, pv))
   dimnames(z) <- list("Test", c("Statistic", "P.value"))
   z
