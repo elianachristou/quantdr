@@ -1,23 +1,19 @@
-#####################################################################
-#
-#     Dimension reduction methods for R and Splus
-#     Revised in July, 2004 by Sandy Weisberg and Jorge de la Vega
-#     tests for SAVE by Yongwu Shao added April 2006
-#     'ire/pire' methods added by Sanford Weisberg Summer 2006
-#     Version 3.0.0 August 2007
-#     copyright 2001, 2004, 2006, 2007, Sanford Weisberg
-#     sandy@umn.edu
-#
-#   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation; either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
+#' Dimension Reduction
+#'
+#' \code{dr} performs dimension reduction
+#'
+#' This function ....
+#'
+#' @param formula
+#' @param data
+#' @param subset
+#' @param group
+#' @param na.action
+#' @param weights
+#'
+#' @return ...
+#' @noRd
+
 #####################################################################
 #     dr is the primary function
 #####################################################################
