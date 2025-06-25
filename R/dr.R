@@ -335,54 +335,90 @@ dr.M.ols <- function(object, ...) {
   return(list(M = ols %*% t(ols), numdir = 1))}
 
 #####################################################################
-#     Sliced Inverse Regression and multivariate SIR
+#     Sliced Inverse Regression (SIR) and Multivariate SIR Functions
 #####################################################################
+#' Compute kernel matrix M for SIR method
+#'
+#' This function calculates the kernel matrix (M) used in Sliced Inverse
+#' Regression (SIR) by computing weighted means of the predictor transformations
+#' within response slices.
+#'
+#' @noRd
+#' @method dr.M sir
+#' @exportS3Method
+dr.M.sir <-function(object, nslices = NULL, slice.function = dr.slices,
+                    sel = NULL, ...) {
 
-dr.M.sir <-function(object,nslices=NULL,slice.function=dr.slices,sel=NULL,...) {
-  sel <- if(is.null(sel))1:dim(dr.z(object))[1] else sel
-  z <- dr.z(object)[sel,]
+  # Select subset of observations of all if sel is NULL
+  sel <- if (is.null(sel)) 1:dim(dr.z(object))[1] else sel
+
+  # Extract the predictor matrix and response vector/matrix
+  z <- dr.z(object)[sel, , drop = FALSE]
   y <- dr.y(object)
-  y <- if (is.matrix(y)) y[sel,] else y[sel]
-  # get slice information
+  y <- if (is.matrix(y)) y[sel, , drop = FALSE] else y[sel]
+
+  # Determine number of sllices if not specified
   h <- if (!is.null(nslices)) nslices else max(8, NCOL(z)+3)
-  slices <- slice.function(y,h)
-  #slices<- if(is.null(slice.info)) dr.slices(y,h) else slice.info
-  # initialize slice means matrix
-  zmeans <- matrix(0,slices$nslices,NCOL(z))
-  slice.weight <- rep(0,slices$nslices)  # NOT rep(0,NCOL(z))
+
+  # Create slices based on the response
+  slices <- slice.function(y, h)
+
+
+  # Initialize matrix for weighted means and slice weights
+  zmeans <- matrix(0, nrow = slices$nslices, ncol = NCOL(z))
+  slice.weight <- rep(0, slices$nslices)
+
+  # Extract observation weights
   wts <- dr.wts(object)
-  # compute weighted means within slice
-  wmean <- function (x, wts) { sum(x * wts) / sum (wts) }
-  for (j in 1:slices$nslices){
-    sel <- slices$slice.indicator==j
-    zmeans[j,]<- apply(z[sel,,drop=FALSE],2,wmean,wts[sel])
-    slice.weight[j]<-sum(wts[sel])}
-  # get M matrix for sir
-  M <- t(zmeans) %*% apply(zmeans,2,"*",slice.weight)/ sum(slice.weight)
-  return (list (M=M,slice.info=slices))
+
+  # Weighted mean function
+  wmean <- function (x, wts) sum(x * wts) / sum (wts)
+
+  # Compute weighted means within each slice
+  for (j in 1:slices$nslices) {
+    sel_slice <- slices$slice.indicator==j
+    zmeans[j, ]<- apply(z[sel_slice, , drop = FALSE], 2, wmean, wts = wts[sel_slice])
+    slice.weight[j]<-sum(wts[sel_slice])
+  }
+
+  # Calculate kernel matrix M using weighted slice means
+  M <- t(zmeans) %*% apply(zmeans, 2, "*", slice.weight) / sum(slice.weight)
+
+  # Return list with kernel matrix and slice info
+  return (list (M = M, slice.info = slices))
 }
 
-#' @method dr M.msir
+#' Alias of SIR kernel matrix function for multivariate SIR (MSIR)
+#' @noRd
+#' @method dr.M msir
 #' @exportS3Method
 dr.M.msir <-function(...) {dr.M.sir(...)}
 
-#' @method dr test.sir
+#' Compute test statistics for SIR dimension reduction
+#'
+#' This function calculates the SIR test statistics for the first \code{numdir}
+#' directions, including chi-square p-values.
+#' @noRd
+#' @method dr.test sir
 #' @exportS3Method
-dr.test.sir<-function(object,numdir=object$numdir,...) {
-  #compute the sir test statistic for the first numdir directions
-  e<-sort(object$evalues)
-  p<-length(object$evalues)
-  n<-object$cases
-  st<-df<-pv<-0
+dr.test.sir<-function(object, numdir = object$numdir, ...) {
+  e <- sort(object$evalues) # sorted eigenvalues
+  p <- length(object$evalues) # number of eigenvalues
+  n <- object$cases # number of cases
+  st <- df <- pv <- 0
   nt <- min(p,numdir)
-  for (i in 0:(nt-1))
-  {st[i+1]<-n*(p-i)*mean(e[seq(1,p-i)])
-  df[i+1]<-(p-i)*sum(object$slice.info$nslices-i-1)
-  pv[i+1]<-1-pchisq(st[i+1],df[i+1])
+
+  # Compute test statistics, degrees of freedom, and p-values for each dimension
+  for (i in 0:(nt-1)) {
+    st[i + 1] <- n * (p - i) * mean(e[seq(1, p - i)])
+    df[i + 1] <- (p - i) * sum(object$slice.info$nslices - i - 1)
+    pv[i + 1] <- 1 - pchisq(st[i + 1], df[i + 1])
   }
-  z<-data.frame(cbind(st,df,pv))
-  rr<-paste(0:(nt-1),"D vs >= ",1:nt,"D",sep="")
-  dimnames(z)<-list(rr,c("Stat","df","p.value"))
+
+  # Create labeled data frame for output
+  z <- data.frame(cbind(st, df, pv))
+  rr <- paste(0:(nt - 1), "D vs >= ", 1:nt, "D", sep = "")
+  dimnames(z) <- list(rr, c("Stat","df","p.value"))
   z
 }
 
