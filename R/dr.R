@@ -1,17 +1,29 @@
 #' Dimension Reduction Main Function
 #'
-#' \code{dr} performs dimension reduction based on various methods.
+#' \code{dr} performs dimension reduction for a multivariate response or scalar
+#' response using a variety of dimension reduction techniques (e.g., SIR, SAVE,
+#' etc.).  This function prepares the input data, handles missing values and
+#' weights, and delegates the main computation to the internal \code{dr.compute}
+#' function.
 #'
-#' This function ....
+#' @param formula A formula describing the model (e.g., \code{Y ~ X1 + X2 + ...}).
+#' @param data A data frame containing the variables in the model.
+#' @param subset An optional vector specifying a subset of observations to be used.
+#' @param group An optional grouping variable used ini some dimension reduction
+#'     methods.
+#' @param na.action A function which indicates what should happen when the data
+#'     contain NAs.  Default is \code{na.fail}.
+#' @param weights Optional numeric vector of non-negaative weights.  If not specified,
+#'     equal weights are used.
+#' @param ... Additional arguments passed to \code{dr.compute}.
 #'
-#' @param formula A formula describing the model.
-#' @param data The data frame.
-#' @param subset
-#' @param group
-#' @param na.action
-#' @param weights
-#'
-#' @return An object of class dr.
+#' @return A list of class \code{'dr'} containing the results of the dimension
+#'     reduction procedure.  Components include:
+#'     \item{call}{The matched call.}
+#'   \item{y.name}{The name of the response variable.}
+#'   \item{terms}{The model terms object.}
+#'   \item{other elements}{As returned by the specific dimension reduction method
+#'       in \code{dr.compute}.}
 #' @noRd
 
 #####################################################################
