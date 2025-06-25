@@ -1,17 +1,17 @@
-#' Dimension Reduction
+#' Dimension Reduction Main Function
 #'
-#' \code{dr} performs dimension reduction
+#' \code{dr} performs dimension reduction based on various methods.
 #'
 #' This function ....
 #'
-#' @param formula
-#' @param data
+#' @param formula A formula describing the model.
+#' @param data The data frame.
 #' @param subset
 #' @param group
 #' @param na.action
 #' @param weights
 #'
-#' @return ...
+#' @return An object of class dr.
 #' @noRd
 
 #####################################################################
