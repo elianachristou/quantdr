@@ -113,7 +113,7 @@ dr.compute <- function(x, y, weights, group = NULL, method = "sir",
   # Determine the class name of the object based on y and group
   classname <- if (is.matrix(y)) {
     c(paste("m", method, sep = ""), method)
-    } else if(!is.null(group)) {
+    } else if (!is.null(group)) {
       c(paste("p", method, sep = ""), method)
       } else {
         method
