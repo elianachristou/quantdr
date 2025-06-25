@@ -84,14 +84,22 @@ dr.x <- function(object) {object$x}
 dr.wts <- function(object) {object$weights}
 dr.qr <- function(object) {object$qr}
 dr.Q <- function(object){UseMethod("dr.Q")}
+
+#' @method dr Q.default
+#' @exportS3Method
 dr.Q.default <- function(object){ qr.Q(dr.qr(object))[,1:object$qr$rank] }
+
 dr.R <- function(object){UseMethod("dr.R")}
 dr.R.default <- function(object){ qr.R(dr.qr(object))[1:object$qr$rank,1:object$qr$rank]}
 dr.z <- function(object) { sqrt(object$cases) * dr.Q(object) }
 dr.yname <- function(object) {object$y.name}
 dr.basis <- function(object,numdir) {UseMethod("dr.basis")}
+
+#' @method dr basis.default
+#' @exportS3Method
 dr.basis.default <- function(object,numdir=object$numdir){
   object$evectors[,1:numdir]}
+
 dr.evalues <- function(object) {UseMethod("dr.evalues")}
 dr.evalues.default <- function(object) object$evalues
 
@@ -147,7 +155,7 @@ dr.joint.test.default <- function(object,...){NULL}
 #####################################################################
 #     OLS
 #####################################################################
-#' @method dr M ols
+#' @method dr M.ols
 #' @exportS3Method
 dr.M.ols <- function(object,...) {
   ols <- t(dr.z(object)) %*% (sqrt(dr.wts(object)) * dr.y(object))
@@ -182,8 +190,12 @@ dr.M.sir <-function(object,nslices=NULL,slice.function=dr.slices,sel=NULL,...) {
   return (list (M=M,slice.info=slices))
 }
 
+#' @method dr M.msir
+#' @exportS3Method
 dr.M.msir <-function(...) {dr.M.sir(...)}
 
+#' @method dr test.sir
+#' @exportS3Method
 dr.test.sir<-function(object,numdir=object$numdir,...) {
   #compute the sir test statistic for the first numdir directions
   e<-sort(object$evalues)
@@ -203,6 +215,8 @@ dr.test.sir<-function(object,numdir=object$numdir,...) {
 }
 
 #  Written by Yongwu Shao, May 2006
+#' @method dr coordinate.test.sir
+#' @exportS3Method
 dr.coordinate.test.sir<-function(object,hypothesis,d=NULL,
                                  chi2approx=object$chi2approx,pval="general",...){
   gamma <- if (inherits(hypothesis, "formula"))
@@ -366,7 +380,7 @@ dr.coordinate.test.save <-
 
 dr.M.phdy <- function(...) {dr.M.phd(...)}
 
-#' @metohd dr M mphd
+#' @metohd dr M.mphd
 #' @exportS3Method
 dr.M.mphd <- function(...) stop("Multivariate pHd not implemented!")
 
@@ -384,8 +398,10 @@ dr.M.phd <-function(object,...) {
 
 dr.M.mphd <- function(...) stop("Multivariate pHd not implemented!")
 
-
+#' @method dr y.phdy
+#' @exportS3Method
 dr.y.phdy <- function(object) {y <- object$y ; y - mean(y)}
+
 dr.y.phdres <- function(object) {
   y <- object$y
   sw <- sqrt(object$weights)
@@ -487,7 +503,8 @@ fullquad.fit <-function(object) {
   lm(y~z,weights=w)
 }
 
-
+#' @method dr y.phdq
+#' @exportS3Method
 dr.y.phdq<-function(object){residuals(fullquad.fit(object),type="pearson")}
 dr.test.phdq<-function(object,numdir,...){dr.test.phd(object,numdir)}
 dr.M.mphdq <- function(...) stop("Multivariate pHd not implemented!")
@@ -861,6 +878,8 @@ dr.permutation.test.statistic <- function(object,numdir)
 dr.permutation.test.statistic.default <- function(object,numdir){
   object$cases*rev(cumsum(rev(object$evalues)))[1:numdir]}
 
+#' @method dr permutation test statistic phdy
+#' @exportS3Method
 dr.permutation.test.statistic.phdy <- function(object,numdir){
   dr.permutation.test.statistic.phd(object,numdir)}
 dr.permutation.test.statistic.phdres <- function(object,numdir){
@@ -1387,6 +1406,8 @@ dr.joint.test.ire<-function(object,hypothesis,d=NULL,...){
     dr.iteration(object,object$Gz,d=d,T=gamma)}}
 
 ### print/summary functions
+#' @method print ire
+#' @exportS3Method
 print.ire <- function(x, width=50, ...) {
   fout <- deparse(x$call,width.cutoff=width)
   for (f in fout) cat("\n",f)
@@ -1422,6 +1443,8 @@ class(ans) <- "summary.ire"
 ans
 }
 
+#' @method print summary ire
+#' @exportS3Method
 "print.summary.ire" <-
   function (x, digits = max(3, getOption("digits") - 3), ...)
   {
