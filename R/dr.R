@@ -209,31 +209,57 @@ dr.evalues <- function(object, ...) {UseMethod("dr.evalues")}
 #' @exportS3Method
 dr.evalues.default <- function(object, ...) object$evalues
 
-#####################################################################
-#     Fitting function
-#####################################################################
-dr.fit <- function(object,numdir=4,...) UseMethod("dr.fit")
+#' Generic function for fitting a dimension reduction model
+#'
+#' This is the generic function for fitting a dimension reduction model.
+#' Specific methods are dispatched based on the class of the object.
+#' @noRd
+#' @exportS3Method
+dr.fit <- function(object, numdir = 4, ...) UseMethod("dr.fit")
 
-dr.fit.default <-function(object,numdir=4,...){
-  M <- dr.M(object,...)  # Get the kernel matrix M, method specific
-  D <- if(dim(M$M)[1] == dim(M$M)[2]) eigen(M$M) else {
-    if(ncol(M$M)==1) eigen(M$M %*% t(M$M)) else eigen(t(M$M) %*% M$M)}
+#' @method dr.fit default
+#' @exportS3Method
+dr.fit.default <- function(object, numdir = 4, ...) {
+
+  # Compute the kernel matrix M (method-specific function)
+  M <- dr.M(object, ...)
+
+  # Compute eigenvalues/vectors based on shape of M
+  D <- if (dim(M$M)[1] == dim(M$M)[2]) {
+    eigen(M$M)
+    } else {
+    if (ncol(M$M) == 1) {
+      eigen(M$M %*% t(M$M))
+    } else {
+        eigen(t(M$M) %*% M$M)
+    }
+    }
+
+  # Order eigenvalues and corresponding vectors in decreasing magnitude
   or <- rev(order(abs(D$values)))
   evalues <- D$values[or]
-  raw.evectors <- D$vectors[,or]
-  evectors <- backsolve(sqrt(object$cases)*dr.R(object),raw.evectors)
-  evectors <- if (is.matrix(evectors)) evectors else matrix(evectors,ncol=1)
-  evectors <- apply(evectors,2,function(x) x/sqrt(sum(x^2)))
+  raw.evectors <- D$vectors[, or]
+
+  # Transform eigenvectors using the inverse of weighted R matrix
+  evectors <- backsolve(sqrt(object$cases) * dr.R(object), raw.evectors)
+  evectors <- if (is.matrix(evectors)) evectors else matrix(evectors, ncol = 1)
+
+  # Normalize each direction vector to unit norm
+  evectors <- apply(evectors, 2, function(x) x / sqrt(sum(x^2)))
+
+  # Name the rows and columns of the direction matrix
   names <- colnames(dr.x(object))[1:object$qr$rank]
-  dimnames(evectors)<-
-    list(names, paste("Dir", 1:NCOL(evectors), sep=""))
-  aa<-c( object, list(evectors=evectors,evalues=evalues,
-                      numdir=min(numdir,dim(evectors)[2],dim(M$M)[1]),
-                      raw.evectors=raw.evectors), M)
+  dimnames(evectors)<- list(names, paste("Dir", 1:NCOL(evectors), sep=""))
+
+  # Construct the output object, including kernel matrix, directions, etc.
+  aa <- c( object, list(evectors = evectors, evalues =evalues,
+                      numdir = min(numdir, dim(evectors)[2], dim(M$M)[1]),
+                      raw.evectors = raw.evectors), M)
+
+  # Set the same class as input object and return
   class(aa) <- class(object)
   return(aa)
 }
-
 
 #####################################################################
 ###
