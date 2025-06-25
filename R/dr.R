@@ -80,7 +80,23 @@ dr <- function(formula, data, subset, group = NULL, na.action = na.fail,
   ans$y.name <- y.name
   ans$terms <- mt
   ans
-  }
+}
+
+#' Internal computation function for dr
+#'
+#' Prepares and fits the initial dimension reduction object.
+#' This function is not intended to be called directly by the user.
+#'
+#' @param x A numeric matrix of predictors.
+#' @param y A response variable (vector or matrix).
+#' @param weights Observation weights (non-negative numeric vector).
+#' @param group Optional grouping variable.
+#' @param method A character string specifying the DR method (e.g., "sir").
+#' @param chi2approx A character string for chi-square approximation type.
+#' @param ... Additional arguments passed to the method-specific fitting functions.
+#'
+#' @return An object of class \code{dr} and method-specific subclass.
+#' @noRd
 
 dr.compute <-
   function(x,y,weights,group=NULL,method="sir",chi2approx="bx",...)
