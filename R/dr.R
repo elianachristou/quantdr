@@ -147,7 +147,8 @@ dr.joint.test.default <- function(object,...){NULL}
 #####################################################################
 #     OLS
 #####################################################################
-
+#' @method dr M ols
+#' @exportS3Method
 dr.M.ols <- function(object,...) {
   ols <- t(dr.z(object)) %*% (sqrt(dr.wts(object)) * dr.y(object))
   return(list( M= ols %*% t(ols), numdir=1))}
@@ -364,6 +365,9 @@ dr.coordinate.test.save <-
 #####################################################################
 
 dr.M.phdy <- function(...) {dr.M.phd(...)}
+
+#' @metohd dr M mphd
+#' @exportS3Method
 dr.M.mphd <- function(...) stop("Multivariate pHd not implemented!")
 
 dr.M.phdres <- function(...) {dr.M.phd(...)}
