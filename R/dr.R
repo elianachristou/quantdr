@@ -101,25 +101,48 @@ dr <- function(formula, data, subset, group = NULL, na.action = na.fail,
 #' @noRd
 dr.compute <- function(x, y, weights, group = NULL, method = "sir",
                        chi2approx = "bx", ...) {
-    if (NROW(y) != nrow(x))     #check lengths
+
+  # Check that x and y have the same number of observations
+  if (NROW(y) != nrow(x))
       stop("The response and predictors have different number of observations")
-    if (NROW(y) < ncol(x))
-      stop("The methods in dr require more observations than predictors")
-    #set the class name
-    classname<- if (is.matrix(y)) c(paste("m", method, sep = ""), method) else
-      if(!is.null(group)) c(paste("p", method, sep = ""), method) else
+
+  # Warn if there are more predictors than observations
+  if (NROW(y) < ncol(x))
+    stop("The methods in dr require more observations than predictors")
+
+  # Determine the class name of the object based on y and group
+  classname <- if (is.matrix(y)) {
+    c(paste("m", method, sep = ""), method)
+    } else if(!is.null(group)) {
+      c(paste("p", method, sep = ""), method)
+      } else {
         method
-    genclassname <- "dr"
-    sweights <- sqrt(weights)
-    qrz <- qr(scale(apply(x, 2, function(a, sweights) a  * sweights, sweights),
-                    center = TRUE, scale = FALSE))  # QR decomp of WEIGHTED x matrix
-    #initialize the object and then call the fit method
-    ans <- list(x = x, y = y, weights = weights, method = method, cases = NROW(y),
+      }
+
+  genclassname <- "dr" # Generic class name for all objets from this framework
+
+  # Compute square root of weights for use in weighted QR decomposition
+  sweights <- sqrt(weights)
+
+  # Apply weights to each column of x, then center (but do not scale) the matrix
+  qrz <- qr(scale(apply(x, 2, function(a, sweights) a  * sweights, sweights),
+                    center = TRUE, scale = FALSE))
+
+  # Initialize the dr object with inputs and metadata
+  ans <- list(x = x, y = y, weights = weights, method = method, cases = NROW(y),
                 qr = qrz, group = group, chi2approx = chi2approx)
-    class(ans) <-  c(classname, genclassname)   #set the class
-    ans <- dr.fit(object = ans, ...)   # ... contains args for the method
-    ans$x <- ans$x[, qrz$pivot[1:qrz$rank]] # reorder x and reduce to full rank
-    ans #return the object
+
+  # Assign class attributes (method-specific + general 'dr' class)
+  class(ans) <-  c(classname, genclassname)
+
+  # Fit the model using method-specific logic (delegted to dr.fit)
+  ans <- dr.fit(object = ans, ...)
+
+  # Reorder x columns according to QR pivoting and retain only the full-rank part
+  ans$x <- ans$x[, qrz$pivot[1:qrz$rank]]
+
+  # Return the compelted object
+  ans
   }
 
 #######################################################
