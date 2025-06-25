@@ -518,7 +518,7 @@ dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
 #' @param sel Optional index vector selecting a subset of observations to use.
 #' @param ... Additional arguments paassed to the slicing function.
 #'
-#' @retturn A list with components:
+#' @return A list with components:
 #' \item{M}{The SAVE kerel matrix.}
 #' \item{A}{A 3D array used for testing coordinate hypotheses.}
 #' \item{slice.info}{Information about the slicing.}
