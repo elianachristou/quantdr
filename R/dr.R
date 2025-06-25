@@ -148,11 +148,21 @@ dr.compute <- function(x, y, weights, group = NULL, method = "sir",
 #######################################################
 #    accessor functions
 #######################################################
-
+#' Accessor for x componnent of a dr object
+#' @noRd
 dr.x <- function(object) {object$x}
+
+#' Accessor for weights of a dr object
+#' @noRd
 dr.wts <- function(object) {object$weights}
+
+#' Accessor for QR decomposition of a dr object
+#' @noRd
 dr.qr <- function(object) {object$qr}
-dr.Q <- function(object){UseMethod("dr.Q")}
+
+#' Generic function for computing Q from a dr object
+#' @exportS3Method
+dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
 #' @method dr Q.default
 #' @exportS3Method
