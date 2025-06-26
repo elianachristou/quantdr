@@ -508,15 +508,15 @@ dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
 #####################################################################
 #' SAVE kernel matrix computation
 #'
-#' Computes the kernel maaatrix \eqn{M} used in Sliced Average Variance Estimation
-#' (SAVE) along with a 3D array \eqn{A} for use in hypothesis testing.
+#' Computes the kernel matrix \eqn{M} used in Sliced Average Variance Estimation
+#' (SAVE), along with a 3D array \eqn{A} used for coordinate hypothesis testing.
 #'
 #' @param object A fitted \code{dr} object.
 #' @param nslices Number of slices.  Default is \code{max(8, p + 3)} where \code{p}
 #' is the number of predictors.
 #' @param slice.function A function to slice the response.  Default is \code{dr.slices}.
 #' @param sel Optional index vector selecting a subset of observations to use.
-#' @param ... Additional arguments paassed to the slicing function.
+#' @param ... Additional arguments passed to the slicing function.
 #'
 #' @return A list with components:
 #' \item{M}{The SAVE kerel matrix.}
@@ -528,22 +528,28 @@ dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
 #' @exportS3Method
 dr.M.save <- function(object, nslices = NULL, slice.function = dr.slices,
                       sel=NULL, ...) {
+  # Subset observations if specified
   sel <- if(is.null(sel)) 1:dim(dr.z(object))[1] else sel
   z <- dr.z(object)[sel, ]
   y <- dr.y(object)
   y <- if (is.matrix(y)) y[sel, ] else y[sel]
   wts <- dr.wts(object)[sel]
+
+  # Determine number of slices
   h <- if (!is.null(nslices)) nslices else max(8, ncol(z) + 3)
   slices <- slice.function(y, h)
 
-  M <- matrix(0, NCOL(z), NCOL(z))
-  A <- array(0, c(slices$nslices, NCOL(z), NCOL(z))) # for coordinate tests
-  ws <- rep(0, slices$nslices)
+  # Initialize matrices
+  M <- matrix(0, NCOL(z), NCOL(z)) # SAVE kernel matrix
+  A <- array(0, c(slices$nslices, NCOL(z), NCOL(z))) # Slice-wise centered covariances
+  ws <- rep(0, slices$nslices) # Slice weights
 
+  # Helper: weighted covariance estimate
   wvar <- function(x, w) {
     (if (sum(w) > 1) {(length(w) - 1) / (sum(w) - 0)} else {0}) *
       var(sweep(x, 1, sqrt(w), "*"))}
 
+  # Loop through slices and compute SAVE components
   for (j in 1:slices$nslices) {
     ind <- slices$slice.indicator == j
     IminusC <- diag(rep(1, NCOL(z))) - wvar(z[ind, ], wts[ind])
@@ -551,8 +557,10 @@ dr.M.save <- function(object, nslices = NULL, slice.function = dr.slices,
     A[j,,] <- sqrt(ws[j]) * IminusC
     M <- M + ws[j] * IminusC %*% IminusC
   }
+
   M <- M / sum(ws)
-  A <- A / sqrt(sum(ws)) # new
+  A <- A / sqrt(sum(ws)) # Normalize A for use in tests
+
   return(list(M = M, A = A, slice.info = slices))
 }
 
