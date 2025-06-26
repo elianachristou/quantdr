@@ -1091,37 +1091,51 @@ print.summary.dr <- function (x, digits = max(3, getOption("digits") - 3), ...)
     invisible(x)
   }
 
-###################################################################3
-##
-##  Translation of methods in Arc for testing with pHd to R
-##  Original lisp functions were mostly written by R. D. Cook
-##  Translation to R by S. Weisberg, February, 2001
-##
-###################################################################3
-# this function is a translation from Arc.  It computes the matrices W and
-# eW described in Sec. 12.3.1 of Cook (1998), Regression Graphics.
-# There are separate versions of this function for R and for Splus because
-cov.ew.matrix <- function(object,scaled=FALSE) {
-  mat.normalize <- function(a){apply(a,2,function(x){x/(sqrt(sum(x^2)))})}
+##################################################################
+# Translations of pHd test methods from Arc to R
+##  Original Lisp functions by R. D. Cook
+##  Translated to R by S. Weisberg, February, 2001
+##################################################################
+#' Covariance matrix for eW sttistics
+#'
+#' This function computes the matrices W and eW described in Sec. 12.3.1 of
+#' Cook (1998).
+#'
+#' @param object A fitted \code{dr} object.
+#' @param scaled Logical; whether to center y by weighted mean.
+#'
+#' @return A covariance matrix used in pHd tests.
+#' @noRd
+cov.ew.matrix <- function(object, scaled = FALSE) {
+  mat.normalize <- function(a) apply(a, 2, function(x) {x / (sqrt(sum(x^2)))})
   n <- dim(dr.x(object))[1]
   TEMPwts <- object$weights
   sTEMPwts <- sqrt(TEMPwts)
-  v <- sqrt(n)* mat.normalize(
-    apply(scale(dr.x(object),center=TRUE,scale=FALSE),2,"*",sTEMPwts) %*%
+  v <- sqrt(n) * mat.normalize(
+    apply(scale(dr.x(object), center = TRUE, scale = FALSE), 2, "*", sTEMPwts) %*%
       object$evectors)
   y <- dr.y(object) # get the response
-  y <- if (scaled) y-mean(sTEMPwts*y) else 1 # a multiplier in the matrix
+  y <- if (scaled) y - mean(sTEMPwts * y) else 1 # a multiplier in the matrix
   p <- dim(v)[2]
   ew0 <- NULL
-  for (i in 1:p){
-    for (j in i:p){
-      ew0 <- cbind(ew0, if (i ==j) y*(v[,j]^2-1) else y*sqrt(2)*v[,i]*v[,j])}}
-  wmean <- function (x,w)  { sum(x * w) / sum (w) }
-  tmp <- apply(ew0,2,function(x,w,wmean){sqrt(w)*(x-wmean(x,w))},TEMPwts,wmean)
-  ans<-(1/sum(TEMPwts)) * t(tmp) %*% tmp
-  ans}
+  for (i in 1:p) {
+    for (j in i:p) {
+      ew0 <- cbind(ew0, if (i == j) y * (v[, j]^2 - 1) else y * sqrt(2) * v[, i] * v[, j])
+    }
+  }
+  wmean <- function (x, w) sum(x * w) / sum (w)
+  tmp <- apply(ew0, 2, function(x, w, wmean) sqrt(w) * (x - wmean(x, w)),
+               TEMPwts, wmean)
+  ans <- (1 / sum(TEMPwts)) * t(tmp) %*% tmp
+  ans
+}
 
-#translation of :general-pvalues method for phd in Arc
+############################# CONTINUE HERE ####################################
+#' General p-values for phd using eW matrix
+#'
+#' This function computes adjusted p-values using eigenvalues of the eW covariance
+#' matrix.
+#' @noRd
 dr.test2.phdres <- function(object,stats){
   covew <- cov.ew.matrix(object,scaled=TRUE)
   C <- .5/var(dr.y(object))
