@@ -886,58 +886,88 @@ dr.test.phdq <- function(object, numdir, ...){
 dr.M.mphdq <- function(...) stop("Multivariate pHd not implemented!")
 
 #####################################################################
-#     Helper methods
+# Auxiliary Functions and Helpers
 #####################################################################
 #####################################################################
-#  Auxillary function to find matrix H used in marginal coordinate tests
+#  Auxiliary function to find matrix H used in marginal coordinate tests
 #  We test Y indep X2 | X1, and H is a basis in R^p for the column
 #  space of X2.
 #####################################################################
-
-coord.hyp.basis <- function(object,spec,which=1) {
-  mod2 <- update(object$terms,spec)
-  Base <- attr(object$terms,"term.labels")
+#' Basis for coordinate hypothesis
+#'
+#' This function constructs a basis matrix H used in marginal coordinate tests,
+#' identifying the subspace specified in 'spec'.
+#'
+#' @param object A fitted \code{dr} object.
+#' @param spec A formula indicating the variables to test.
+#' @param which Index multiplier (usually 1); allows for selection.
+#'
+#' @return A basis matrix for the coordinate hypothesis
+#'
+#' @noRd
+coord.hyp.basis <- function(object, spec, which = 1) {
+  mod2 <- update(object$terms, spec)
+  Base <- attr(object$terms, "term.labels")
   New  <- attr(terms(mod2), "term.labels")
-  cols <-na.omit(match(New,Base))
+  cols <- na.omit(match(New, Base))
   if(length(cols) != length(New)) stop("Error---bad value of 'spec'")
-  as.matrix(diag(rep(1,length(Base)))[,which*cols])
+  as.matrix(diag(rep(1, length(Base)))[, which * cols])
 }
 
 #####################################################################
-#     Recover the direction vectors
+# Direction Recovery Methods
 #####################################################################
-
+#' Generic dispatcher for direction recovery
+#' @noRd
 dr.directions <- function(object, which, x) {UseMethod("dr.direction")}
+
+#' Generic method for direction recovery
+#' @noRd
 dr.direction  <- function(object, which, x) {UseMethod("dr.direction")}
 
-# standardize so that the first coordinates are always positive.
-dr.direction.default <-
-  function(object, which=NULL,x=dr.x(object)) {
-    ans <- (apply(x,2,function(x){x-mean(x)}) %*% object$evectors)
+#' Default method to compute directions
+#'
+#' This function standardizes predictor values and applied the estimated basis
+#' vectors.
+#' @noRd
+#' @method dr.direction default
+#' @exportS3Method
+dr.direction.default <- function(object, which = NULL, x = dr.x(object)) {
+    ans <- (apply(x, 2, function(x) {x - mean(x)}) %*% object$evectors)
     which <- if (is.null(which)) seq(dim(ans)[2]) else which
-    ans <- apply(ans,2,function(x) if(x[1] <= 0)  -x else x)[,which]
-    if (length(which) > 1) dimnames(ans) <-
-      list ( attr(x,"dimnames")[[1]],paste("Dir",which,sep=""))
+    ans <- apply(ans, 2, function(x) if(x[1] <= 0)  -x else x)[, which]
+    if (length(which) > 1) {
+      dimnames(ans) <- list ( attr(x,"dimnames")[[1]],
+                              paste("Dir", which, sep = ""))
+    }
     ans
-  }
-
-
-#####################################################################
-#     Plotting methods
-#####################################################################
-
-plot.dr <- function
-(x,which=1:x$numdir,mark.by.y=FALSE,plot.method=pairs,...) {
-  d <- dr.direction(x,which)
-  if (mark.by.y == FALSE) {
-    plot.method(cbind(dr.y(x),d),labels=c(dr.yname(x),colnames(d)),...)
-  }
-  else {plot.method(d,labels=colnames(d),col=markby(dr.y(x)),...)}
 }
 
+#####################################################################
+# Plotting methods
+#####################################################################
+#' Plot method for dr objects
+#'
+#' This function produces pairwise plots of the estimated dimension reduction
+#' directions.
+#' @noRd
+#' @method plot dr
+#' @exportS3Method
+plot.dr <- function(x, which = 1:x$numdir, mark.by.y = FALSE,
+                    plot.method = pairs, ...) {
+  d <- dr.direction(x, which)
+  if (mark.by.y == FALSE) {
+    plot.method(cbind(dr.y(x), d), labels = c(dr.yname(x), colnames(d)), ...)
+  } else {
+    plot.method(d, labels = colnames(d), col = markby(dr.y(x)), ...)
+    }
+}
 
-markby <-
-  function (z, use = "color", values = NULL, color.fn = rainbow,
+#' Mark observations by categorical response
+#'
+#' Helper function to assign colors or symbols based on response levels.
+#' @noRd
+markby <- function (z, use = "color", values = NULL, color.fn = rainbow,
             na.action = "na.use")
   {
     u <- unique(z)
@@ -964,70 +994,80 @@ markby <-
     ans
   }
 
-
 ###################################################################
-#
-#  basic print method for dimension reduction
-#
+# Print Method for dr Object
 ###################################################################
-"print.dr" <-
-  function(x, digits = max(3, getOption("digits") - 3), width=50,
-           numdir=x$numdir, ...)
-  {
-    fout <- deparse(x$call,width.cutoff=width)
+#' Print method for dr object
+#'
+#' This function prints estimated basis vectors and eigenvalues.
+#' @noRd
+#' @method print dr
+#' @exportS3Method
+print.dr <- function(x, digits = max(3, getOption("digits") - 3), width = 50,
+           numdir = x$numdir, ...) {
+    fout <- deparse(x$call, width.cutoff = width)
     for (f in fout) cat("\n",f)
     cat("\n")
     cat("Estimated Basis Vectors for Central Subspace:\n")
-    evectors<-x$evectors
-    print.default(evectors[,1:min(numdir,dim(evectors)[2])])
+    evectors <- x$evectors
+    print.default(evectors[, 1:min(numdir, dim(evectors)[2])])
     cat("Eigenvalues:\n")
-    print.default(x$evalues[1:min(numdir,dim(evectors)[2])])
+    print.default(x$evalues[1:min(numdir, dim(evectors)[2])])
     cat("\n")
     invisible(x)
   }
 
 ###################################################################
-#  basic summary method for dimension reduction
+# Summary Method for dr Object
 ###################################################################
-"summary.dr" <- function (object, ...)
-{   z <- object
-ans <- z[c("call")]
-nd <- min(z$numdir,length(which(abs(z$evalues)>1.e-15)))
-ans$evectors <- z$evectors[,1:nd]
-ans$method <- z$method
-ans$nslices <- z$slice.info$nslices
-ans$sizes <- z$slice.info$slice.sizes
-ans$weights <- dr.wts(z)
-sw <- sqrt(ans$weights)
-y <- z$y #dr.y(z)
-ans$n <- z$cases #NROW(z$model)
-ols.fit <- qr.fitted(object$qr,sw*(y-mean(y)))
-angles <- cosangle(dr.direction(object),ols.fit)
-angles <- if (is.matrix(angles)) angles[,1:nd] else angles[1:nd]
-if (is.matrix(angles)) dimnames(angles)[[1]] <- z$y.name
-angle.names <- if (!is.matrix(angles)) "R^2(OLS|dr)" else
-  paste("R^2(OLS for ",dimnames(angles)[[1]],"|dr)",sep="")
-ans$evalues <-rbind (z$evalues[1:nd],angles)
-dimnames(ans$evalues)<-
-  list(c("Eigenvalues",angle.names),
-       paste("Dir", 1:NCOL(ans$evalues), sep=""))
+#' Summary method for dr object
+#'
+#' This function summarizes reduction results including eigenvalues and angles.
+#' @noRd
+#' @method summary dr
+#' @exportS3Method
+summary.dr <- function (object, ...) {
+  z <- object
+  ans <- z[c("call")]
+  nd <- min(z$numdir, length(which(abs(z$evalues) > 1.e-15)))
+  ans$evectors <- z$evectors[, 1:nd]
+  ans$method <- z$method
+  ans$nslices <- z$slice.info$nslices
+  ans$sizes <- z$slice.info$slice.sizes
+  ans$weights <- dr.wts(z)
+  sw <- sqrt(ans$weights)
+  y <- z$y
+  ans$n <- z$cases
+  ols.fit <- qr.fitted(object$qr, sw * (y - mean(y)))
+  angles <- cosangle(dr.direction(object), ols.fit)
+  angles <- if (is.matrix(angles)) angles[, 1:nd] else angles[1:nd]
+  if (is.matrix(angles)) dimnames(angles)[[1]] <- z$y.name
+  angle.names <- if (!is.matrix(angles)) "R^2(OLS|dr)" else
+  paste("R^2(OLS for ",dimnames(angles)[[1]], "|dr)", sep = "")
+  ans$evalues <-rbind (z$evalues[1:nd],angles)
+  dimnames(ans$evalues)<- list(c("Eigenvalues", angle.names),
+       paste("Dir", 1:NCOL(ans$evalues), sep = ""))
 ans$test <- dr.test(object,nd)
 class(ans) <- "summary.dr"
 ans
 }
 
 ###################################################################
-#
-# basic print.summary method for dimension reduction
-#
+# Print Method for summary.dr
 ###################################################################
-"print.summary.dr" <-
-  function (x, digits = max(3, getOption("digits") - 3), ...)
+#' Print method for summary.dr object
+#'
+#' This function prints summary of dimension reduction analysis incuding test
+#' results.
+#' @noRd
+#' @method print summary.dr
+#' @exportS3Method
+print.summary.dr <- function (x, digits = max(3, getOption("digits") - 3), ...)
   {
     cat("\nCall:\n")#S: ' ' instead of '\n'
-    cat(paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep="")
+    cat(paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
     cat("Method:\n")#S: ' ' instead of '\n'
-    if(is.null(x$nslices)){
+    if(is.null(x$nslices)) {
       cat(paste(x$method, ", n = ", x$n,sep=""))
       if(diff(range(x$weights)) > 0)
         cat(", using weights.\n") else cat(".\n")}
@@ -1037,22 +1077,19 @@ ans
       if(diff(range(x$weights)) > 0)
         cat(", using weights.\n") else cat(".\n")
       cat("\nSlice Sizes:\n")#S: ' ' instead of '\n'
-      cat(x$sizes,"\n")}
+      cat(x$sizes, "\n")}
     cat("\nEstimated Basis Vectors for Central Subspace:\n")
-    print(x$evectors,digits=digits)
+    print(x$evectors, digits = digits)
     cat("\n")
     print(x$evalues,digits=digits)
     if (length(x$omitted) > 0){
       cat("\nModel matrix is not full rank.  Deleted columns:\n")
-      cat(x$omitted,"\n")}
+      cat(x$omitted, "\n")}
     if (!is.null(x$test)){
       cat("\nLarge-sample Marginal Dimension Tests:\n")
-      #cat("\nAsymp. Chi-square tests for dimension:\n")
-      print(as.matrix(x$test),digits=digits)}
+      print(as.matrix(x$test), digits = digits)}
     invisible(x)
   }
-
-
 
 ###################################################################3
 ##
