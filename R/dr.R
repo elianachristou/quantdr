@@ -567,13 +567,13 @@ dr.M.save <- function(object, nslices = NULL, slice.function = dr.slices,
 # Written by Yongwu Shao, 4/27/2006
 #' Dimension test for SAVE
 #'
-#' Performs booth normal and generall dimension tests for SAVE using the A array.
+#' Performs booth normal and general dimension tests using the SAVE method.
 #'
 #' @param object A fitted \code{dr} object with method \code{save}.
 #' @param numdir Number of directions to test.
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return A daata frame containing ttest statistics and p-values under both the
+#' @return A data frame containing test statistics and p-values under both the
 #' normal and general assumptions.
 #'
 #' @noRd
@@ -583,14 +583,18 @@ dr.test.save <- function(object, numdir = object$numdir, ...) {
   p <- length(object$evalues)
   n <- object$cases
   h <- object$slice.info$nslices
-  st.normal <- df.normal <- st.general <- df.general <- 0
-  pv.normal <- pv.general <- 0
-  nt <- numdir
   A <- object$A
   M <- object$M
+
+  # Eigen decomposition of SAVE matrix M
   D <- eigen(M)
   or <- rev(order(abs(D$values)))
   evectors <- D$vectors[, or]
+
+  # Initialize results
+  st.normal <- df.normal <- st.general <- df.general <- 0
+  pv.normal <- pv.general <- 0
+  nt <- numdir
 
   for (i in 1:(nt -  1)) {
     theta <- evectors[, (i + 1):p, drop = FALSE]
