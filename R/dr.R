@@ -628,21 +628,23 @@ dr.test.save <- function(object, numdir = object$numdir, ...) {
 # Written by Yongwu Shao, 4/27/2006
 #' Coordinate test for SAVE
 #'
-#' Performs a hypothesis test on a coordinate subspace using SAVE and the A array.
-#' @param object A fitted \code{dr} object using the SAVE method.
-#' @param hypothesis A matrix or formula specifying thee hypothesized coordinate
-#'     subspace.
-#' @param d Number of directions to test.  If \code{NIULL}, set automatically.
-#' @param chi2approx Method for chi-square approximation.
-#' @param ... Additional arguments (currently unusued).
+#' Performs a hypothesis test for coordinate subspaces using the SAVE method.
 #'
-#' @return A daata frame with the test statistic, degrees of freedom, and p-values.
+#' @param object A fitted \code{dr} object using the SAVE method.
+#' @param hypothesis A matrix or formula specifying the hypothesized coordinate
+#'     subspace.
+#' @param d Number of directions to test.  If \code{NIULL}, selected automatically.
+#' @param chi2approx Method for chi-square approximation (used for general test).
+#' @param ... Additional arguments (currently unused).
+#'
+#' @return A data frame with test statistic, degrees of freedom, and p-values.
 #'
 #' @noRd
 #' @method dr.coordinate.test save
 #' @exportS3Method
 dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
                                      chi2approx = object$chi2approx, ...) {
+  # Construct coordinate hypothesis basis
   gamma <- if (inherits(hypothesis, "formula"))
     coord.hyp.basis(object, hypothesis)
   else as.matrix(hypothesis)
@@ -650,14 +652,14 @@ dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
   p <- length(object$evalues)
   n <- object$cases
   h <- object$slice.info$nslices
+  A <- object$A
+
   st <- df <- pv <- 0
   gamma <- (dr.R(object)) %*% gamma
   r <- p - dim(gamma)[2]
-
   H <- as.matrix(qr.Q(qr(gamma), complete = TRUE)[, (p - r + 1):p])
-  A <- object$A
 
-  # Normal theory test
+  # Normal-theory test statistic
   st <- 0
   for (j in 1:h) {
     st <- st + sum((t(H) %*% A[j, , ] %*% H)^2) * n / 2
@@ -665,7 +667,7 @@ dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
   df.normal <- (h - 1) * r * (r + 1) / 2
   pv.normal  <- 1 - pchisq(st, df.normal)
 
-  # General test
+  # General test statistic
   {
     HZ <- dr.z(object) %*% H
     ZZ <- array(0, c(n, r^2))
