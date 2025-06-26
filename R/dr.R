@@ -685,102 +685,130 @@ dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
   }
 
 #####################################################################
-#     pHd, pHdy and pHdres
+# Principal Hessian Directions (pHd), pHdy and pHdres Methods
 #####################################################################
-
+#' @method dr.M phdy
+#' @exportS3Method
 dr.M.phdy <- function(...) {dr.M.phd(...)}
 
-#' @metohd dr M.mphd
+#' @method dr.M mphd
 #' @exportS3Method
 dr.M.mphd <- function(...) stop("Multivariate pHd not implemented!")
 
+#' @method dr.M phdres
+#' @exportS3Method
 dr.M.phdres <- function(...) {dr.M.phd(...)}
+
+#' @method dr.M mphdres
+#' @exportS3Method
 dr.M.mphdres <- function(...) stop("Multivariate pHd not implemented!")
+
+#' @method dr.M mphy
+#' @exportS3Method
 dr.M.mphy <- function(...) stop("Multivariate pHd not implemented!")
 
+#' @method dr.M phd
+#' @exportS3Method
 dr.M.phd <-function(object,...) {
-  wts <- dr.wts(object)
-  z <- dr.z(object)
-  y <- dr.y(object)
-  M<- (t(apply(z,2,"*",wts*y)) %*% z) / sum(wts)
-  return(list(M=M))
+  # Computes the kernel matrix M for pHd method
+  wts <- dr.wts(object) # Observation weights
+  z <- dr.z(object) # Standardized predictors
+  y <- dr.y(object) # Response
+  # Kernell matrix as weighted covariance of y*z with z
+  M<- (t(apply(z, 2, "*", wts * y)) %*% z) / sum(wts)
+  return(list(M = M))
 }
 
-dr.M.mphd <- function(...) stop("Multivariate pHd not implemented!")
-
-#' @method dr y.phdy
+#' @method dr.y phdy
 #' @exportS3Method
-dr.y.phdy <- function(object) {y <- object$y ; y - mean(y)}
+dr.y.phdy <- function(object) {
+  # Centered response for phdy
+  y <- object$y
+  y - mean(y)
+  }
 
+#' @method dr.y phdres
+#' @exportS3Method
 dr.y.phdres <- function(object) {
+  # Residuals from regressing y on the predictors (using QR)
   y <- object$y
   sw <- sqrt(object$weights)
-  qr.resid(object$qr,sw*(y-mean(y)))}
+  qr.resid(object$qr,sw*(y-mean(y)))
+}
+
+#' @method dr.y phd
+#' @exportS3Method
 dr.y.phd <- function(object) {dr.y.phdres(object)}
 
-dr.test.phd<-function(object,numdir=object$numdir,...) {
-  # Modified by Jorge de la Vega, February, 2001
-  #compute the phd asymptotic test statitics under restrictions for the
-  #first numdir directions, based on response = OLS residuals
-  # order the absolute eigenvalues
-  e<-sort(abs(object$evalues))
-  p<-length(object$evalues)
-  # get the response
-  resi<-dr.y(object)
-  varres<-2*var(resi)
-  n<-object$cases
-  st<-df<-pv<-0
-  nt<-min(p,numdir)
-  for (i in 0:(nt-1))
-    # the statistic is partial sums of squared absolute eigenvalues
-  {st[i+1]<-n*(p-i)*mean(e[seq(1,p-i)]^2)/varres
+# Modified by Jorge de la Vega, February, 2001
+#' @method dr.test phd
+#' @exportS3Method
+dr.test.phd<-function(object, numdir = object$numdir, ...) {
+  # pHd asymptotic test based on OLS residuals
+  e <- sort(abs(object$evalues)) # sorted eigenvalues
+  p <- length(object$evalues)
+  resi <- dr.y(object) # residuals
+  varres <- 2 * var(resi) # variance under null
+  n <- object$cases
+  st <- df <- pv <- 0
+  nt <- min(p, numdir)
+
+  for (i in 0:(nt - 1)) {
+  # the statistic is partial sums of squared absolute eigenvalues
+  st[i + 1] <- n * (p - i) * mean(e[seq(1, p - i)]^2) / varres
   # compute the degrees of freedom
-  df[i+1]<-(p-i)*(p-i+1)/2
-  # use asymptotic chi-square distrbution for p.values.  Requires normality.
-  pv[i+1]<-1-pchisq(st[i+1],df[i+1])
+  df[i + 1] <- (p - i) * (p - i + 1) / 2
+  # use asymptotic chi-square distribution for p.values.  Requires normality.
+  pv[i + 1] <- 1 - pchisq(st[i + 1], df[i + 1])
   }
-  # compute the test for complete independence
-  indep <- dr.indep.test.phdres(object,st[1])
-  # compute tests that do not require normal theory (linear combination of
-  # chi-squares):
-  lc <- dr.test2.phdres(object,st)
+
+  # Additional tests
+  indep <- dr.indep.test.phdres(object, st[1])
+  lc <- dr.test2.phdres(object, st)
+
   # report results
-  z<-data.frame(cbind(st,df,pv,c(indep[[2]],rep(NA,length(st)-1)),lc[,2]))
-  rr<-paste(0:(nt-1),"D vs >= ",1:nt,"D",sep="")
-  cc<-c("Stat","df","Normal theory","Indep. test","General theory")
-  dimnames(z)<-list(rr,cc)
+  z <- data.frame(cbind(st, df, pv, c(indep[[2]], rep(NA, length(st) - 1)), lc[, 2]))
+  rr <- paste(0:(nt - 1),"D vs >= ", 1:nt, "D", sep = "")
+  cc <- c("Stat", "df", "Normal theory", "Indep. test", "General theory")
+  dimnames(z) <- list(rr, cc)
   z
 }
 
-dr.test.phdres<-function(object,numdir,...){dr.test.phd(object,numdir)}
-
-dr.test.phdy<-function(object,numdir,...) {
-  #compute the phd test statitics for the first numdir directions
-  #based on response = y.  According to Li (1992), this requires normal
-  #predictors.
-  # order the absolute eigenvalues
-  e<-sort(abs(object$evalues))
-  p<-length(object$evalues)
-  # get the response
-  resi<-dr.y(object)
-  varres<-2*var(resi)
-  n<-object$cases
-  st<-df<-pv<-0
-  nt<-min(p,numdir)
-  for (i in 0:(nt-1))
-    # the statistic is partial sums of squared absolute eigenvalues
-  {st[i+1]<-n*(p-i)*mean(e[seq(1,p-i)]^2)/varres
-  # compute the degrees of freedom
-  df[i+1]<-(p-i)*(p-i+1)/2
-  # use asymptotic chi-square distrbution for p.values.  Requires normality.
-  pv[i+1]<-1-pchisq(st[i+1],df[i+1])
+#' @method dr.test phdres
+#' @exportS3Method
+dr.test.phdres <- function(object, numdir, ...) {
+  dr.test.phd(object, numdir)
   }
+
+#' @method dr.test phdy
+#' @exportS3Method
+dr.test.phdy <- function(object, numdir, ...) {
+  # pHd test using y directly (requires normal predictors)
+  e <- sort(abs(object$evalues))
+  p <- length(object$evalues)
+  # get the response
+  resi <- dr.y(object)
+  varres <- 2 * var(resi)
+  n <- object$cases
+  st <- df <- pv <- 0
+  nt <- min(p, numdir)
+
+  for (i in 0:(nt - 1)) {
+  # the statistic is partial sums of squared absolute eigenvalues
+  st[i + 1] <- n * (p - i) * mean(e[seq(1, p - i)]^2) / varres
+  # compute the degrees of freedom
+  df[i + 1] <- (p - i) * (p - i + 1) / 2
+  # use asymptotic chi-square distribution for p.values.  Requires normality.
+  pv[i + 1] <- 1 - pchisq(st[i + 1], df[i + 1])
+  }
+
   # report results
-  z<-data.frame(cbind(st,df,pv))
-  rr<-paste(0:(nt-1),"D vs >= ",1:nt,"D",sep="")
+  z <- data.frame(cbind(st, df, pv))
+  rr <- paste(0:(nt - 1), "D vs >= ", 1:nt, "D", sep = "")
   cc<-c("Stat","df","p.value")
-  dimnames(z)<-list(rr,cc)
-  z}
+  dimnames(z) <- list(rr, cc)
+  z
+  }
 
 #####################################################################
 # phdq, Reference:  Li (1992, JASA)
