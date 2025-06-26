@@ -811,44 +811,79 @@ dr.test.phdy <- function(object, numdir, ...) {
   }
 
 #####################################################################
-# phdq, Reference:  Li (1992, JASA)
-# Function to build quadratic form in the full quadratic fit.
-# Corrected phdq by Jorge de la Vega 7/10/01
+# pHdq method for sufficient dimension reduction
+# Reference: Li (1992, JASA)
+# Quadratic form based on full second-order regression fit
+# Corrected by Jorge de la Vega 7/10/01
 #####################################################################
-
-dr.M.phdq<-function(object,...){
+#' @method dr.M phdq
+#' @exportS3Method
+dr.M.phdq <- function(object, ...) {
+  # Extracts parameters from a full quadratic regression
   pars <- fullquad.fit(object)$coef
-  k<-length(pars)
-  p<-(-3+sqrt(9+8*(k-1)))/2 #always k=1+2p+p(p-1)/2
-  mymatrix <- diag(pars[round((p+2):(2*p+1))]) # doesn't work in S without 'round'
-  pars <- pars[-(1:(2*p+1))]
+  k <- length(pars)
+
+  # Solve quadratic for p (number of predictors):
+  # k = 1 + 2p + p(p-1)/2 --> quadratic equation
+  p <- (-3 + sqrt(9 + 8 * (k - 1))) / 2
+  p <- round(p) # Round in case of numeric precision error
+
+  # Initialize matrix of second-order coefficients (diagonal)
+  mymatrix <- diag(pars[(p + 2):(2 * p + 1)])
+  pars <- pars[-(1:(2 * p + 1))]
+
+  # Fill off-diagonal entries symetrically
   for (i in 1:(p - 1)) {
-    mymatrix[i,(i+1):p] <- pars[1:(p - i)]/2
-    mymatrix[(i+1):p,i] <- pars[1:(p - i)]/2
+    mymatrix[i, (i + 1):p] <- pars[1:(p - i)] / 2
+    mymatrix[(i + 1):p, i] <- pars[1:(p - i)] / 2
     pars <- pars[-(1:(p - i))]
   }
-  return(list(M=mymatrix))
+  return(list(M = mymatrix))
 }
 
+#' Full Quadratic Fit
+#'
+#' Fits a full quadratic model (including linear, squared, and cross-product terms)
+#' to the response using weighted least squares.
+#'
+#' @param object A fitted \code{dr} object.
+#' @return A weighted linear model object with quadratic terms.
+#' @noRd
 fullquad.fit <-function(object) {
-  x <- dr.z(object)
-  y <- object$y
-  w <- dr.wts(object)
-  z <- cbind(x,x^2)
+  x <- dr.z(object) # Standardized predictors
+  y <- object$y # Response
+  w <- dr.wts(object) # Weights
+  z <- cbind(x, x^2) # Linear and squared terms
+
   p <- NCOL(x)
-  for (j in 1:(p-1)){
-    for (k in (j+1):p) { z <- cbind(z,matrix(x[,j]*x[,k],ncol=1))}}
-  lm(y~z,weights=w)
+  # Add cross-product terms
+  for (j in 1:(p - 1)) {
+    for (k in (j + 1):p) {
+      z <- cbind(z, matrix(x[, j] * x[, k], ncol = 1))
+    }
+  }
+
+  # Fit the full quadratic model
+  lm(y ~ z, weights = w)
 }
 
-#' @method dr y.phdq
+#' @method dr.y phdq
 #' @exportS3Method
-dr.y.phdq<-function(object){residuals(fullquad.fit(object),type="pearson")}
-dr.test.phdq<-function(object,numdir,...){dr.test.phd(object,numdir)}
+dr.y.phdq <- function(object) {
+  # Returns the Pearson residuals from full quadratic fit
+  residuals(fullquad.fit(object), type = "pearson")
+}
+
+#' @method dr.test phdq
+#' @exportS3Method
+dr.test.phdq <- function(object, numdir, ...){
+  # Reuses the test procedure for pHd
+  dr.test.phd(object, numdir)
+}
+
+#' @method dr.M mphdq
+#' @exportS3Method
 dr.M.mphdq <- function(...) stop("Multivariate pHd not implemented!")
-
-
-
 
 #####################################################################
 #     Helper methods
