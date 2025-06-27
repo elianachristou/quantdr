@@ -1441,100 +1441,158 @@ dr.permutation.test.statistic.phd <- function(object,numdir) {
 }
 
 #####################################################################
-#
-#     dr.slices returns non-overlapping slices based on y
-#     y is either a list of n numbers or an n by p matrix
-#     nslices is either the total number of slices, or else a
-#     list of the number of slices in each dimension
-#
+# dr.slices returns non-overlapping slices based on y
 #####################################################################
-dr.slices <- function(y,nslices) {
-  dr.slice.1d <- function(y,h) {
-    z<-unique(y)
-    if (length(z) > h) dr.slice2(y,h) else dr.slice1(y,sort(z))}
-  dr.slice1 <- function(y,u){
+
+#' Slice the response variable for dimension reduction
+#'
+#' Divides a univariate or multivariate response \code{y} into non-overlapping
+#' slices for use in sufficient dimension reduction methods like SIR or pHd.
+#'
+#' @param y A numeric vector or matrix representing the response.
+#' @param nslices Either the total number of slices (if \code{y} is univariate),
+#'   or a vector giving the number of slices per dimension (if \code{y} is
+#'   multivariate).
+#'
+#' @return A list with:
+#'   \item{slice.indicator}{An integer vector indicating slice membership.}
+#'   \item{nslices}{Total number of slices.}
+#'   \item{slice.sizes}{A vector of counts per slice.}
+#'
+#' @noRd
+#' @export
+dr.slices <- function(y, nslices) {
+  # Slice a univeriate response into h levels
+  dr.slice.1d <- function(y, h) {
+    z <- unique(y)
+    if (length(z) > h) dr.slice2(y, h) else dr.slice1(y, sort(z))
+    }
+
+  # Exact slicing by unique values
+  dr.slice1 <- function(y, u) {
     z <- sizes <- 0
     for (j in 1:length(u)) {
-      temp <- which(y==u[j])
+      temp <- which(y == u[j])
       z[temp] <- j
-      sizes[j] <- length(temp) }
-    list(slice.indicator=z, nslices=length(u), slice.sizes=sizes)}
-  dr.slice2 <- function(y,h){
-    myfind <- function(x,cty){
-      ans<-which(x <= cty)
-      if (length(ans)==0) length(cty) else ans[1]}
-    or <- order(y)     # y[or] would return ordered y
-    cty <- cumsum(table(y))  # cumulative sums of counts of y
+      sizes[j] <- length(temp)
+      }
+    list(slice.indicator = z, nslices = length(u), slice.sizes = sizes)
+  }
+
+  # Approximate equal-size slicing
+  dr.slice2 <- function(y, h) {
+    myfind <- function(x, cty) {
+      ans <- which(x <= cty)
+      if (length(ans) == 0) length(cty) else ans[1]
+      }
+    or <- order(y)
+    cty <- cumsum(table(y))
     names(cty) <- NULL # drop class names
-    n <- length(y)     # length of y
-    m<-floor(n/h)      # nominal number of obs per slice
-    sp <- end <- 0     # initialize
-    j <- 0             # slice counter will end up <= h
-    ans <- rep(1,n)    # initialize slice indicator to all slice 1
-    while(end < n-2) { # find slice boundaries:  all slices have at least 2 obs
-      end <- end+m
-      j <- j+1
-      sp[j] <- myfind(end,cty)
-      end <- cty[sp[j]]}
+    n <- length(y)
+    m <- floor(n / h) # nominal number of obs per slice
+    sp <- end <- 0
+    j <- 0            # slice counter will end up <= h
+    ans <- rep(1, n)
+
+    # find slice boundaries: all slices have at least 2 obs
+    while(end < n - 2) {
+      end <- end + m
+      j <- j + 1
+      sp[j] <- myfind(end, cty)
+      end <- cty[sp[j]]
+      }
     sp[j] <- length(cty)
-    for (j in 2:length(sp)){ # build slice indicator
-      firstobs <- cty[sp[j-1]]+1
+
+    for (j in 2:length(sp)) {
+      firstobs <- cty[sp[j - 1]] + 1
       lastobs <- cty[sp[j]]
-      ans[or[firstobs:lastobs]] <- j}
-    list(slice.indicator=ans, nslices=length(sp),
-         slice.sizes=c(cty[sp[1]],diff(cty[sp]))) }
+      ans[or[firstobs:lastobs]] <- j
+      }
+
+    list(slice.indicator = ans, nslices = length(sp),
+         slice.sizes = c(cty[sp[1]], diff(cty[sp])))
+  }
+
+  # Handle multivariate y
   p <- if (is.matrix(y)) dim(y)[2] else 1
-  h <- if (length(nslices) == p) nslices else rep(ceiling(nslices^(1/p)),p)
-  a <- dr.slice.1d( if(is.matrix(y)) y[,1] else y, h[1])
-  if (p > 1){
+  h <- if (length(nslices) == p) nslices else rep(ceiling(nslices^(1 / p)), p)
+  a <- dr.slice.1d(if(is.matrix(y)) y[, 1] else y, h[1])
+
+  if (p > 1) {
     for (col in 2:p) {
       ns <- 0
       for (j in unique(a$slice.indicator)) {
-        b <- dr.slice.1d(y[a$slice.indicator==j,col],h[col])
-        a$slice.indicator[a$slice.indicator==j] <-
-          a$slice.indicator[a$slice.indicator==j] + 10^(col-1)*b$slice.indicator
-        ns <- ns + b$nslices}
-      a$nslices <- ns }
-    #recode unique values to 1:nslices and fix up slice sizes
+        b <- dr.slice.1d(y[a$slice.indicator == j, col], h[col])
+        a$slice.indicator[a$slice.indicator == j] <-
+          a$slice.indicator[a$slice.indicator == j] + 10^(col - 1) * b$slice.indicator
+        ns <- ns + b$nslices
+        }
+      a$nslices <- ns
+    }
+
+    # Recode unique values to sequential slice numbers
     v <- unique(a$slice.indicator)
     L <- slice.indicator <- NULL
     for (i in 1:length(v)) {
-      sel <- a$slice.indicator==v[i]
+      sel <- a$slice.indicator == v[i]
       slice.indicator[sel] <- i
-      L <- c(L,length(a$slice.indicator[sel]))}
+      L <- c(L, length(a$slice.indicator[sel]))
+      }
     a$slice.indicator <- slice.indicator
-    a$slice.sizes <- L }
-  a}
+    a$slice.sizes <- L
+    }
+  a
+}
 
-dr.slices.arc<-function(y,nslices)  # matches slices produced by Arc
-{
-  if(is.matrix(y))  stop("dr.slices.arc is used for univariate y only.  Use dr.slices")
+#' Slice univariate y as in Arc (original S-PLUS/Arc way)
+#'
+#' Matches the slicing procedure used in the Arc software by Cook et al.
+#'
+#' @param y A univariate numeric vector (response).
+#' @param nslices Number of desired slices.
+#'
+#' @return A list with slice indicators and sizes.
+#'
+#' @noRd
+#' @export
+dr.slices.arc <- function(y, nslices) {
+  if(is.matrix(y))  stop("dr.slices.arc is used for univariate y only.
+                         Use dr.slices")
   h <- nslices
   or <- order(y)
   n <- length(y)
-  m<-floor(n/h)
-  r<-n-m*h
-  start<-sp<-ans<-0
-  j<-1
-  while((start+m)<n)
-  { if (r==0)
+  m <- floor(n / h)
+  r <- n - m * h
+  start <- sp <- ans <- 0
+  j <- 1
+
+  # Determine slice boundaries, handling tied values carefully
+  while((start + m) < n) {
+    if (r==0) {
     start<-start
-  else
-  {start<-start+1
-  r<-r-1
+  } else {
+    start <- start + 1
+    r <- r - 1
   }
-  while (y[or][start+m]==y[or][start+m+1])
-    start<-start+1
-  sp[j]<-start+m
-  start<-sp[j]
-  j<-j+1
+  while (y[or][start + m] == y[or][start + m + 1]) {
+    start <- start + 1
   }
-  # next line added 6/17/02 to assure that the last slice has at least 2 obs.
-  if (sp[j-1] == n-1) j <- j-1
-  sp[j]<-n
+  sp[j] <- start + m
+  start <- sp[j]
+  j <- j + 1
+  }
+
+  # Ensure the last slice has at least 2 observations
+  if (sp[j - 1] == n - 1) j <- j - 1
+  sp[j] <- n
+
+  # Assign slice labels
   ans[or[1:sp[1]]] <- 1
-  for (k in 2:j){ans[ or[(sp[k-1]+1):sp[k] ] ] <- k}
-  list(slice.indicator=ans, nslices=j, slice.sizes=c(sp[1],diff(sp)))
+  for (k in 2:j) {
+    ans[or[(sp[k - 1] + 1):sp[k]]] <- k
+    }
+
+  list(slice.indicator = ans, nslices = j, slice.sizes = c(sp[1], diff(sp)))
 }
 
 #####################################################################
