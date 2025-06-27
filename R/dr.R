@@ -1596,31 +1596,56 @@ dr.slices.arc <- function(y, nslices) {
 }
 
 #####################################################################
-#
 #     Misc. Auxillary functions: cosine of the angle between two
 #     vectors and between a vector and a subspace.
-#
 #####################################################################
 
-#
-# angle between a vector vec and a subspace span(mat)
-#
-cosangle <- function(mat,vecs){
+#' Cosine of angle between vectors and a subspace
+#'
+#' This function computes the cosine of the angle(s) between one or more
+#' vectors and the subspace spanned by the columns of a matrix. This is
+#' useful in dimension reduction diagnostics to evaluate alignment of directions.
+#'
+#' @param mat A numeric matrix whose columns define the subspace.
+#' @param vecs A numeric vector or matrix. If a matrix, angles are computed for each column.
+#'
+#' @return A numeric vector or matrix of squared cosine values.
+#'
+#' @noRd
+#' @export
+cosangle <- function(mat, vecs) {
   ans <-NULL
-  if (!is.matrix(vecs)) ans<-cosangle1(mat,vecs) else {
-    for (i in 1:dim(vecs)[2]){ans <-rbind(ans,cosangle1(mat,vecs[,i]))}
-    dimnames(ans) <- list(colnames(vecs),NULL) }
-  ans}
-
-cosangle1 <- function(mat,vec) {
-  ans <-
-    cumsum((t(qr.Q(qr(mat))) %*% scale(vec)/sqrt(length(vec)-1))^2)
-  # R returns a row vector, but Splus returns a column vector.  The next line
-  # fixes this difference
-  if (version$language == "R") ans else t(ans)
+  # If vecs is a single vector
+  if (!is.matrix(vecs)) {
+    ans <- cosangle1(mat, vecs)
+    } else {
+      # Compute angle for each column vector of vecs
+      for (i in 1:dim(vecs)[2]) {
+        ans <- rbind(ans, cosangle1(mat, vecs[, i]))
+      }
+      dimnames(ans) <- list(colnames(vecs), NULL)
+      }
+  ans
 }
 
+#' Internal function for angle computation
+#'
+#' This function computes the squared cosine of the angle between a vector
+#' and a subspace.
+#'
+#' @param mat A matrix defining the subspace.
+#' @param vec A numeric vector.
+#'
+#' @return A numeric vector of cumulative squared cosines.
+#' @noRd
+cosangle1 <- function(mat, vec) {
+  # Project vec onto orthogonal basis of mat and compute squared projection
+  # lengths
+  ans <- cumsum((t(qr.Q(qr(mat))) %*% scale(vec) / sqrt(length(vec) - 1))^2)
 
+  # Fix for compatibility with S-PLUS
+  if (version$language == "R") ans else t(ans)
+}
 
 #####################################################################
 # R Functions for reweighting for elliptical symmetry
