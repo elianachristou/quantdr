@@ -1845,23 +1845,24 @@ dr.step <- function (object, scope = NULL, d = NULL, minsize = 2, stop = 0,
   }
 
 #####################################################################
-##
-##  Add functions to Splus that are built-in to R
-##
+# Utility Functions (R-compatible replacements for S-Plus)
 #####################################################################
-
+#' Compatibility Utilities for S-Plus in R
+#' This function provides utility functions (`is.empty.model`, `NROW`,
+#' `NCOL`, `colnames`, `getOption`) to ensure compatibility between R
+#' and legacy S-Plus code.  These definitions are only added when the langugage
+#' is not R (i.e., running in S-Plus).
+#' @noRd
 if (version$language != "R") {
-
   "is.empty.model" <- function (x)
   {
     tt <- terms(x)
-    (length(attr(tt, "factors")) == 0) & (attr(tt, "intercept")==0)
+    (length(attr(tt, "factors")) == 0) & (attr(tt, "intercept") == 0)
   }
   "NROW" <-
     function(x) if(is.array(x)||is.data.frame(x)) nrow(x) else length(x)
   "NCOL" <-
     function(x) if(is.array(x)||is.data.frame(x)) ncol(x) else as.integer(1)
-
   "colnames" <-
     function(x, do.NULL = TRUE, prefix = "col")
     {
@@ -1877,89 +1878,156 @@ if (version$language != "R") {
   # end of special functions
 }
 
-#####################################################################
-#     ire:  Cook, RD and Ni, L (2005). Sufficient Dimension reduction via
-# inverse regression:  A minimum discrepancy approach.  JASA 410-428
-#  This code does all computations by computing the QR factorization of the
-#  centered X matrix, and then using sqrt(n) Q in place of X in the
-#  computations.  Back transformation to X scale is done only when direction
-#  vectors are needed.
-#####################################################################
-dr.fit.ire <-function(object,numdir=4,nslices=NULL,slice.function=dr.slices,
-                      tests=TRUE,...){
+#' Fit Inverse Regression Estimator (IRE)
+#'
+#' This function estimates the central subspace using inverse regression
+#' methodology as described in Cook and Ni (2005).  It implements a minimum
+#' discrepancy approach based on slicing the response and computing slice
+#' means in the inverse regression space.
+#'
+#' @param object An object of class \code{dr}.
+#' @param numdir Integer. Number of directions (dimension) to estimate.
+#'     Default is 4.
+#' @param nslices Integer. Number of slices to use in the inverse regression.
+#'     If \code{NULL}, a default value based on the number of predictors is used.
+#' @param slice.function A function for computing slices. Default is \code{dr.slices}.
+#' @param tests Logical. If \code{TRUE}, performs hypothesis testing for each dimension
+#'     up to \code{numdir}.
+#' @param ... Additional arguments passed to lower-level functions like \code{dr.test}.
+#'
+#' @return An updated object of class \code{dr} containing fitted IRE results,
+#'     including estimated directions, slice means, and test statistics.
+#' @noRd
+dr.fit.ire <- function(object, numdir = 4, nslices = NULL,
+                       slice.function = dr.slices, tests = TRUE, ...) {
+
+  # Extract the centered and scaled predictor matrix
   z <- dr.z(object)
-  h <- if (!is.null(nslices)) nslices else max(8, NCOL(z)+3)
-  slices <- slice.function(dr.y(object),h)
-  object$slice.info <- slices
-  f <- slices$slice.sizes/sum(slices$slice.sizes)
-  n <- object$cases
-  weights <- object$weights
-  p <- dim(z)[2]
-  numdir <- min(numdir,p-1)
-  h <- slices$nslices
-  xi <- matrix(0,nrow=p,ncol=slices$nslices)
-  for (j in 1:h){
-    sel <- slices$slice.indicator==j
-    xi[,j]<-apply(z[sel,],2,function(a,w) sum(a*w)/sum(w),weights[sel])
+
+  # Determine number of slices (default: max(8, p+3))
+  h <- if (!is.null(nslices)) nslices else max(8, NCOL(z) + 3)
+
+  # Slice the response variable using the specified slicing function
+  slices <- slice.function(dr.y(object), h)
+  object$slice.info <- slices # Store slice information in object
+
+  # Compute slice proportions
+  f <- slices$slice.sizes / sum(slices$slice.sizes)
+
+  n <- object$cases # Total number of cases
+  weights <- object$weights # Observation weights
+  p <- dim(z)[2] # Number of predictors
+
+  # Ensure number of directions does not exceed p-1
+  numdir <- min(numdir, p - 1)
+  h <- slices$nslices # Actual number of slices (may differ slightly from requested)
+
+  # Initialize matrix of slice means in predictor space
+  xi <- matrix(0, nrow = p, ncol = slices$nslices)
+  for (j in 1:h) {
+    sel <- slices$slice.indicator == j # Indicator for observations in slice j
+    xi[, j] <- apply(z[sel, ], 2, function(a, w) sum(a * w) / sum(w), weights[sel])
   }
+
+  # Compute eigenvectors of the weighted covariance of slice means
   object$sir.raw.evectors <- eigen(xi %*% diag(f) %*% t(xi))$vectors
-  object$slice.means <- xi # matrix of slice means
+
+  # Save slice means to object
+  object$slice.means <- xi
+
+  # Create orthonormal basis for contrast space (Helmert matrix)
   An <- qr.Q(qr(contr.helmert(slices$nslices)))
+
+  # Compute zeta matrix (Eq. (1), Cook & Ni 2005) in Q-transformed coordinates
   object$zeta <- xi %*% diag(f) %*% An
-  rownames(object$zeta) <- paste("Q",1:dim(z)[2],sep="")
-  ans <- NULL
+  rownames(object$zeta) <- paste("Q",1:dim(z)[2], sep = "")
+
+  ans <- NULL # Initialize result list
 
   if (tests == TRUE) {
-    object$indep.test <- dr.test(object,numdir=0,...)
-    Gz <- Gzcomp(object,numdir)  # This is the same for all numdir > 0
-    for (d in 1:numdir){
-      ans[[d]] <- dr.test(object,numdir=d,Gz,...)
-      colnames(ans[[d]]$B) <- paste("Dir",1:d,sep="")
+    # Perform independence test for null dimension
+    object$indep.test <- dr.test(object, numdir = 0, ...)
+
+    # Compute Gamma_zeta (Gz) matrix once for efficiency
+    Gz <- Gzcomp(object, numdir)
+
+    # Perform tests for dimensions d=1 to numdir
+    for (d in 1:numdir) {
+      ans[[d]] <- dr.test(object, numdir = d, Gz, ...)
+      colnames(ans[[d]]$B) <- paste("Dir", 1:d, sep = "")
     }
-    # This is different from Ni's lsp code.  Gamma_zeta is computed from the
-    # fit of the largest dimension and stored.
-    object$Gz <- Gzcomp(object,d,span=ans[[numdir]]$B)
+
+    # Compute final Gz for highest fitted dimension using the final estimated B
+    object$Gz <- Gzcomp(object, d, span = ans[[numdir]]$B)
   }
-  aa<-c(object, list(result=ans,numdir=numdir,n=n,f=f))
+
+  # Return updated dr object with resullts
+  aa <- c(object, list(result = ans, numdir = numdir, n = n, f = f))
   class(aa) <- class(object)
   return(aa)
 }
 
-dr.test.ire <- function(object,numdir,Gz=Gzcomp(object,numdir),steps=1,...){
-  ans <- dr.iteration(object,Gz,d=numdir,
-                      B=object$sir.raw.evectors[,1:numdir,drop=FALSE],...)
-  if (steps > 0 & numdir > 0){ # Reestimate if steps > 0.
-    for (st in 1:steps){
-      Gz <- Gzcomp(object,numdir,ans$B[,1:numdir])
-      ans <- dr.iteration(object,Gz,d=numdir,
-                          B=ans$B[,1:numdir,drop=FALSE],...)}}
+#' Large-Sample Test for IRE
+#'
+#' This function performs marginal dimension hypothesis tests for IRE directions.
+#'
+#' @param object An object returned by \code{dr.fit.ire}.
+#' @param numdir Number of directions to test.
+#' @param Gz Precomputed Gz matrix.
+#' @param steps Number of re-estimation steps.
+#' @param ... Additional arguments.
+#'
+#' @return A list with direction matrix \code{B} and test summary.
+#' @noRd
+dr.test.ire <- function(object, numdir, Gz = Gzcomp(object,numdir),
+                        steps = 1, ...) {
+  ans <- dr.iteration(object, Gz, d = numdir,
+                      B = object$sir.raw.evectors[, 1:numdir, drop = FALSE], ...)
+  if (steps > 0 & numdir > 0) { # Re estimate if steps > 0.
+    for (st in 1:steps) {
+      Gz <- Gzcomp(object, numdir, ans$B[, 1:numdir])
+      ans <- dr.iteration(object, Gz, d = numdir,
+                          B = ans$B[, 1:numdir, drop = FALSE],...) }}
   # reorder B matrix according to importance (col. 2 of p. 414)
-  if (numdir > 1){
-    ans0 <- dr.iteration(object,Gz,d=1,T=ans$B)
+  if (numdir > 1) {
+    ans0 <- dr.iteration(object, Gz, d = 1, T = ans$B)
     sumry <- ans0$summary
-    B0 <- matrix(ans0$B/sqrt(sum((ans0$B)^2)),ncol=1)
+    B0 <- matrix(ans0$B / sqrt(sum((ans0$B)^2)), ncol = 1)
     C <- ans$B
     for (d in 2:numdir) {
-      common <- B0[,d-1]
-      for (j in 1:dim(C)[2]){
-        C[,j] <- C[,j] - sum(common*(C[,j]))*B0[,d-1]}
-      C <- qr.Q(qr(C))[,-dim(C)[2],drop=FALSE]
-      ans0 <- dr.iteration(object,Gz,d=1,T=C)
-      B0 <- cbind(B0,ans0$B/sqrt(sum((ans0$B)^2)))
-      sumry <- rbind(sumry,dr.iteration(object,Gz,d=d,T=B0)$summary)
+      common <- B0[, d - 1]
+      for (j in 1:dim(C)[2]) {
+        C[, j] <- C[, j] - sum(common * (C[, j])) * B0[, d - 1] }
+      C <- qr.Q(qr(C))[, -dim(C)[2], drop = FALSE]
+      ans0 <- dr.iteration(object, Gz, d = 1, T = C)
+      B0 <- cbind(B0,ans0$B / sqrt(sum((ans0$B)^2)))
+      sumry <- rbind(sumry, dr.iteration(object, Gz, d = d, T = B0)$summary)
     }
     # scale to length 1 and make first element always positive
-    ans$B <- apply(B0,2,function(x){
-      b <- x/sqrt(sum(x^2))
+    ans$B <- apply(B0, 2, function(x) {
+      b <- x / sqrt(sum(x^2))
       if (b[1] < 0) - b else b})
     ans$sequential <- sumry
   }
-  if (numdir > 0) {colnames(ans$B) <- paste("Dir",1:numdir,sep="")}
+  if (numdir > 0) { colnames(ans$B) <- paste("Dir", 1:numdir, sep = "") }
   if (numdir > 1) rownames(ans$sequential) <- paste(1:numdir)
-  ans}
+  ans
+  }
 
 Gzcomp <- function(object,numdir,span){UseMethod("Gzcomp")}
-Gzcomp.ire <- function(object,numdir,span=NULL){
+
+#' Compute Gz Matrix for IRE
+#'
+#' This function computes the transformation matrix Gz used in test
+#' statistics and optimization.
+#'
+#' @param object An object from \code{dr.fit.ire}.
+#' @param numdir Number of directions.
+#' @param span Optional projection matrix.
+#'
+#' @return The Cholesky factor of the Gz matrix.
+#' @noRd
+Gzcomp.ire <- function(object, numdir, span = NULL) {
   slices <- object$slice.info
   An <- qr.Q(qr(contr.helmert(slices$nslices)))
   n <- object$cases
@@ -1969,9 +2037,9 @@ Gzcomp.ire <- function(object,numdir,span=NULL){
   h <- slices$nslices
   f <- slices$slice.sizes/sum(slices$slice.sizes)
   # page 411, eq (1) except projecting to d dimensions using span.
-  span <- if (!is.null(span)) span else diag(rep(1,p))
-  xi <- if (numdir > 0){qr.fitted(qr(span),object$slice.means)} else {
-    matrix(0,nrow=p,ncol=h)}
+  span <- if (!is.null(span)) span else diag(rep(1, p))
+  xi <- if (numdir > 0){qr.fitted(qr(span), object$slice.means)} else {
+    matrix(0, nrow = p, ncol = h)}
   # We next compute the inner product matrix Vn = inverse(Gamma_zeta)
   # We compute only the Cholesky decomposition of Gamma_zeta, as that
   # is all that is needed.  The name is reused for intermediate quantities
@@ -1979,15 +2047,15 @@ Gzcomp.ire <- function(object,numdir,span=NULL){
   # First, compute Gamma, defined on line 2 p. 414
   # make use of vec(A %*% B) = kronecker(t(B), A)
   # and also that the mean of vec, as defined below, is zero.
-  Gz <- array(0,c(p*h,p*h))
+  Gz <- array(0, c(p * h, p * h))
   Gmat <- NULL
-  for (i in 1:n){
-    epsilon_i <- -f -z[i,,drop=FALSE] %*% xi %*% diag(f)
-    epsilon_i[slices$slice.indicator[i]]<-1+epsilon_i[slices$slice.indicator[i]]
-    vec <- as.vector( z[i,] %*% epsilon_i)
-    Gmat <- rbind(Gmat,vec)}
-  Gz <- chol(kronecker(t(An),diag(rep(1,p))) %*% (((n-1)/n)*cov(Gmat)) %*%
-               kronecker(An,diag(rep(1,p))))
+  for (i in 1:n) {
+    epsilon_i <- -f -z[i, , drop = FALSE] %*% xi %*% diag(f)
+    epsilon_i[slices$slice.indicator[i]] <- 1 + epsilon_i[slices$slice.indicator[i]]
+    vec <- as.vector( z[i, ] %*% epsilon_i)
+    Gmat <- rbind(Gmat, vec)}
+  Gz <- chol(kronecker(t(An), diag(rep(1,p))) %*% (((n - 1) / n) * cov(Gmat)) %*%
+               kronecker(An, diag(rep(1, p))))
   Gz}
 
 #####################################################################
@@ -2006,51 +2074,67 @@ Gzcomp.ire <- function(object,numdir,span=NULL){
 ##      not its complement (hence the use of qr.resid, not qr.fitted)
 ######################################################################
 dr.iteration <- function(object,Gz,d=2,B,T,eps,itmax,verbose){UseMethod("dr.iteration")}
-dr.iteration.ire <- function(object,Gz,d=2,B=NULL,T=NULL,eps=1.e-6,itmax=200,
-                             verbose=FALSE){
+
+#' IRE Optimization Iteration
+#'
+#' Internal iterative optimization procedure for estimating directions under IRE.
+#'
+#' @param object A \code{dr} object.
+#' @param Gz Precomputed Gz matrix.
+#' @param d Number of directions.
+#' @param B Initial basis matrix.
+#' @param T Transformation matrix.
+#' @param eps Convergence tolerance.
+#' @param itmax Maximum number of iterations.
+#' @param verbose Print iteration progress.
+#'
+#' @return A list containing \code{B} and a test summary.
+#' @noRd
+dr.iteration.ire <- function(object, Gz, d = 2, B = NULL, T = NULL, eps = 1.e-6,
+                             itmax = 200, verbose = FALSE) {
   n <- object$cases
   zeta <- object$zeta
   p <- dim(zeta)[1]
   h1 <- dim(zeta)[2]  # zeta is p by (h-1) for ire and sum(h-1) for pire
-  if (d == 0){
-    err <- n*sum(forwardsolve(t(Gz),as.vector(zeta))^2)
-    data.frame(Test=err,df=(p-d)*(h1-d),
-               p.value=pchisq(err,(p-d)*(h1-d),lower.tail=FALSE),iter=0)} else {
-                 T <- if(is.null(T)) diag(rep(1,p)) else T
-                 B <- if(is.null(B)) diag(rep(1,ncol(T)))[,1:d,drop=FALSE] else B
-                 fn <- function(B,C){
-                   n * sum( forwardsolve(t(Gz),as.vector(zeta)-as.vector(T%*%B%*%C))^2 ) }
+  if (d == 0) {
+    err <- n * sum(forwardsolve(t(Gz), as.vector(zeta))^2)
+    data.frame(Test = err, df = (p - d) * (h1 - d),
+               p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE), iter = 0)} else {
+                 T <- if(is.null(T)) diag(rep(1, p)) else T
+                 B <- if(is.null(B)) diag(rep(1, ncol(T)))[, 1:d, drop = FALSE] else B
+                 fn <- function(B, C) {
+                   n * sum( forwardsolve(t(Gz), as.vector(zeta) - as.vector(T %*% B %*% C))^2 ) }
                  updateC <- function() {
-                   matrix( qr.coef(qr(forwardsolve(t(Gz),kronecker(diag(rep(1,h1)),T%*%B))),
-                                   forwardsolve(t(Gz),as.vector(zeta))), nrow=d)}
+                   matrix(qr.coef(qr(forwardsolve(t(Gz), kronecker(diag(rep(1, h1)), T %*% B))),
+                                   forwardsolve(t(Gz), as.vector(zeta))), nrow = d)}
                  updateB <- function() {
                    for (k in 1:d) {
-                     alphak <- as.vector(zeta - T %*% B[,-k,drop=FALSE] %*% C[-k,])
-                     PBk <- qr(B[,-k])
+                     alphak <- as.vector(zeta - T %*% B[, -k, drop = FALSE] %*% C[-k, ])
+                     PBk <- qr(B[, -k])
                      bk <- qr.coef(
                        qr(forwardsolve(t(Gz),
-                                       t(qr.resid(PBk,t(kronecker(C[k,],T)))))),
-                       forwardsolve(t(Gz),as.vector(alphak)))
+                                       t(qr.resid(PBk,t(kronecker(C[k, ], T)))))),
+                       forwardsolve(t(Gz), as.vector(alphak)))
                      bk[is.na(bk)] <- 0  # can use any OLS estimate; eg, set NA to 0
-                     bk <- qr.resid(PBk,bk)
-                     B[,k] <- bk/sqrt(sum(bk^2))}
+                     bk <- qr.resid(PBk, bk)
+                     B[, k] <- bk / sqrt(sum(bk^2))}
                    B}
                  C <- updateC()  # starting values
-                 err <- fn(B,C)
+                 err <- fn(B, C)
                  iter <- 0
                  repeat{
-                   iter <- iter+1
+                   iter <- iter + 1
                    B <- updateB()
                    C <- updateC()
                    errold <- err
-                   err <- fn(B,C)
-                   if(verbose==TRUE) print(paste("Iter =",iter,"Fn =",err),quote=FALSE)
+                   err <- fn(B, C)
+                   if(verbose == TRUE) print(paste("Iter =", iter, "Fn =", err), quote = FALSE)
                    if ( abs(err-errold)/errold < eps || iter > itmax ) break
                  }
                  B <- T %*% B
                  rownames(B) <- rownames(zeta)
-                 list(B=B,summary=data.frame(Test=err,df=(p-d)*(h1-d),
-                                             p.value=pchisq(err,(p-d)*(h1-d),lower.tail=FALSE),iter=iter))
+                 list(B = B, summary = data.frame(Test = err, df = (p - d) * (h1 - d),
+                                             p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE), iter = iter))
                }}
 
 # Equation (12), p. 415 of Cook and Ni (2004) for d=NULL
