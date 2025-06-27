@@ -1140,8 +1140,7 @@ cov.ew.matrix <- function(object, scaled = FALSE) {
 #'
 #' @return A data frame with statistics and general p-values.
 #' @noRd
-#' @method dr.test2 phdres
-#' @exportS3Method
+#' @export
 dr.test2.phdres <- function(object, stats) {
   covew <- cov.ew.matrix(object, scaled = TRUE)
   C <- 0.5 / var(dr.y(object))
@@ -1174,8 +1173,7 @@ dr.test2.phdres <- function(object, stats) {
 #'
 #' @return A data frame with test result.
 #' @noRd
-#' @method dr.indep.test phdres
-#' @exportS3Method
+#' @export
 dr.indep.test.phdres <- function(object, stat) {
   eval <- eigen(cov.ew.matrix(object, scaled = FALSE), only.values = TRUE)
   pval <- dr.pvalue(0.5 * eval$values, stat,
