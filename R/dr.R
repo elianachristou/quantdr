@@ -1667,67 +1667,106 @@ cosangle1 <- function(mat, vec) {
 #     dr.weights
 #
 #####################################################################
-dr.weights <-
-  function (formula, data = list(), subset, na.action=na.fail,
-            sigma=1,nsamples=NULL,...)
-  {
-    # Create design matrix from the formula and call dr.estimate.weights
-    mf1 <- match.call(expand.dots=FALSE)
-    mf1$... <- NULL # ignore ...
-    mf1$covmethod  <- mf1$nsamples <- NULL
+#' Compute Reweighting for Elliptical Symmetry
+#'
+#' This function computes reweighted observations to approximate elliptical
+#' symmetry using the method described in Cook and Weisberg (1999). Based on
+#' random sampling in standardized space.
+#'
+#' @param formula A model formula.
+#' @param data A data frame containing variables in the model.
+#' @param subset Optional subset of the data.
+#' @param na.action A function which indicates what should happen when the data
+#'    contain NAs.
+#' @param sigma A tuning parameter controlling dispersion of normal samples
+#'    (default 1).
+#' @param nsamples Number of Monte Carlo samples. Defaults to \code{10 * n}.
+#' @param ... Additional arguments passed to \code{cov.rob}.
+#'
+#' @return A numeric vector of weights.
+#' @noRd
+#' @export
+dr.weights <- function (formula, data = list(), subset, na.action=na.fail,
+            sigma = 1, nsamples = NULL, ...) {
+    # Build model frame and extract matrix
+    mf1 <- match.call(expand.dots = FALSE)
+    mf1$... <- NULL
+    mf1$covmethod <- mf1$nsamples <- NULL
     mf1[[1]] <- as.name("model.frame")
     mf <- eval(mf1, sys.frame(sys.parent()))
-    mt <- attr(mf,"terms")
+    mt <- attr(mf, "terms")
     x <- model.matrix(mt, mf)
-    int <- match("(Intercept)", dimnames(x)[[2]], nomatch=0)
-    if (int > 0) x <- x[, -int, drop=FALSE] # drop the intercept from X
+    int <- match("(Intercept)", dimnames(x)[[2]], nomatch = 0)
+    if (int > 0) x <- x[, -int, drop = FALSE] # remove intercept
+
+    # Estimate robust center and covariance
     ans <- cov.rob(x, ...)
     m <- ans$center
-    s<-svd(ans$cov)
-    z<-sweep(x,2,m) %*% s$u %*% diag(1/sqrt(s$d))
-    n <- dim(z)[1]   # number of obs
-    p <- dim(z)[2]   # number of predictors
-    ns <- if (is.null(nsamples)) 10*n else nsamples
-    dist <- wts <- rep(0,n)  # initialize distances and weights
+    s <- svd(ans$cov)
+
+    # Standardize design matrix
+    z <- sweep(x, 2, m) %*% s$u %*% diag(1 / sqrt(s$d))
+    n <- dim(z)[1]
+    p <- dim(z)[2]
+    ns <- if (is.null(nsamples)) 10 * n else nsamples
+
+    dist <- wts <- rep(0, n)
     for (i in 1:ns) {
-      point <- rnorm(p) * sigma      # Random sample from a normal N(0, sigma^2I)
-      dist <- apply(z,1,function(x,point){sum((point-x)^2)},point)
+      point <- rnorm(p) * sigma
+      dist <- apply(z, 1, function(x, point) {sum((point - x)^2)}, point)
       #Dist to each point
       sel <- dist == min(dist)               # Find closest point(s)
-      wts[sel]<-wts[sel]+1/length(wts[sel])} # Increase weights for those points
-    w <- n*wts/ns
+      wts[sel] <- wts[sel] + 1 / length(wts[sel])
+    }
+
+    w <- n * wts / ns
     if (missing(subset)) return(w)
     if (is.null(subset)) return(w) else {
       # find dimension of mf without subset specified
       mf1$subset <- NULL
-      w1 <- rep(NA,length=dim(eval(mf1))[1])
+      w1 <- rep(NA, length = dim(eval(mf1))[1])
       w1[subset] <- w
-      return(w1)}}
+      return(w1)
+    }
+}
 
-###################################################################
-## drop1 methods
-###################################################################
-drop1.dr <-
-  function (object, scope = NULL, update = TRUE, test = "general",
-            trace=1, ...)
-  {
+#' Drop1 Method for Dimension Reduction
+#'
+#' This function implements drop-one-variable testing based on coordinate
+#' hypotheses.
+#'
+#' @param object A \code{dr} object.
+#' @param scope Terms not to be dropped.
+#' @param update Whether to update the model or return a table only.
+#' @param test Type of test: "general" or "marginal".
+#' @param trace If > 0, print progress.
+#' @param ... Additional arguments passed to \code{dr.coordinate.test}.
+#'
+#' @return An updated \code{dr} object or a data frame of test results.
+#'
+#' @noRd
+#' @export
+drop1.dr <- function (object, scope = NULL, update = TRUE, test = "general",
+            trace=1, ...) {
     keep <- if (is.null(scope))
       NULL
     else attr(terms(update(object$terms, scope)), "term.labels")
     all <- attr(object$terms, "term.labels")
     candidates <- setdiff(all, keep)
-    if (length(candidates) == 0)
-      stop("Error---nothing to drop")
+    if (length(candidates) == 0) stop("Error---nothing to drop")
+
     ans <- NULL
     for (label in candidates) {
       ans <- rbind(ans, dr.coordinate.test(object, as.formula(paste("~.-",
-                                                                    label, sep = "")), ...))
+                                label, sep = "")), ...))
     }
     row.names(ans) <- paste("-", candidates)
+
     ncols <- ncol(ans)
     or <- order(-ans[, if (test == "general")
       ncols
       else (ncols - 1)])
+
     form <- formula(object)
     attributes(form) <- NULL
     fout <- deparse(form, width.cutoff = 50)
@@ -1755,10 +1794,23 @@ drop1.dr <-
     else invisible(ans)
   }
 
-dr.step <-
-  function (object, scope = NULL, d = NULL, minsize = 2, stop = 0,
-            trace=1,...)
-  {
+#' Stepwise Dimension Reduction
+#'
+#' Applies recursive drop-one-variable testing until stopping criterion is met.
+#'
+#' @param object A \code{dr} object.
+#' @param scope Optional scope for variables to retain.
+#' @param d Currently unused.
+#' @param minsize Minimum number of variables to retain (default 2).
+#' @param stop Threshold test statistic for stopping.
+#' @param trace If > 0, print progress.
+#' @param ... Additional arguments passed to \code{drop1.dr}.
+#'
+#' @return A reduced \code{dr} object.
+#' @noRd
+#' @export
+dr.step <- function (object, scope = NULL, d = NULL, minsize = 2, stop = 0,
+            trace=1,...) {
     if (is.null(object$stop)) {
       object$stop <- stop
     }
@@ -1791,7 +1843,6 @@ dr.step <-
       }
     }
   }
-
 
 #####################################################################
 ##
