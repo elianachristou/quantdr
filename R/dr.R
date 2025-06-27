@@ -1272,66 +1272,90 @@ wood.pvalue <- function (coef, f, tol = 0.0, print = FALSE) {
   }
 
 #########################################################################
-#
-# permutation tests for dimenison reduction
-#
+# permutation tests for dimension reduction
 #########################################################################
 
-dr.permutation.test <- function(object,npermute=50,numdir=object$numdir) {
-  if (inherits(object,"ire")) stop("Permutation tests not implemented for ire")
-  else{
+#' Permutation Test for Dimension Reduction
+#'
+#' This function performs permutation tests for the dimension of the central
+#' subspace.  This test compares observed test statistics to their distribution
+#' under permutation of predictors (or weights).
+#'
+#' @param object A fitted \code{dr} object.
+#' @param npermute Number of permutations.  Default is 50.
+#' @param numdir Maximum number of directions to test.  Default to
+#' \code{object$numdir}.
+#'
+#' @return An object of class \code{dr.permutation.test} with components:
+#' \item{summary}{A data frame with test statistics and p-values.}
+#' \item{npermute}{The number of permutations used.}
+#'
+#' @noRd
+#' @export
+dr.permutation.test <- function(object, npermute = 50, numdir = object$numdir) {
+  if (inherits(object, "ire"))
+    stop("Permutation tests not implemented for ire")
+
     permute.weights <- TRUE
     call <- object$call
     call[[1]] <- as.name("dr.compute")
     call$formula <- call$data <- call$subset <- call$na.action <- NULL
-    x <- dr.directions(object) # predictors with a 'better' basis
+    x <- dr.directions(object) # project data on estimated directions
     call$y <- object$y
     weights <- object$weights
-    # nd is the number of dimensions to test
-    nd <- min(numdir,length(which(abs(object$evalues)>1.e-8))-1)
+
+    # Number of dimensions to test
+    nd <- min(numdir, length(which(abs(object$evalues) > 1.e-8)) - 1)
     nt <- nd + 1
-    # observed value of the test statistics = obstest
-    obstest<-dr.permutation.test.statistic(object,nt)
-    # count and val keep track of the results and are initialized to zero
-    count<-rep(0,nt)
-    val<-rep(0,nt)
-    # main loop
-    for (j in 1:npermute){   #repeat npermute times
-      perm<-sample(1:object$cases)
-      call$weights<- if (permute.weights) weights[perm] else weights
-      # inner loop
-      for (col in 0:nd){
-        # z gives a permutation of x.  For a test of dim = col versus dim >= col+1,
-        # all columns of x are permuted EXCEPT for the first col columns.
-        call$x<-if (col==0) x[perm,] else   cbind(x[,(1:col)],x[perm,-(1:col)])
+
+    # Observed test statistics
+    obstest<-dr.permutation.test.statistic(object,  nt)
+    count <- rep(0, nt)
+    val <- rep(0, nt)
+
+    # Main permutation loop
+    for (j in 1:npermute) {
+      perm <- sample(1:object$cases)
+      call$weights <- if (permute.weights) weights[perm] else weights
+
+      # Inner loop for each test (0D vs 1D, 1D vs 2D, ..., (nd-1)D vs ndD)
+      for (col in 0:nd) {
+        # Permute all but the first col components
+        call$x <- if (col==0) x[perm, ] else cbind(x[, 1:col], x[perm, -(1:col)])
         iperm <- eval(call)
-        val[col+1]<- dr.permutation.test.statistic(iperm,col+1)[col+1]
-      }  # end of inner loop
-      # add to counter if the permuted test exceeds the obs. value
-      count[val>obstest]<-count[val>obstest]+1
+        val[col + 1] <- dr.permutation.test.statistic(iperm, col + 1)[col + 1]
+      }
+
+      # Update counter if permuted start >= observed
+      count[val > obstest] <- count[val > obstest] + 1
     }
-    # summarize
-    pval<-(count)/(npermute+1)
-    ans1 <- data.frame(cbind(obstest,pval))
-    dimnames(ans1) <-list(paste(0:(nt-1),"D vs >= ",1:nt,"D",sep=""),
-                          c("Stat","p.value"))
-    ans<-list(summary=ans1,npermute=npermute)
+
+    # Compute permutation-based p-values
+    pval <- (count) / (npermute + 1)
+    ans1 <- data.frame(cbind(obstest, pval))
+    dimnames(ans1) <- list(paste(0:(nt - 1), "D vs >= ", 1:nt, "D", sep = ""),
+                          c("Stat", "p.value"))
+    ans <- list(summary = ans1, npermute = npermute)
     class(ans) <- "dr.permutation.test"
     ans
-  }}
+}
 
-"print.dr.permutation.test" <-
-  function(x, digits = max(3, getOption("digits") - 3), ...)
-  {
+#' @method print dr.permutation.test
+#' @export
+print.dr.permutation.test <- function(x, digits = max(3, getOption("digits") - 3),
+                                      ...) {
     cat("\nPermutation tests\nNumber of permutations:\n")
     print.default(x$npermute)
     cat("\nTest results:\n")
-    print(x$summary,digits=digits)
+    print(x$summary, digits = digits)
     invisible(x)
-  }
+ }
 
-"summary.dr.permutation.test" <- function(...)
-{print.dr.permutation.test(...)}
+#' @method summary dr.permutation.test
+#' @export
+summary.dr.permutation.test <- function(...) {
+  print.dr.permutation.test(...)
+}
 
 
 #########################################################################
