@@ -1092,7 +1092,7 @@ print.summary.dr <- function (x, digits = max(3, getOption("digits") - 3), ...)
   }
 
 ##################################################################
-# Translations of pHd test methods from Arc to R
+## Translations of pHd test methods from Arc to R
 ##  Original Lisp functions by R. D. Cook
 ##  Translated to R by S. Weisberg, February, 2001
 ##################################################################
@@ -1130,102 +1130,148 @@ cov.ew.matrix <- function(object, scaled = FALSE) {
   ans
 }
 
-############################# CONTINUE HERE ####################################
 #' General p-values for phd using eW matrix
 #'
 #' This function computes adjusted p-values using eigenvalues of the eW covariance
 #' matrix.
+#'
+#' @param object A fitted \code{dr} object.
+#' @param stats Vector of test statistics.
+#'
+#' @return A data frame with statistics and general p-values.
 #' @noRd
-dr.test2.phdres <- function(object,stats){
-  covew <- cov.ew.matrix(object,scaled=TRUE)
-  C <- .5/var(dr.y(object))
+#' @method dr.test2 phdres
+#' @exportS3Method
+dr.test2.phdres <- function(object, stats) {
+  covew <- cov.ew.matrix(object, scaled = TRUE)
+  C <- 0.5 / var(dr.y(object))
   p <- length(stats)
   pval <- NULL
-  d2 <-dim(dr.x(object))[2]
+  d2 <- dim(dr.x(object))[2]
   start <- -d2
   end <- dim(covew)[2]
   for (i in 1:p) {
-    start <- start + d2-i+2
-    evals <-
-      eigen(as.numeric(C)*covew[start:end,start:end],only.values=TRUE)$values
-    pval<-c(pval,
-            dr.pvalue(evals,stats[i],chi2approx=object$chi2approx)$pval.adj)
-    #   pval<-c(pval,wood.pvalue(evals,stats[i]))
+    start <- start + d2 - i + 2
+    evals <- eigen(as.numeric(C) * covew[start:end, start:end],
+                   only.values = TRUE)$values
+    pval <- c(pval, dr.pvalue(evals, stats[i],
+                              chi2approx = object$chi2approx)$pval.adj)
   }
-  # report results
-  z<-data.frame(cbind(stats,pval))
-  rr<-paste(0:(p-1),"D vs >= ",1:p,"D",sep="")
-  dimnames(z)<-list(rr,c("Stat","p.value"))
-  z}
 
-dr.indep.test.phdres <- function(object,stat) {
-  eval <- eigen(cov.ew.matrix(object,scaled=FALSE),only.values=TRUE)
-  pval<-dr.pvalue(.5*eval$values,stat,
-                  chi2approx=object$chi2approx)$pval.adj
   # report results
-  z<-data.frame(cbind(stat,pval))
-  dimnames(z)<-list(c("Test of independence"),c("Stat","p.value"))
-  z}
+  z <- data.frame(cbind(stats, pval))
+  rr <- paste(0:(p - 1), "D vs >= ", 1:p, "D", sep = "")
+  dimnames(z) <- list(rr, c("Stat", "p.value"))
+  z
+}
 
-dr.pvalue <- function(coef,f,chi2approx=c("bx","wood"),...){
+#' Independence test for phd residuals
+#'
+#' This function tests independence using the uncentered eW matrix.
+#'
+#' @param object A fitted \code{dr} object.
+#' @param stat The test statistic.
+#'
+#' @return A data frame with test result.
+#' @noRd
+#' @method dr.indep.test phdres
+#' @exportS3Method
+dr.indep.test.phdres <- function(object, stat) {
+  eval <- eigen(cov.ew.matrix(object, scaled = FALSE), only.values = TRUE)
+  pval <- dr.pvalue(0.5 * eval$values, stat,
+                  chi2approx = object$chi2approx)$pval.adj
+
+  # report results
+  z <- data.frame(cbind(stat, pval))
+  dimnames(z) <- list(c("Test of independence"), c("Stat", "p.value"))
+  z
+}
+
+#' Compute p-value using Bentler-Xie or Wood's approximation
+#'
+#' This wrapper function selects the approximation method.
+#'
+#' @param coef Vector of coefficients (weights).
+#' @param f Observed test statistic.
+#' @param chi2approx Approximation method: 'bx' or 'wood'
+#'
+#' @return A data frame with adjusted test and p-value.
+#' @noRd
+dr.pvalue <- function(coef, f, chi2approx = c("bx", "wood"), ...) {
   method <- match.arg(chi2approx)
   if (method == "bx") {
-    bentlerxie.pvalue(coef,f)} else{
-      wood.pvalue(coef,f,...)}}
+    bentlerxie.pvalue(coef, f)
+    } else {
+      wood.pvalue(coef, f, ...)
+  }
+}
 
-
-bentlerxie.pvalue <- function(coef,f) {
-  # Returns the Bentler-Xie approximation to P(coef'X > f), where
-  # X is a vector of iid Chi-square(1) r.v.'s, coef is a vector of weights,
-  # and f is the observed value.
+#' Bentler-Xie p-value approximation
+#'
+#' This function approximates P(coef'X > f), where X ~ chi^2(1), coef is a vector
+#' of weights, and f is the observed value.
+#'
+#' @param coef Vector of weights.
+#' @param f Observed statistic.
+#'
+#' @return A data frame with adjusted p-value and degrees of freedom.
+#' @noRd
+bentlerxie.pvalue <- function(coef, f) {
   trace1 <- sum(coef)
   trace2 <- sum(coef^2)
-  df.adj <- trace1^2/trace2
-  stat.adj <- f *  df.adj/trace1
+  df.adj <- trace1^2 / trace2
+  stat.adj <- f *  df.adj / trace1
   bxadjusted <- 1 - pchisq(stat.adj, df.adj)
-  ans <- data.frame(test=f,test.adj=stat.adj,
-                    df.adj=df.adj,pval.adj=bxadjusted)
+  ans <- data.frame(test = f, test.adj = stat.adj, df.adj = df.adj,
+                    pval.adj = bxadjusted)
   ans
 }
 
-wood.pvalue <- function (coef, f, tol=0.0, print=FALSE){
-  #Returns an approximation to P(coef'X > f) for X=(X1,...,Xk)', a vector of iid
-  #one df chi-squared rvs.  coef is a list of positive coefficients. tol is used
-  #to check for near-zero conditions.
-  #See Wood (1989), Communications in Statistics, Simulation 1439-1456.
-  #Translated from Arc function wood-pvalue.
-  #  error checking
+#' Wood's p-value approximaation
+#'
+#' This function implements Wood (1989) approximation for mixture chi-squared.
+#'
+#' @param coef Vector of weights (eigenvalues).
+#' @param f Observed test statistic.
+#' @param tol Tolerance for approximation.
+#' @param print Logical; print method used.
+#'
+#' @return A data frame with test result and p-value.
+#' @noRd
+wood.pvalue <- function (coef, f, tol = 0.0, print = FALSE) {
   if (min(coef) < 0) stop("negative eigenvalues")
-  if (length(coef) == 1)
-  {pval <- 1-pchisq(f/coef,1)} else
-  {k1 <-     sum(coef)
-  k2 <- 2 * sum(coef^2)
-  k3 <- 8 * sum(coef^3)
-  t1 <- 4*k1*k2^2 + k3*(k2-k1^2)
-  t2 <- k1*k3 - 2*k2^2
-  if ((t2 <= tol) && (tol < t2) ){
-    a1 <- k1^2/k2
-    b  <- k1/k2
-    pval <- 1 - pgamma(b*f,a1)
-    if (print)
-      print(paste("Satterthwaite-Welsh Approximation =", pval))}
-  else if( (t1 <= tol) && (tol < t2)){
-    a1 <-2 + (k1/k2)^2
-    b  <- (k1*(k1^2+k2))/k2
-    pval <- if (f < tol) 1.0 else 1 - pgamma(b/f,a1)
-    if (print) print(paste("Inverse gamma approximation =",pval))}
-  else if ((t1 > tol) && (t2 > tol)) {
-    a1 <- (2*k1*(k1*k3 + k2*k1^2 -k2^2))/t1
-    b <- t1/t2
-    a2 <- 3 + 2*k2*(k2+k1^2)/t2
-    pval <- 1-pbeta(f/(f+b),a1,a2)
-    if (print) print(paste(
-      "Three parameter F(Pearson Type VI) approximation =", pval))}
-  else {
-    pval <- NULL
-    if (print) print("Wood's Approximation failed")}}
-  data.frame(test=f,test.adj=NA,df.adj=NA,pval.adj=pval)}
-
+  if (length(coef) == 1) {
+    pval <- 1 - pchisq(f / coef, 1)
+    } else {
+      k1 <- sum(coef)
+      k2 <- 2 * sum(coef^2)
+      k3 <- 8 * sum(coef^3)
+      t1 <- 4 * k1 * k2^2 + k3 * (k2 - k1^2)
+      t2 <- k1 * k3 - 2 * k2^2
+      if ((t2 <= tol) && (tol < t2)) {
+        a1 <- k1^2 / k2
+        b  <- k1 / k2
+        pval <- 1 - pgamma(b * f, a1)
+        if (print) print(paste("Satterthwaite-Welsh Approximation =", pval))
+        } else if ((t1 <= tol) && (tol < t2)) {
+        a1 <- 2 + (k1 / k2)^2
+        b  <- (k1 * (k1^2 + k2)) / k2
+        pval <- if (f < tol) 1.0 else 1 - pgamma(b / f, a1)
+        if (print) print(paste("Inverse gamma approximation =", pval))
+        } else if ((t1 > tol) && (t2 > tol)) {
+        a1 <- (2 * k1 * (k1 * k3 + k2 * k1^2 - k2^2)) / t1
+        b <- t1 / t2
+        a2 <- 3 + 2 * k2 * (k2 + k1^2) / t2
+        pval <- 1 - pbeta(f / (f + b), a1, a2)
+        if (print) print(paste("Three parameter F(Pearson Type VI) approximation =",
+                               pval))
+        } else {
+        pval <- NULL
+        if (print) print("Wood's Approximation failed")
+        }
+      }
+  data.frame(test = f, test.adj = NA, df.adj = NA, pval.adj = pval)
+  }
 
 #########################################################################
 #
