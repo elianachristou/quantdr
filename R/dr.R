@@ -1359,25 +1359,86 @@ summary.dr.permutation.test <- function(...) {
 
 
 #########################################################################
+# Permutation Test Statistic Methods for Dimension Reduction
 #
-# dr.permutation.test.statistic method
-#
+# These functions compute the test statistics used in permutation tests
+# for various dimension reduction methods.
 #########################################################################
+#' Generic method for computing permutation test statistics.
+#'
+#' This function computes the test statistics for dimennsion reduction
+#' permutation tests.
+#'
+#' @param object A fitted \code{dr} object.
+#' @param numdir Number of directions t otest.
+#'
+#' @return A numeric vector of test statistics for each hypothesized dimension.
+#'
+#' @noRd
+#' @export
+dr.permutation.test.statistic <- function(object, numdir) {
+  UseMethod("dr.permutation.test.statistic")
+  }
 
-dr.permutation.test.statistic <- function(object,numdir)
-{UseMethod("dr.permutation.test.statistic")}
+#' Default method for permutation test statistics
+#'
+#' This function uses the sum of eigenvalues for computing test statistics.
+#'
+#' @param object A fitted \code{dr} object.
+#' @param numdir Number of directions to test.
+#'
+#' @return A numeric vector of test statistics.
+#'
+#' @noRd
+#' @method dr.permutation.test.statistic default
+#' @export
+dr.permutation.test.statistic.default <- function(object, numdir) {
+  object$cases * rev(cumsum(rev(object$evalues)))[1:numdir]
+}
 
-dr.permutation.test.statistic.default <- function(object,numdir){
-  object$cases*rev(cumsum(rev(object$evalues)))[1:numdir]}
-
-#' @method dr permutation test statistic phdy
+#' Permutation test statistic for method = "phdy"
+#'
+#' This function reuses the implementation for \code{phd}.
+#'
+#' @param object A \code{dr} object using the \code{phdy} method.
+#' @param numdir Number of directions to test.
+#'
+#' @noRd
+#' @method dr.permutation.test.statistic phdy
 #' @exportS3Method
-dr.permutation.test.statistic.phdy <- function(object,numdir){
-  dr.permutation.test.statistic.phd(object,numdir)}
-dr.permutation.test.statistic.phdres <- function(object,numdir){
-  dr.permutation.test.statistic.phd(object,numdir)}
-dr.permutation.test.statistic.phd <- function(object,numdir){
-  (.5*object$cases*rev(cumsum(rev(object$evalues^2)))/var(dr.y(object)))[1:numdir]}
+dr.permutation.test.statistic.phdy <- function(object, numdir) {
+  dr.permutation.test.statistic.phd(object,numdir)
+}
+
+#' Permutation test statistic for method = "phdres"
+#'
+#' This function reuses the implementation for \code{phd}.
+#'
+#' @param object A \code{dr} object using the \code{phdres} method.
+#' @param numdir Number of directions to test.
+#'
+#' @noRd
+#' @method dr.permutation.test.statistic phdres
+#' @exportS3Method
+dr.permutation.test.statistic.phdres <- function(object, numdir) {
+  dr.permutation.test.statistic.phd(object,numdir)
+}
+
+#' Permutation test statistic for method = "phd"
+#'
+#' This function computes test statistics based on squared eigenvalues
+#' and response variance.
+#'
+#' @param object A \code{dr} object using the \code{phd} method.
+#' @param numdir Number of directions to test.
+#'
+#' @noRd
+#' @method dr.permutation.test.statistic phd
+#' @exportS3Method
+dr.permutation.test.statistic.phd <- function(object,numdir) {
+  (0.5 * object$cases * rev(cumsum(rev(object$evalues^2))) /
+     var(dr.y(object)))[1:numdir]
+}
 
 #####################################################################
 #
