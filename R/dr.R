@@ -2104,21 +2104,43 @@ Gzcomp.ire <- function(object, numdir, span = NULL) {
 }
 
 #####################################################################
-##  ire iteration
-##  B, if set, is a p by d matrix whose columns are a starting value
-##     for a basis for the central subspace.  The default is the first
-##     d columns of I_p
-##  R, if set, is a restriction matrix, such that the estimated
-##     spanning vectors are RB, not B itself.
-##  Returned matrix B is really R %*% B
-##  --fn is the objective function, eq (5) of Cook & Ni (2004)
-##  --updateC is step 2 of the algorithm on p. 414
-##  --updateB is step 3 of the algorithm on p. 414
-##  --PBk in the paper is the projection on an orthogonal completment
-##      of the operator QBk.  It is the QR decomposition of the projection,
-##      not its complement (hence the use of qr.resid, not qr.fitted)
-######################################################################
-dr.iteration <- function(object,Gz,d=2,B,T,eps,itmax,verbose){UseMethod("dr.iteration")}
+## Iterative Estimation for IRE (Inverse Regression Estimator)
+##
+## Purpose:
+##   This function performs iterative estimation of the central
+##   subspace using the algorithm proposed by Cook & Ni (2005).
+##
+## Arguments:
+##   - B: A p × d matrix whose columns provide an initial estimate
+##        of the basis vectors for the central subspace.
+##        Defaults to the first d columns of the identity matrix I_p.
+##
+##   - R: A restriction matrix (optional). If specified, the estimated
+##        spanning directions are returned as R %*% B, rather than B itself.
+##
+## Return:
+##   - The returned matrix B is the product R %*% B, if R is specified.
+##
+## Algorithm Notes:
+##   - fn:        The objective function to minimize (Eq. (5), Cook & Ni, 2005).
+##
+##   - updateC:   Step 2 of the algorithm (p. 414): updates the intermediate
+##                coefficient matrix C based on the current estimate of B.
+##
+##   - updateB:   Step 3 of the algorithm (p. 414): updates B by solving an
+##                optimization problem using the most recent C.
+##
+##   - PBk:       In the paper, PBk denotes the projection onto the orthogonal
+##                complement of the space spanned by QBk. In the code, we compute
+##                the QR decomposition of the **projection**, not the complement.
+##                Hence, we use `qr.resid()` instead of `qr.fitted()` to compute
+##                residuals from the projection.
+#####################################################################
+
+#' @export
+dr.iteration <- function(object, Gz, d = 2, B, T, eps, itmax, verbose) {
+  UseMethod("dr.iteration")
+}
 
 #' IRE Optimization Iteration
 #'
