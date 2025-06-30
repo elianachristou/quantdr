@@ -2256,35 +2256,80 @@ dr.iteration.ire <- function(object, Gz, d = 2, B = NULL, T = NULL, eps = 1.e-6,
     }
 }
 
-# Equation (12), p. 415 of Cook and Ni (2004) for d=NULL
-# Equation (14), p. 415 for d > 0
-# Remember...all calculations are in the Q scale, where X=QR...
-dr.coordinate.test.ire<-function(object,hypothesis,d=NULL,...){
-  gamma <- if (inherits(hypothesis, "formula"))
+#' Coordinate Hypothesis Test for IRE
+#'
+#' Performs a coordinate hypothesis test for the Inverse Regression Estimator (IRE),
+#' based on equations (12) and (14) in Cook & Ni (2005). The test evaluates whether
+#' a specified linear combination (subspace) of the predictors contributes to the
+#' model.
+#'
+#' @param object A \code{dr} object fitted using the IRE method.
+#' @param hypothesis Either a matrix or a \code{formula} specifying the
+#'     coordinate hypothesis to test.
+#' @param d Integer (optional). Dimension of the sufficient subspace under the
+#'     alternative hypothesis.  If \code{NULL}, the full model is tested.
+#' @param ... Additional arguments passed to \code{dr.iteration} or
+#'     \code{dr.joint.test}.
+#'
+#' @return A data frame containing:
+#' \item{\code{Test}}{Chi-squared test statistic.}
+#' \item{\code{df}}{Degrees of freedom.}
+#' \item{\code{p.value}}{Associated p-value.}
+#'
+#' @exportS3Method dr.coordinate.test ire
+#' @noRd
+dr.coordinate.test.ire <- function(object, hypothesis, d = NULL, ...) {
+  # Convert hypothesis to matrix (if formula, extract design matrix basis)
+  gamma <- if (inherits(hypothesis, "formula")) {
     coord.hyp.basis(object, hypothesis)
-  else as.matrix(hypothesis)
-  gamma <- dr.R(object)%*%gamma  # Rotate to Q-coordinates:
-  p <- dim(object$x)[2]
-  r <- p-dim(gamma)[2]
-  maxdir <- length(object$result)
-  if(is.null(d)){
-    h1 <- dim(object$zeta)[2] # h-1 for ire, sum(h-1) for pire
-    H <- qr.Q(qr(gamma),complete=TRUE)[,-(1:(p-r)),drop=FALSE]
-    n<-object$cases
+  } else {
+    as.matrix(hypothesis)
+  }
+
+  # Project the hypothesis into the Q-coordinate system
+  gamma <- dr.R(object) %*% gamma  # Rotate too orthonomal coordinate system
+
+  p <- dim(object$x)[2] # Number of predictors
+  r <- p - dim(gamma)[2] # Rank (dimension) of the null hypothesis
+  maxdir <- length(object$result) # Maximum dimension estimated in the model
+
+  if (is.null(d)) {
+    # Case: Full model hypothesis test (Equation 12 in Cook & Ni, p. 415)
+    h1 <- dim(object$zeta)[2] # h-1 for ire
+    H <- qr.Q(qr(gamma), complete = TRUE)[, -(1:(p - r)), drop=FALSE]
+    n <- object$cases
     Gz <- object$Gz
     zeta <- object$zeta
-    m1 <- Gz %*% kronecker(diag(rep(1,h1)),H)
+
+    # Transform H and zeta for test statistic computation
+    m1 <- Gz %*% kronecker(diag(rep(1, h1)), H)
     m1 <- chol(t(m1) %*% m1)
-    T_H <- n * sum (forwardsolve(t(m1),as.vector(t(H)%*%zeta))^2)
-    df <- r*(h1)
-    z <- data.frame(Test=T_H,df=df,p.value=pchisq(T_H,df,lower.tail=FALSE))
-    z}
-  else {
-    F0 <-if(maxdir >= d) object$result[[d]]$summary$Test else
-      dr.iteration(object,object$Gz,d=d,...)$summary$Test
-    F1 <- dr.joint.test(object,hypothesis,d=d,...)$summary$Test
-    data.frame(Test=F1-F0,df=r*d,p.value=pchisq(F1-F0,r*d,lower.tail=FALSE))
-  }}
+    T_H <- n * sum (forwardsolve(t(m1), as.vector(t(H) %*% zeta))^2)
+
+    df <- r * h1 # Degrees of freedom
+    z <- data.frame(Test = T_H, df = df,
+                    p.value = pchisq(T_H, df, lower.tail = FALSE))
+    z
+    } else {
+      # Case: Coordinate test for dimension d (Equation 14 in Cook & Ni, p. 415)
+
+      # Null modell test statistic (F0)
+      F0 <-if(maxdir >= d) {
+        object$result[[d]]$summary$Test
+        } else {
+          dr.iteration(object, object$Gz, d = d, ...)$summary$Test
+        }
+
+      # Alternative model test statistic (F1) with hypothesis restriction
+      F1 <- dr.joint.test(object, hypothesis, d = d, ...)$summary$Test
+
+
+      data.frame(Test = F1 - F0, df = r * d,
+                 p.value = pchisq(F1 - F0, r * d, lower.tail = FALSE))
+    }
+}
+
+
 
 # Unnumbered equation middle of second column, p. 415 of Cook and Ni (2004)
 dr.joint.test.ire<-function(object,hypothesis,d=NULL,...){
