@@ -2789,39 +2789,86 @@ dr.iteration.pire <- function(object, Gz, d = 2, B = NULL, T = NULL,
     }
 }
 
-dr.coordinate.test.pire<-function(object,hypothesis,d=NULL,...){
+#' Partial IRE Coordinate Hypothesis Test
+#'
+#' Performs a coordinate hypothesis test for the partial inverse regression
+#' estimator (pIRE), assessing whether specified linear combinations of the
+#' predictors contribute to the central subspace. This is based on the methodology
+#' from Wen and Cook (in press).
+#'
+#' @param object A \code{dr} object of class \code{"pire"}, typically produced
+#'     by \code{dr.fit.pire()}.
+#' @param hypothesis A matrix or a model \code{formula} specifying the linear
+#'     hypothesis to test.
+#' @param d Integer or \code{NULL}. If \code{NULL}, tests whether the specified
+#'     directions are in the span of the central subspace. If a positive integer,
+#'     compares the full model (with constraint) to the fitted model with \code{d}
+#'     directions.
+#' @param ... Additional arguments passed to \code{dr.iteration()} or
+#'     \code{dr.joint.test()}.
+#'
+#' @return A data frame with:
+#' \item{Test}{Test statistic.}
+#' \item{df}{Degrees of freedom.}
+#' \item{p.value}{P-value for the hypothesis test.}
+#'
+#' @noRd
+dr.coordinate.test.pire <- function(object, hypothesis, d = NULL, ...) {
+  # Convert formula input to matrix using coord.hyp.basis
   gamma <- if (inherits(hypothesis, "formula"))
     coord.hyp.basis(object, hypothesis)
   else as.matrix(hypothesis)
-  gamma <- dr.R(object)%*%gamma  # Rotate to Q-coordinates:
-  p <- object$qr$rank
-  r <- p-dim(gamma)[2]
-  maxdir <- length(object$result)
+
+  # Transform hypothesis matrix to the Q-coordinates
+  gamma <- dr.R(object) %*% gamma
+
+  p <- object$qr$rank # Number of predictors
+  r <- p - dim(gamma)[2] # Hypothesized dimension reduction
+
+  maxdir <- length(object$result) # Max number of fitted directions
   n.groups <- length(object$group.stats)
-  h1 <- 0
-  h2 <- NULL
+
+  h1 <- 0 # Total dimension of all zeta matrices
+  h2 <- NULL # Store h_j = #cols of zeta_j for each group
   zeta <- object$zeta
-  for (j in 1:n.groups){
+  for (j in 1:n.groups) {
     h2[j] <- dim(zeta[[j]])[2]
-    h1 <- h1 + h2[j]}
-  if(is.null(d)){
-    H <- qr.Q(qr(gamma),complete=TRUE)[,-(1:(p-r)),drop=FALSE]
-    n<-object$cases
+    h1 <- h1 + h2[j]
+  }
+
+  # Test for full null hypothesis (no d specified)
+  if(is.null(d)) {
+    # Construct orthogonal complement to gammaa
+    H <- qr.Q(qr(gamma), complete = TRUE)[, -(1:(p - r)), drop = FALSE]
+    n <- object$cases
     Gz <- object$Gz
+
     T_H <- 0
-    for (j in 1:n.groups){
-      m1 <- Gz[[j]] %*% kronecker(diag(rep(1,h2[j])),H)
+    for (j in 1:n.groups) {
+      # Projected residuals under the null
+      m1 <- Gz[[j]] %*% kronecker(diag(rep(1, h2[j])), H)
       m1 <- chol(t(m1) %*% m1)
-      T_H <- T_H + n * sum (forwardsolve(t(m1),as.vector(t(H)%*%zeta[[j]]))^2)}
-    df <- r*(h1)
-    z <- data.frame(Test=T_H,df=df,p.value=pchisq(T_H,df,lower.tail=FALSE))
-    z}
-  else {
-    F0 <-if(maxdir >= d) object$result[[d]]$summary$Test else
-      dr.iteration(object,object$Gz,d=d,...)$summary$Test
-    F1 <- dr.joint.test(object,hypothesis,d=d,...)$summary$Test
-    data.frame(Test=F1-F0,df=r*d,p.value=pchisq(F1-F0,r*d,lower.tail=FALSE))
-  }}
+      T_H <- T_H + n * sum (forwardsolve(t(m1), as.vector(t(H)%*%zeta[[j]]))^2)
+    }
+
+    df <- r * h1 # Degrees of freedom
+    z <- data.frame(Test = T_H, df = df,
+                    p.value = pchisq(T_H, df, lower.tail = FALSE))
+    z
+    } else {
+      # Alternative test comparing full vs restricted model
+      F0 <- if(maxdir >= d) object$result[[d]]$summary$Test else
+      dr.iteration(object, object$Gz, d = d, ...)$summary$Test
+
+      F1 <- dr.joint.test(object, hypothesis, d = d, ...)$summary$Test
+
+    data.frame(Test = F1 - F0, df = r * d,
+               p.value = pchisq(F1 - F0, r * d, lower.tail = FALSE))
+    }
+}
+
+
+
 
 Gzcomp.pire <- function(object,numdir,span=NULL){
   Gz <- NULL
