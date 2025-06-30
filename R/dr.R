@@ -2329,16 +2329,46 @@ dr.coordinate.test.ire <- function(object, hypothesis, d = NULL, ...) {
     }
 }
 
+#' Joint Hypothesis Test for IRE
+#'
+#' Performs a joint hypothesis test in the Inverse Regression Estimator (IRE)
+#' framework, based on the unnumbered equation in the second column of p. 415
+#' in Cook & Ni (2005). This test assesses whether the sufficient directions lie
+#' in the subspace spanned by a hypothesized transformation matrix.
+#'
+#' @param object A \code{dr} object fitted using the IRE method.
+#' @param hypothesis A matrix or \code{formula} specifying the null hypothesis
+#'    subspace.
+#' @param d Integer (optional). Number of sufficient directions under the
+#'    alternative hypothesis.
+#' @param ... Additional arguments passed to \code{dr.iteration}.
+#'
+#' @return Either the result of \code{\link{dr.coordinate.test}} (if
+#'    \code{d = NULL}), or a result from \code{\link{dr.iteration}} using the
+#'    hypothesized transformation matrix.
+#'
+#' @exportS3Method dr.joint.test ire
+#' @noRd
+dr.joint.test.ire <- function(object, hypothesis, d = NULL, ...) {
+  # If no specific dimension is given, defer to coordinate test
+  if (is.null(d)) {
+    dr.coordinate.test(object, hypothesis, ...)
+    } else {
+      # Convert hypothesis to matrix
+      gamma <- if (inherits(hypothesis, "formula")) {
+        coord.hyp.basis(object, hypothesis)
+      } else {
+        as.matrix(hypothesis)
+      }
 
+      # Project the hypothesis into the rotated Q-coordinates used by IRE
+      gamma <- dr.R(object) %*% gamma
 
-# Unnumbered equation middle of second column, p. 415 of Cook and Ni (2004)
-dr.joint.test.ire<-function(object,hypothesis,d=NULL,...){
-  if(is.null(d)) {dr.coordinate.test(object,hypothesis,...)} else {
-    gamma <- if (inherits(hypothesis, "formula"))
-      coord.hyp.basis(object, hypothesis)
-    else as.matrix(hypothesis)
-    gamma <- dr.R(object)%*%gamma  # Rotate to Q-coordinates:
-    dr.iteration(object,object$Gz,d=d,T=gamma)}}
+      # Run IRE estimation constrained to lie in the span of gamma
+      dr.iteration(object, object$Gz, d = d, T = gamma)
+    }
+}
+
 
 ### print/summary functions
 #' @method print ire
