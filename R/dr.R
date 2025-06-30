@@ -2462,28 +2462,54 @@ summary.ire <- function (object, ...) {
   ans
 }
 
-#' @method print summary ire
+#' Print Method for Summary of IRE Objects
+#'
+#' Nicely formats and prints the summary information for an inverse regression
+#' estimator (IRE) object, including call, method details, slice sizes,
+#' large-sample dimension tests, and estimated directions.
+#'
+#' @param x An object of class \code{"summary.ire"}, typically from
+#'     \code{summary.ire}.
+#' @param digits Number of significant digits to print. Defaults to
+#'     \code{max(3, getOption("digits") - 3)}.
+#' @param ... Additional arguments (currently ignored).
+#'
+#' @return The input object \code{x}, invisibly.
 #' @exportS3Method
-"print.summary.ire" <-
-  function (x, digits = max(3, getOption("digits") - 3), ...)
-  {
-    cat("\nCall:\n")#S: ' ' instead of '\n'
-    cat(paste(deparse(x$call), sep="\n", collapse = "\n"), "\n\n", sep="")
-    cat("Method:\n")#S: ' ' instead of '\n'
-    cat(x$method,"with",x$nslices, " slices, n =",x$n)
-    if(diff(range(x$weights)) > 0)cat(", using weights.\n") else cat(".\n")
-    cat("\nSlice Sizes:\n")#S: ' ' instead of '\n'
+#' @noRd
+print.summary.ire <- function (x, digits = max(3, getOption("digits") - 3), ...) {
+  # Print the original function call that created the IRE object
+    cat("\nCall:\n") #S: ' ' instead of '\n'
+    cat(paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+
+    # Print method name and number of slices & observations
+    cat("Method:\n") #S: ' ' instead of '\n'
+    cat(x$method, "with", x$nslices, "slices, n =", x$n)
+
+    # Indicate if weights were used
+    if (diff(range(x$weights)) > 0) cat(", using weights.\n") else cat(".\n")
+
+    # Show the sizes of the slices
+    cat("\nSlice Sizes:\n") #S: ' ' instead of '\n'
     cat(x$sizes,"\n")
+
+    # Display large-sample marginal dimension tests as a matrix
     cat("\nLarge-sample Marginal Dimension Tests:\n")
-    print(as.matrix(x$test),digits=digits)
+    print(as.matrix(x$test), digits = digits)
+
+    # Print estimated directions (basic vectors) for each dimension
     cat("\n")
     cat("\nSolutions for various dimensions:\n")
-    for (d in 1:length(x$result)){
-      cat("\n",paste("Dimension =",d),"\n")
-      print(x$result[[d]]$B,digits=digits)}
+    for (d in 1:length(x$result)) {
+      cat("\n", paste("Dimension =", d), "\n")
+      print(x$result[[d]]$B, digits = digits)
+    }
+
     cat("\n")
     invisible(x)
-  }
+}
+
+
 
 dr.basis.ire <- function(object,numdir=length(object$result)) {
   fl <- function(z) apply(z,2,function(x){
