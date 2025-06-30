@@ -2651,77 +2651,143 @@ dr.fit.pire <- function(object, numdir = 4, nslices = NULL,
   return(aa)
 }
 
-dr.iteration.pire <- function(object,Gz,d=2,B=NULL,T=NULL,eps=1.e-6,itmax=200,
-                              verbose=FALSE){
-  gsolve <- function(a1,a2){  #modelled after ginv in MASS
+#' Partial IRE Optimization Iteration
+#'
+#' Internal iterative procedure to estimate sufficient directions for partial IRE
+#' (pIRE), as proposed in Wen and Cook (in press). This function iteratively
+#' updates basis matrix \code{B} and group-specific coefficient matrices \code{C}
+#' to minimize a weighted residual sum of squares over all groups.
+#'
+#' @param object A \code{dr} object resulting from \code{dr.fit.pire}.
+#' @param Gz A list of Cholesky decompositions of the group-specific
+#'    \eqn{\Gamma_\zeta} matrices.
+#' @param d Integer. Number of directions to estimate.
+#' @param B Optional. Initial basis matrix of size p × d.
+#' @param T Optional. Transformation matrix (e.g., restriction), defaults to
+#'    identity.
+#' @param eps Convergence threshold. Default is \code{1e-6}.
+#' @param itmax Maximum number of iterations. Default is 200.
+#' @param verbose Logical. If \code{TRUE}, prints iteration progress.
+#'
+#' @return A list with:
+#'   \item{B}{Estimated basis matrix (p × d) for the central subspace.}
+#'   \item{summary}{A data frame with test statistic, degrees of freedom,
+#'   p-value, and number of iterations.}
+#' @noRd
+dr.iteration.pire <- function(object, Gz, d = 2, B = NULL, T = NULL,
+                              eps = 1.e-6, itmax = 200, verbose = FALSE) {
+
+  # Generalized solver modeled after MASS::ginv, used to invert singular matrices
+  gsolve <- function(a1, a2) {
     Asvd <- svd(a1)
     Positive <- Asvd$d > max(sqrt(.Machine$double.eps) * Asvd$d[1], 0)
-    if(all(Positive))
-      Asvd$v %*% (1/Asvd$d * t(Asvd$u)) %*% a2
-    else Asvd$v[, Positive, drop = FALSE] %*% ((1/Asvd$d[Positive]) *
-                                                 t(Asvd$u[, Positive, drop = FALSE])) %*% a2}
+    if(all(Positive)) {
+      Asvd$v %*% (1 / Asvd$d * t(Asvd$u)) %*% a2
+    } else {
+      Asvd$v[, Positive, drop = FALSE] %*%
+        ((1 / Asvd$d[Positive]) * t(Asvd$u[, Positive, drop = FALSE])) %*% a2
+    }
+  }
+
   n <- object$cases
   zeta <- object$zeta
-  n.groups <- length(zeta)
-  p <- dim(zeta[[1]])[1]
-  h1 <- 0
-  h2 <- NULL
-  for (j in 1:n.groups){
+  n.groups <- length(zeta) # Number of groups
+  p <- dim(zeta[[1]])[1] # Number of covariates (same across groups)
+  h1 <- 0 # Total reduced dimensions across groups
+  h2 <- NULL # Individual group dimennsions
+
+  # Compute h1 = total # of columns across all zeta matrices
+  for (j in 1:n.groups) {
     h2[j] <- dim(zeta[[j]])[2]
-    h1 <- h1 + h2[j]}
-  if (d == 0){
+    h1 <- h1 + h2[j]
+  }
+
+  # Null hypothesis test only (no optimization)
+  if (d == 0) {
     err <- 0
-    for (j in 1:n.groups){
-      err <- err + n*sum(forwardsolve(t(Gz[[j]]),as.vector(zeta[[j]]))^2)}
-    data.frame(Test=err,df=(p-d)*(h1-d),
-               p.value=pchisq(err,(p-d)*(h1-d),lower.tail=FALSE),iter=0)} else {
-                 T <- if(is.null(T)) diag(rep(1,p)) else T
-                 B <- if(is.null(B)) diag(rep(1,ncol(T)))[,1:d,drop=FALSE] else B
-                 fn <- function(B,C){
-                   ans <- 0
-                   for (j in 1:n.groups){ans <- ans +
-                     n * sum( forwardsolve(t(Gz[[j]]),as.vector(zeta[[j]])-
-                                             as.vector(T%*%B%*%C[[j]]))^2) }
-                   ans}
-                 updateC <- function() {
-                   C <- NULL
-                   for (j in 1:n.groups){ C[[j]]<-
-                     matrix( qr.coef(qr(forwardsolve(t(Gz[[j]]),kronecker(diag(rep(1,h2[j])),T%*%B))),
-                                     forwardsolve(t(Gz[[j]]),as.vector(zeta[[j]]))), nrow=d)}
-                   C}
-                 updateB <- function() {
-                   for (k in 1:d) {
-                     PBk <- qr(B[,-k])
-                     a1 <- a2 <- 0
-                     for (j in 1:n.groups){
-                       alphak <- as.vector(zeta[[j]]-T%*%B[,-k,drop=FALSE]%*%C[[j]][-k,])
-                       m1 <-  forwardsolve(t(Gz[[j]]),
-                                           t(qr.resid(PBk,t(kronecker(C[[j]][k,],T)))))
-                       m2 <- forwardsolve(t(Gz[[j]]),alphak)
-                       a1 <- a1 + t(m1) %*% m1
-                       a2 <- a2 + t(m1) %*% m2}
-                     bk <- qr.resid(PBk, gsolve(a1,a2))
-                     bk[is.na(bk)] <- 0  # can use any OLS estimate; eg, set NA to 0
-                     bk <- qr.resid(PBk,bk)
-                     B[,k] <- bk/sqrt(sum(bk^2))}
-                   B}
-                 C <- updateC()  # starting values
-                 err <- fn(B,C)
-                 iter <- 0
-                 repeat{
-                   iter <- iter+1
-                   B <- updateB()
-                   C <- updateC()
-                   errold <- err
-                   err <- fn(B,C)
-                   if(verbose==TRUE) print(paste("Iter =",iter,"Fn =",err),quote=FALSE)
-                   if ( abs(err-errold)/errold < eps || iter > itmax ) break
-                 }
-                 B <- T %*% B
-                 rownames(B) <- rownames(zeta)
-                 list(B=B,summary=data.frame(Test=err,df=(p-d)*(h1-d),
-                                             p.value=pchisq(err,(p-d)*(h1-d),lower.tail=FALSE),iter=iter))
-               }}
+    for (j in 1:n.groups) {
+      err <- err + n * sum(forwardsolve(t(Gz[[j]]), as.vector(zeta[[j]]))^2)
+      }
+    data.frame(Test = err, df = (p - d) * (h1 - d),
+               p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE),
+               iter=0)
+    } else {
+      # Initialize transformation matrix T and basis matrix B
+      T <- if(is.null(T)) diag(rep(1, p)) else T
+      B <- if(is.null(B)) diag(rep(1, ncol(T)))[, 1:d, drop = FALSE] else B
+
+      # Objective function: weighted sum of squared errors across all groups
+      fn <- function(B, C) {
+        ans <- 0
+        for (j in 1:n.groups) {
+          res <- as.vector(zeta[[j]] - T %*% B %*% C[[j]])
+          ans <- ans + n * sum(forwardsolve(t(Gz[[j]]), res)^2)
+        }
+        ans
+      }
+
+      # Step 2: update C for each group given B
+      updateC <- function() {
+      C <- NULL
+      for (j in 1:n.groups) {
+        Xj <- forwardsolve(t(Gz[[j]]), kronecker(diag(rep(1, h2[j])), T %*% B))
+        yj <- forwardsolve(t(Gz[[j]]), as.vector(zeta[[j]]))
+        C[[j]] <- matrix(qr.coef(qr(Xj), yj), nrow = d)
+        }
+      C
+      }
+
+      # Step 3: update B given all C matrices
+      updateB <- function() {
+        for (k in 1:d) {
+          PBk <- qr(B[, -k]) # Projection basis excluding column k
+          a1 <- a2 <- 0
+          for (j in 1:n.groups) {
+            # Residual excluding k-th direction
+            alphak <- as.vector(zeta[[j]] - T %*% B[, -k, drop = FALSE] %*%
+                                  C[[j]][-k, ])
+            m1 <- forwardsolve(t(Gz[[j]]),
+                               t(qr.resid(PBk, t(kronecker(C[[j]][k, ], T)))))
+            m2 <- forwardsolve(t(Gz[[j]]), alphak)
+            a1 <- a1 + t(m1) %*% m1
+            a2 <- a2 + t(m1) %*% m2
+            }
+          bk <- qr.resid(PBk, gsolve(a1, a2))
+          bk[is.na(bk)] <- 0  # can use any OLS estimate; eg, set NA to 0
+          bk <- qr.resid(PBk, bk)
+          B[,k] <- bk / sqrt(sum(bk^2))
+        }
+        B
+      }
+
+      # Initialization
+      C <- updateC()
+      err <- fn(B, C)
+      iter <- 0
+
+      # Main loop
+      repeat{
+        iter <- iter + 1
+        B <- updateB()
+        C <- updateC()
+        errold <- err
+        err <- fn(B, C)
+
+        if(verbose == TRUE) print(paste("Iter =", iter, "Fn =", err), quote = FALSE)
+        if (abs(err - errold) / errold < eps || iter > itmax ) break
+      }
+
+      # Final transformation
+      B <- T %*% B
+      rownames(B) <- rownames(zeta)
+
+      list(B = B,
+           summary = data.frame(
+             Test = err, df = (p - d) * (h1 - d),
+             p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE),
+             iter = iter))
+    }
+}
 
 dr.coordinate.test.pire<-function(object,hypothesis,d=NULL,...){
   gamma <- if (inherits(hypothesis, "formula"))
