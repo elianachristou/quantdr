@@ -2165,6 +2165,7 @@ dr.iteration <- function(object, Gz, d = 2, B, T, eps, itmax, verbose) {
 #'   \item{\code{summary}}{A data frame with test statistic, degrees of
 #'       freedom, p-value, and number of iterations.}
 #' @noRd
+#' @exportS3Method dr.iteration ire
 dr.iteration.ire <- function(object, Gz, d = 2, B = NULL, T = NULL, eps = 1.e-6,
                              itmax = 200, verbose = FALSE) {
   n <- object$cases
