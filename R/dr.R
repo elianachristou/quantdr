@@ -2537,12 +2537,28 @@ dr.basis.ire <- function(object, numdir = length(object$result)) {
   ans
 }
 
+#' Project Data onto Estimated IRE Directions
+#'
+#' Computes the projections of the original predictors onto the estimated
+#' inverse regression (IRE) directions.
+#'
+#' @param object An object of class \code{ire}, typically the result of a fit
+#'    using IRE.
+#' @param which Integer vector. Specifies which directions to return.
+#'   Defaults to all estimated directions.
+#' @param x Optional matrix of predictor variables. Defaults to \code{dr.x(object)}.
+#'
+#' @return A numeric matrix containing the projected data onto the selected
+#'    directions.
 
+#' @noRd
+dr.direction.ire <- function(object, which = 1:length(object$result),
+                             x = dr.x(object)){
+  # Determine how many directions are requested
+  d <- max(which)
 
-dr.direction.ire <-
-  function(object, which=1:length(object$result),x=dr.x(object)){
-    d <- max(which)
-    scale(x,center=TRUE,scale=FALSE) %*% dr.basis(object,d)
+  # Project the centered preditors onto the estimated directions
+  scale(x, center = TRUE, scale = FALSE) %*% dr.basis(object, d)
   }
 
 #############################################################################
