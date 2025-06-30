@@ -2867,43 +2867,79 @@ dr.coordinate.test.pire <- function(object, hypothesis, d = NULL, ...) {
     }
 }
 
-
-
-
-Gzcomp.pire <- function(object,numdir,span=NULL){
-  Gz <- NULL
+#' Group-wise Gz Computation for Partial IRE
+#'
+#' Computes the Cholesky decomposition of the \eqn{\Gamma_\zeta} matrix for
+#' each group in the partial IRE setting. Each group statistic is adjusted
+#' using group-specific weights.
+#'
+#' @param object A \code{dr} object of class \code{"pire"}.
+#' @param numdir Integer. Number of directions to use in the Gz computation.
+#' @param span Optional matrix. Span to project slice means before computing Gz.
+#'
+#' @return A list of Cholesky factors, one per group, of the \eqn{\Gamma_\zeta}
+#'     matrices.
+#' @noRd
+Gzcomp.pire <- function(object, numdir, span = NULL) {
+  Gz <- NULL # Initialize list to store Gz matrices per group
   n.groups <- length(object$group.stats)
-  pw <- sum(object$group.stats[[1]]$weights)/sum(object$weights)
-  Gz[[1]] <- Gzcomp(object$group.stats[[1]],numdir=numdir,span=span)/sqrt(pw)
-  if (n.groups > 1){
-    for (j in 2:n.groups){
-      pw <- sum(object$group.stats[[j]]$weights)/sum(object$weights)
-      Gz[[j]] <-
-        Gzcomp(object$group.stats[[j]],numdir=numdir,span=span)/sqrt(pw)}}
-  Gz
+
+  # Compute proportion of total weights for group 1
+  pw <- sum(object$group.stats[[1]]$weights) / sum(object$weights)
+  Gz[[1]] <- Gzcomp(object$group.stats[[1]], numdir = numdir, span = span) / sqrt(pw)
+
+  if (n.groups > 1) {
+    for (j in 2:n.groups) {
+      pw <- sum(object$group.stats[[j]]$weights) / sum(object$weights)
+      Gz[[j]] <- Gzcomp(object$group.stats[[j]],
+                        numdir = numdir, span = span) / sqrt(pw)
+    }
+  }
+  return(Gz)
 }
 
-"summary.pire" <- function (object, ...)
-{   ans <- object[c("call")]
-result <- object$result
-numdir <- length(result)
-tests <- object$indep.test
-for (d in 1:numdir) {
-  tests <- rbind(tests,result[[d]]$summary)}
-rownames(tests) <- paste(0:numdir,"D vs"," > ",0:numdir,"D",sep="")
-ans$method <- object$method
-ans$nslices <- ans.sizes <- NULL
-ans$n <-NULL
-for (stats in object$group.stats){
-  ans$n <- c(ans$n,stats$n)
-  ans$nslices <- c(ans$nslices,stats$slice.info$nslices)
-  ans$sizes <- c(ans$sizes,stats$slice.info$slice.sizes)
-}
-ans$result <- object$result
-for (j in 1:length(ans$result)) {ans$result[[j]]$B <- dr.basis(object,j)}
-ans$weights <- dr.wts(object)
-ans$test <- tests
-class(ans) <- "summary.ire"
-ans
+#' @method summary pire
+#' @noRd
+summary.pire <- function (object, ...) {
+  # Initialize output with the original call
+  ans <- object[c("call")]
+
+  result <- object$result
+  numdir <- length(result)
+  tests <- object$indep.test
+
+  # Combine test statistics across dimensions
+  for (d in 1:numdir) {
+  tests <- rbind(tests, result[[d]]$summary)
+  }
+
+  # Assign test names
+  rownames(tests) <- paste(0:numdir, "D vs", " > ", 0:numdir, "D", sep = "")
+
+  ans$method <- object$method
+
+  # Initialize containers for group-wise. metadata
+  ans$nslices <- ans.sizes <- NULL
+  ans$n <-NULL
+
+  # Gather number of cases, slice counts and sizes from each group
+  for (stats in object$group.stats) {
+  ans$n <- c(ans$n, stats$n)
+  ans$nslices <- c(ans$nslices, stats$slice.info$nslices)
+  ans$sizes <- c(ans$sizes, stats$slice.info$slice.sizes)
+  }
+
+  # Attach per-direction basis estimates
+  ans$result <- object$result
+  for (j in 1:length(ans$result)) {
+    ans$result[[j]]$B <- dr.basis(object, j)
+    }
+
+  ans$weights <- dr.wts(object)
+  ans$test <- tests
+
+  # Assign class (same as IRE summary for consistency)
+  class(ans) <- "summary.ire"
+  return(ans)
 }
 
