@@ -2142,67 +2142,118 @@ dr.iteration <- function(object, Gz, d = 2, B, T, eps, itmax, verbose) {
   UseMethod("dr.iteration")
 }
 
-#' IRE Optimization Iteration
+#' Internal Iteration Function for IRE Optimization
 #'
-#' Internal iterative optimization procedure for estimating directions under IRE.
+#' Performs iterative optimization of the inverse regression estimator (IRE)
+#' using the algorithm described in Cook & Ni (2005). It alternates between
+#' updating the basis matrix \code{B} and coefficient matrix \code{C} to minimize
+#' the objective function.
 #'
-#' @param object A \code{dr} object.
-#' @param Gz Precomputed Gz matrix.
-#' @param d Number of directions.
-#' @param B Initial basis matrix.
-#' @param T Transformation matrix.
-#' @param eps Convergence tolerance.
-#' @param itmax Maximum number of iterations.
-#' @param verbose Print iteration progress.
+#' @param object A \code{dr} object containing required components such as
+#'     \code{zeta}.
+#' @param Gz A precomputed Cholesky decomposition of the \eqn{\Gamma_\zeta}
+#'    matrix.
+#' @param d Integer. Target number of sufficient directions.
+#' @param B Optional. Initial orthonormal basis matrix for the subspace (p × d).
+#' @param T Optional. Transformation matrix (typically identity or restriction).
+#' @param eps Convergence tolerance. Default is \code{1e-6}.
+#' @param itmax Maximum number of iterations. Default is 200.
+#' @param verbose Logical. If \code{TRUE}, prints progress at each iteration.
 #'
-#' @return A list containing \code{B} and a test summary.
+#' @return A list with:
+#'   \item{\code{B}}{Estimated basis matrix of the central subspace.}
+#'   \item{\code{summary}}{A data frame with test statistic, degrees of
+#'       freedom, p-value, and number of iterations.}
 #' @noRd
 dr.iteration.ire <- function(object, Gz, d = 2, B = NULL, T = NULL, eps = 1.e-6,
                              itmax = 200, verbose = FALSE) {
   n <- object$cases
   zeta <- object$zeta
   p <- dim(zeta)[1]
-  h1 <- dim(zeta)[2]  # zeta is p by (h-1) for ire and sum(h-1) for pire
+  h1 <- dim(zeta)[2]  # h1 is h-1 for ire, sum(h_i - 1) for pire
+
+  # If d=0, return the test statistic (no iteration needed)
   if (d == 0) {
     err <- n * sum(forwardsolve(t(Gz), as.vector(zeta))^2)
-    data.frame(Test = err, df = (p - d) * (h1 - d),
-               p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE), iter = 0)} else {
-                 T <- if(is.null(T)) diag(rep(1, p)) else T
-                 B <- if(is.null(B)) diag(rep(1, ncol(T)))[, 1:d, drop = FALSE] else B
-                 fn <- function(B, C) {
-                   n * sum( forwardsolve(t(Gz), as.vector(zeta) - as.vector(T %*% B %*% C))^2 ) }
-                 updateC <- function() {
-                   matrix(qr.coef(qr(forwardsolve(t(Gz), kronecker(diag(rep(1, h1)), T %*% B))),
-                                   forwardsolve(t(Gz), as.vector(zeta))), nrow = d)}
-                 updateB <- function() {
-                   for (k in 1:d) {
-                     alphak <- as.vector(zeta - T %*% B[, -k, drop = FALSE] %*% C[-k, ])
-                     PBk <- qr(B[, -k])
-                     bk <- qr.coef(
-                       qr(forwardsolve(t(Gz),
-                                       t(qr.resid(PBk,t(kronecker(C[k, ], T)))))),
-                       forwardsolve(t(Gz), as.vector(alphak)))
-                     bk[is.na(bk)] <- 0  # can use any OLS estimate; eg, set NA to 0
-                     bk <- qr.resid(PBk, bk)
-                     B[, k] <- bk / sqrt(sum(bk^2))}
-                   B}
-                 C <- updateC()  # starting values
-                 err <- fn(B, C)
-                 iter <- 0
-                 repeat{
-                   iter <- iter + 1
-                   B <- updateB()
-                   C <- updateC()
-                   errold <- err
-                   err <- fn(B, C)
-                   if(verbose == TRUE) print(paste("Iter =", iter, "Fn =", err), quote = FALSE)
-                   if ( abs(err-errold)/errold < eps || iter > itmax ) break
-                 }
-                 B <- T %*% B
-                 rownames(B) <- rownames(zeta)
-                 list(B = B, summary = data.frame(Test = err, df = (p - d) * (h1 - d),
-                                             p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE), iter = iter))
-               }}
+    return(data.frame(Test = err, df = (p - d) * (h1 - d),
+               p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE),
+               iter = 0))
+    } else {
+      # Initialize transformation matrix T if not provided
+      T <- if(is.null(T)) diag(rep(1, p)) else T
+
+      # Initialize starting B matrix (p x d) if not provided
+      B <- if(is.null(B)) diag(rep(1, ncol(T)))[, 1:d, drop = FALSE] else B
+
+      # Define objective function: squared norm of transformed residuals
+      fn <- function(B, C) {
+      n * sum(forwardsolve(t(Gz), as.vector(zeta) - as.vector(T %*% B %*% C))^2 )
+      }
+
+      # Step 2 of the algorithm (update C given B)
+      updateC <- function() {
+        design <- forwardsolve(t(Gz), kronecker(diag(rep(1, h1)), T %*% B))
+        response <- forwardsolve(t(Gz), as.vector(zeta))
+        matrix(qr.coef(qr(design), response), nrow = d)
+      }
+
+      # Step 3 of the algorithm (update B given C)
+      updateB <- function() {
+        for (k in 1:d) {
+          # Compute partial residuals excluding direction k
+          alphak <- as.vector(zeta - T %*% B[, -k, drop = FALSE] %*% C[-k, ])
+
+          # Project onto orthogonal complement of current B excluding column k
+          PBk <- qr(B[, -k])
+
+          # Regress residuals on current column of C to update B[, k]
+          bk <- qr.coef(
+            qr(forwardsolve(t(Gz), t(qr.resid(PBk, t(kronecker(C[k, ], T)))))),
+            forwardsolve(t(Gz), as.vector(alphak)))
+
+          # If NA (due to singularities), replace with 0
+          bk[is.na(bk)] <- 0
+
+          # Orthogonalize relative to previous columns
+          bk <- qr.resid(PBk, bk)
+
+          # Normalize to unit length
+          B[, k] <- bk / sqrt(sum(bk^2))
+        }
+        B
+      }
+
+      # Initialize C and error
+      C <- updateC()
+      err <- fn(B, C)
+      iter <- 0
+
+      # Main optimization loop
+      repeat{
+        iter <- iter + 1
+        B <- updateB()
+        C <- updateC()
+        errold <- err
+        err <- fn(B, C)
+
+        # Optional progress output
+        if (verbose == TRUE)
+          print(paste("Iter =", iter, "Fn =", err), quote = FALSE)
+
+        # Check convergence or iteration limit
+        if (abs(err - errold) / errold < eps || iter > itmax ) break
+      }
+
+      # Return final result: transformed B and summary statistics
+      B <- T %*% B
+      rownames(B) <- rownames(zeta)
+
+      list(B = B, summary = data.frame(
+        Test = err, df = (p - d) * (h1 - d),
+        p.value = pchisq(err, (p - d) * (h1 - d), lower.tail = FALSE),
+        iter = iter))
+    }
+}
 
 # Equation (12), p. 415 of Cook and Ni (2004) for d=NULL
 # Equation (14), p. 415 for d > 0
