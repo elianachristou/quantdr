@@ -2411,24 +2411,55 @@ print.ire <- function(x, width = 50, ...) {
   invisible(x)
 }
 
-"summary.ire" <- function (object, ...)
-{   ans <- object[c("call")]
-result <- object$result
-numdir <- length(result)
-tests <- object$indep.test
-for (d in 1:numdir) {
-  tests <- rbind(tests,result[[d]]$summary)}
-rownames(tests) <- paste(0:numdir,"D vs"," > ",0:numdir,"D",sep="")
-ans$method <- object$method
-ans$nslices <- object$slice.info$nslices
-ans$sizes <- object$slice.info$slice.sizes
-ans$weights <- dr.wts(object)
-ans$result <- object$result
-for (j in 1:length(ans$result)) {ans$result[[j]]$B <- dr.basis(object,j)}
-ans$n <- object$cases #NROW(object$model)
-ans$test <- tests
-class(ans) <- "summary.ire"
-ans
+#' Summary Method for IRE Objects
+#'
+#' Summarizes the results from an inverse regression estimator (IRE) fit.
+#' Includes information about the call, slicing, weights, estimated directions,
+#' and large-sample dimension tests.
+#'
+#' @param object An object of class \code{"ire"} returned by \code{dr.fit.ire}.
+#' @param ... Currently ignored. Included for S3 method consistency.
+#'
+#' @return An object of class \code{"summary.ire"} containing the fitted call,
+#' method, slice information, weights, estimated directions, and test results.
+#' @exportS3Method
+#' @noRd
+summary.ire <- function (object, ...) {
+  # Start with storing the original call
+  ans <- object[c("call")]
+
+  # Extract estimated directions and compute how many were fitted
+  result <- object$result
+  numdir <- length(result)
+
+  # Combine independence test (0D) and tests for each fitted direction
+  tests <- object$indep.test
+  for (d in 1:numdir) {
+  tests <- rbind(tests, result[[d]]$summary)
+  }
+
+  # Label rows as comparisons of 0D, 1D, ..., up to numdir D
+  rownames(tests) <- paste(0:numdir, "D vs", " > ", 0:numdir, "D", sep = "")
+
+  # Add additional model components to the summary output
+  ans$method <- object$method
+  ans$nslices <- object$slice.info$nslices
+  ans$sizes <- object$slice.info$slice.sizes
+  ans$weights <- dr.wts(object)
+
+  # Add result list with direction matrices replaced by actual bases
+  ans$result <- object$result
+  for (j in 1:length(ans$result)) {
+    ans$result[[j]]$B <- dr.basis(object,j)
+    }
+
+  # Add number of observations and test summary
+  ans$n <- object$cases
+  ans$test <- tests
+
+  # Set the summary class for future method dispatch
+  class(ans) <- "summary.ire"
+  ans
 }
 
 #' @method print summary ire
