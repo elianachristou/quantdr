@@ -2369,22 +2369,45 @@ dr.joint.test.ire <- function(object, hypothesis, d = NULL, ...) {
     }
 }
 
-
-### print/summary functions
+#' Print Method for IRE Objects
+#'
+#' Displays summary output from an IRE model object, including the fitted call
+#' and large-sample marginal dimension tests for each estimated direction.
+#'
+#' @param x An object of class \code{"ire"}, typically produced by a function
+#'     such as \code{dr.fit.ire}.
+#' @param width Integer. Maximum line width when printing the call. Default is 50.
+#' @param ... Further arguments passed to other print methods (ignored here).
+#'
 #' @method print ire
 #' @exportS3Method
-print.ire <- function(x, width=50, ...) {
-  fout <- deparse(x$call,width.cutoff=width)
-  for (f in fout) cat("\n",f)
+#' @noRd
+print.ire <- function(x, width = 50, ...) {
+  # Print the call used to fit the model, wrapping lines at 'width' characters
+  fout <- deparse(x$call, width.cutoff = width)
+  for (f in fout) cat("\n", f)
   cat("\n")
+
+  # Number of sufficient directions estimated
   numdir <- length(x$result)
+
+  # Initialize tests with the independence test (for 0 directions)
   tests <- x$indep.test
+
+  # Append test results for each direction
   for (d in 1:numdir) {
-    tests <- rbind(tests,x$result[[d]]$summary)}
-  rownames(tests) <- paste(0:numdir,"D vs"," > ",0:numdir,"D",sep="")
+    tests <- rbind(tests, x$result[[d]]$summary)
+  }
+
+  # Label rows as comparisons of 0:D, 1:D, ..., D:D
+  rownames(tests) <- paste(0:numdir, "D vs", " > ", 0:numdir, "D", sep = "")
+
+  # Display the marginal dimension tests
   cat("Large-sample Marginal Dimension Tests:\n")
   print(tests)
   cat("\n")
+
+  # Return the object invisibly (stadard for print methods)
   invisible(x)
 }
 
