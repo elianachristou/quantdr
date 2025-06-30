@@ -1981,38 +1981,64 @@ dr.fit.ire <- function(object, numdir = 4, nslices = NULL,
 #' @noRd
 dr.test.ire <- function(object, numdir, Gz = Gzcomp(object,numdir),
                         steps = 1, ...) {
+
+  # Initial estimate of B using raw eigenvectors from SIR step
   ans <- dr.iteration(object, Gz, d = numdir,
                       B = object$sir.raw.evectors[, 1:numdir, drop = FALSE], ...)
-  if (steps > 0 & numdir > 0) { # Re estimate if steps > 0.
+
+  # Optionally re-estimate B using iterative updates for stability/refinement
+  if (steps > 0 & numdir > 0) {
     for (st in 1:steps) {
-      Gz <- Gzcomp(object, numdir, ans$B[, 1:numdir])
+      Gz <- Gzcomp(object, numdir, ans$B[, 1:numdir]) # Update Gz using current span
       ans <- dr.iteration(object, Gz, d = numdir,
-                          B = ans$B[, 1:numdir, drop = FALSE],...) }}
-  # reorder B matrix according to importance (col. 2 of p. 414)
+                          B = ans$B[, 1:numdir, drop = FALSE],...)
+    }
+  }
+
+  # Sequential reordering of directions according to importance (Cook & Ni, p. 414)
   if (numdir > 1) {
-    ans0 <- dr.iteration(object, Gz, d = 1, T = ans$B)
-    sumry <- ans0$summary
-    B0 <- matrix(ans0$B / sqrt(sum((ans0$B)^2)), ncol = 1)
-    C <- ans$B
+    ans0 <- dr.iteration(object, Gz, d = 1, T = ans$B) # First direction
+    sumry <- ans0$summary # Save test summary
+    B0 <- matrix(ans0$B / sqrt(sum((ans0$B)^2)), ncol = 1) # Normalize
+    C <- ans$B # Copy of current B for modification
+
+    # Loop over remaining directions
     for (d in 2:numdir) {
-      common <- B0[, d - 1]
+      common <- B0[, d - 1] # Last added direction
+
+      # Orthogonalize remaining columns of C against the current B0
       for (j in 1:dim(C)[2]) {
-        C[, j] <- C[, j] - sum(common * (C[, j])) * B0[, d - 1] }
+        C[, j] <- C[, j] - sum(common * (C[, j])) * B0[, d - 1]
+        }
+
+      # QR decomposition to re-orthogonalize remaining directions
       C <- qr.Q(qr(C))[, -dim(C)[2], drop = FALSE]
+
+      # Find the next best direction orthoogonal to previous ones
       ans0 <- dr.iteration(object, Gz, d = 1, T = C)
-      B0 <- cbind(B0,ans0$B / sqrt(sum((ans0$B)^2)))
+
+      # Normalize and append to B0
+      B0 <- cbind(B0, ans0$B / sqrt(sum((ans0$B)^2)))
+
+      # Store the sequential test result
       sumry <- rbind(sumry, dr.iteration(object, Gz, d = d, T = B0)$summary)
     }
-    # scale to length 1 and make first element always positive
+
+    # Ensure directions have unit norm and first component positive
     ans$B <- apply(B0, 2, function(x) {
       b <- x / sqrt(sum(x^2))
-      if (b[1] < 0) - b else b})
-    ans$sequential <- sumry
+      if (b[1] < 0) - b else b
+      })
+
+    ans$sequential <- sumry # Store test summaries
   }
-  if (numdir > 0) { colnames(ans$B) <- paste("Dir", 1:numdir, sep = "") }
+
+  # Add column and row names for readability
+  if (numdir > 0) colnames(ans$B) <- paste("Dir", 1:numdir, sep = "")
   if (numdir > 1) rownames(ans$sequential) <- paste(1:numdir)
-  ans
-  }
+
+  return(ans)
+}
 
 Gzcomp <- function(object,numdir,span){UseMethod("Gzcomp")}
 
