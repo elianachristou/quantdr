@@ -2509,16 +2509,35 @@ print.summary.ire <- function (x, digits = max(3, getOption("digits") - 3), ...)
     invisible(x)
 }
 
+#' Extract Orthonormal Basis for Estimated Directions (IRE)
+#'
+#' Returns an orthonormal basis for the estimated sufficient dimension
+#' reduction directions in the original coordinate system, for inverse
+#' regression estimator (IRE) objects.
+#'
+#' @param object An object of class \code{ire}, typically the result of a
+#'    fit using IRE.
+#' @param numdir Integer. Number of directions to extract. Defaults to the
+#'   full number of estimated directions in the object.
+#'
+#' @return A matrix whose columns form an orthonormal basis for the estimated
+#'   central subspace, with appropriate column and row names.
+#' @noRd
+dr.basis.ire <- function(object, numdir = length(object$result)) {
+  # Normalize and flip sign of vectors so that the first elementn is always positive
+  fl <- function(z) apply(z, 2, function(x) {
+    b <- x / sqrt(sum(x^2)) # Normalize to unit length
+    if (b[1] < 0) -1*b else b
+    })
 
-
-dr.basis.ire <- function(object,numdir=length(object$result)) {
-  fl <- function(z) apply(z,2,function(x){
-    b <- x/sqrt(sum(x^2))
-    if (b[1] < 0) -1*b else b})
-  ans <- fl(backsolve(dr.R(object),object$result[[numdir]]$B))
+  # Transform from Q-space to original coordinate system via backsolve
+  ans <- fl(backsolve(dr.R(object), object$result[[numdir]]$B))
   dimnames(ans) <- list(colnames(dr.x(object)),
-                        paste("Dir",1:dim(ans)[2],sep=""))
-  ans}
+                        paste("Dir", 1:dim(ans)[2], sep = ""))
+  ans
+}
+
+
 
 dr.direction.ire <-
   function(object, which=1:length(object$result),x=dr.x(object)){
