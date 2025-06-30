@@ -2040,7 +2040,10 @@ dr.test.ire <- function(object, numdir, Gz = Gzcomp(object,numdir),
   return(ans)
 }
 
-Gzcomp <- function(object,numdir,span){UseMethod("Gzcomp")}
+#' @export
+Gzcomp <- function(object, numdir, span) {
+  UseMethod("Gzcomp")
+}
 
 #' Compute Gz Matrix for IRE
 #'
