@@ -2045,47 +2045,63 @@ Gzcomp <- function(object, numdir, span) {
   UseMethod("Gzcomp")
 }
 
-#' Compute Gz Matrix for IRE
+#' Compute Gz Matrix for Inverse Regression Estimator (IRE)
 #'
-#' This function computes the transformation matrix Gz used in test
-#' statistics and optimization.
+#' This function computes the inner product matrix \eqn{\Gamma_z} (or its
+#' Cholesky factor) for the inverse regression estimator (IRE), following Cook
+#' and Ni (2005).
 #'
-#' @param object An object from \code{dr.fit.ire}.
-#' @param numdir Number of directions.
-#' @param span Optional projection matrix.
+#' @param object A fitted \code{dr} object with method \code{"ire"}.
+#' @param numdir Integer. Number of directions to project onto.
+#' @param span Optional. A projection matrix (e.g., from fitted directions); if NULL, uses identity.
 #'
-#' @return The Cholesky factor of the Gz matrix.
+#' @return A Cholesky factor of the \eqn{\Gamma_z} matrix.
 #' @noRd
 Gzcomp.ire <- function(object, numdir, span = NULL) {
-  slices <- object$slice.info
-  An <- qr.Q(qr(contr.helmert(slices$nslices)))
-  n <- object$cases
-  weights <- object$weights
-  z <- dr.z(object)  # z is centered with correct weights.
-  p <- dim(object$slice.means)[1]
-  h <- slices$nslices
-  f <- slices$slice.sizes/sum(slices$slice.sizes)
-  # page 411, eq (1) except projecting to d dimensions using span.
+  slices <- object$slice.info # slicig structure
+  An <- qr.Q(qr(contr.helmert(slices$nslices))) # Orthonormal contrast matrix
+  n <- object$cases # Sample size
+  weights <- object$weights # Weights for each observation
+  z <- dr.z(object)  # Standardized covariate matrix (centered & weighted)
+  p <- dim(object$slice.means)[1] # Number of predictors
+  h <- slices$nslices # Number of slices
+  f <- slices$slice.sizes/sum(slices$slice.sizes) # Slice proportions
+
+  # Use provided projection span or default to identify matrix
   span <- if (!is.null(span)) span else diag(rep(1, p))
-  xi <- if (numdir > 0){qr.fitted(qr(span), object$slice.means)} else {
-    matrix(0, nrow = p, ncol = h)}
-  # We next compute the inner product matrix Vn = inverse(Gamma_zeta)
-  # We compute only the Cholesky decomposition of Gamma_zeta, as that
-  # is all that is needed.  The name is reused for intermediate quantities
-  # to save space (it is a p*(h-1) by p*(h-1) matrix).
-  # First, compute Gamma, defined on line 2 p. 414
-  # make use of vec(A %*% B) = kronecker(t(B), A)
-  # and also that the mean of vec, as defined below, is zero.
+
+  # Project the slice means to the subspace spanned by span, or use 0 if numdir = 0
+  xi <- if (numdir > 0) {
+    qr.fitted(qr(span), object$slice.means) # Projected slice means
+    } else {
+    matrix(0, nrow = p, ncol = h)
+    }
+
+  # Initialize the Gram matrix Gz, which will store vec(z_i * epsilon_i') rows
   Gz <- array(0, c(p * h, p * h))
   Gmat <- NULL
+
+  # Construct each vec(z_i * epsilon_i') row for all i in 1, ..., n
   for (i in 1:n) {
-    epsilon_i <- -f -z[i, , drop = FALSE] %*% xi %*% diag(f)
+    # Compute epsilon_i = e_j - f - z_i %*% xi %*% diag(f)
+    epsilon_i <- -f - z[i, , drop = FALSE] %*% xi %*% diag(f)
     epsilon_i[slices$slice.indicator[i]] <- 1 + epsilon_i[slices$slice.indicator[i]]
-    vec <- as.vector( z[i, ] %*% epsilon_i)
-    Gmat <- rbind(Gmat, vec)}
-  Gz <- chol(kronecker(t(An), diag(rep(1,p))) %*% (((n - 1) / n) * cov(Gmat)) %*%
+
+    # Compute vec(z_i * epsilon_i') as a row vector
+    vec <- as.vector(z[i, ] %*% epsilon_i)
+
+    # Stack vecs row-wise into Gmat
+    Gmat <- rbind(Gmat, vec)
+  }
+
+  # Estimate Gamma_z: coompute sample covariance of Gmat, scale by (n-1)/n
+  # Then transform it with kronecker products involving the An matrix
+  # Only the Cholesky decomposition is computed sinnce it is sufficient for later use
+  Gz <- chol(kronecker(t(An), diag(rep(1, p))) %*% (((n - 1) / n) * cov(Gmat)) %*%
                kronecker(An, diag(rep(1, p))))
-  Gz}
+
+  return(Gz)
+}
 
 #####################################################################
 ##  ire iteration
