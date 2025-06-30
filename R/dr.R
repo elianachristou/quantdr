@@ -2561,47 +2561,93 @@ dr.direction.ire <- function(object, which = 1:length(object$result),
   scale(x, center = TRUE, scale = FALSE) %*% dr.basis(object, d)
   }
 
-#############################################################################
-# partial ire --- see Wen and Cook (in press), Optimal sufficient dimension
-# reduction in regressions with categorical predictors. Journal of Statistical
-# planning and inference.
-#############################################################################
+#' Fit Partial Inverse Regression Estimator (pIRE)
+#'
+#' Implements the partial inverse regression estimator (pIRE), as described in
+#' Wen and Cook (in press), for regressions with categorical predictors. This
+#' method extends IRE to handle grouped data by estimating group-specific
+#' \eqn{\zeta} matrices.
+#'
+#' @param object An object of class \code{dr}, containing predictor and
+#'    response information.
+#' @param numdir Integer. Number of sufficient directions to estimate.
+#' @param nslices Number of slices used for inverse regression. Defaults to
+#'    number of covariates.
+#' @param slice.function A slicing function. Defaults to \code{dr.slices}.
+#' @param ... Additional arguments passed to lower-level methods.
+#'
+#' @return An object of class \code{pire}, containing the fitted results
+#'    including estimated directions, independence tests, and \eqn{\Gamma_\zeta}
+#'    matrix.
+#' @noRd
+dr.fit.pire <- function(object, numdir = 4, nslices = NULL,
+                        slice.function = dr.slices, ...) {
+  y <- dr.y(object) # Extract response
+  z <- dr.z(object) # Extract transformed predictors
+  p <- dim(z)[2] # Number of predictors
 
-dr.fit.pire <-function(object,numdir=4,nslices=NULL,slice.function=dr.slices,...){
-  y <- dr.y(object)
-  z <- dr.z(object)
-  p <- dim(z)[2]
-  if(is.null(object$group)) object$group <- rep(1,dim(z)[1])
-  group.names <- unique(as.factor(object$group))
-  nw <- table(object$group)
+  # If no group assignment is provided, assume one global group
+  if(is.null(object$group)) object$group <- rep(1, dim(z)[1])
+
+  group.names <- unique(as.factor(object$group)) # Get unique group labels
+  nw <- table(object$group) # Sample size per group
+
+  # Check that each group has enough observations to fit p-dimensional model
   if (any(nw < p) ) stop("At least one group has too few cases")
+
+  # Default number of slices
   h <- if (!is.null(nslices)) nslices else NCOL(z)
+
   group.stats <- NULL
-  for (j in 1:length(group.names)){
+
+  # Loop through groups and estimate group-specific zeta
+  for (j in 1:length(group.names)) {
     name <- group.names[j]
-    group.sel <- object$group==name
-    ans <- dr.compute(z[group.sel,],y[group.sel],method="ire",
-                      nslices=h,slice.function=slice.function,
-                      tests=FALSE,weights=object$weights[group.sel])
+    group.sel <- object$group == name
+
+    # Compute IRE for this subgroup
+    ans <- dr.compute(z[group.sel, ], y[group.sel], method = "ire",
+                      nslices = h, slice.function = slice.function,
+                      tests = FALSE, weights = object$weights[group.sel])
+
+    # Store group-specific zeta matrix and full result
     object$zeta[[j]] <- ans$zeta
     group.stats[[j]] <- ans
   }
+
   object$group.stats <- group.stats
-  numdir <- min(numdir,p-1)
-  object$sir.raw.evectors <- dr.compute(z,y,nslices=h,
-                                        slice.function=slice.function,
-                                        weights=object$weights)$raw.evectors
-  class(object) <- c("pire","ire","dr")
-  object$indep.test <- dr.test(object,numdir=0,...)
-  Gz <- Gzcomp(object,numdir)  # This is the same for all numdir > 0
+
+  # Truncate number of directions to p-1 maximum
+  numdir <- min(numdir, p - 1)
+
+  # Estimate raw eigenvectors for the global SIR
+  object$sir.raw.evectors <- dr.compute(z, y, nslices = h,
+                                        slice.function = slice.function,
+                                        weights = object$weights)$raw.evectors
+
+  # Update class to include 'pire'
+  class(object) <- c("pire", "ire", "dr")
+
+  # Perform marginal test for independence (0D model)
+  object$indep.test <- dr.test(object, numdir = 0, ...)
+
+  # Precompute Gz matrix (same for all d>0)
+  Gz <- Gzcomp(object, numdir)
   ans <- NULL
-  for (d in 1:numdir){
-    ans[[d]] <- dr.test(object,numdir=d,Gz,...)
-    colnames(ans[[d]]$B) <- paste("Dir",1:d,sep="")
+
+  # Run iterative test for each direction d = 1, ..., numdir
+  for (d in 1:numdir) {
+    ans[[d]] <- dr.test(object, numdir = d, Gz, ...)
+    colnames(ans[[d]]$B) <- paste("Dir", 1:d, sep = "")
   }
-  object$Gz <- Gzcomp(object,d,span=ans[[numdir]]$B)
-  aa<-c(object, list(result=ans,numdir=numdir))
+
+  # Compute final Gz with span set to final basis
+  object$Gz <- Gzcomp(object, d, span = ans[[numdir]]$B)
+
+  # Return updated object with results
+  aa <- c(object, list(result = ans, numdir = numdir))
   class(aa) <- class(object)
+
   return(aa)
 }
 
