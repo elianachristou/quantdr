@@ -52,6 +52,7 @@
 #'   American Statistical Association}, 105, 1455-1466.
 #' @include llqr.R
 #' @include bic_d.R
+#' @include dr.R
 #'
 #' @examples
 #' # estimate the directions of a single-index model

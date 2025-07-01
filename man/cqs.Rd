@@ -26,7 +26,6 @@ vectors.}
 \value{
 \code{cqs} computes the directions of the central quantile subspace
 and returns:
-\itemize{
 \item{qvectors: }{The estimated directions of the
 \eqn{\tau}th central quantile subspace.}
 
@@ -42,7 +41,7 @@ criterion of Zhu et al. (2010).  Note that this is one suggested method to
 estimate the structural dimension and is not necessarily a perfect one. The
 user has the option to use the eigenvalues \code{qvalues} on other
 criteria, like cross-validation, and determine the estimated dimension of
-the subspace.}}
+the subspace.}
 }
 \description{
 \code{cqs} estimates the directions of the central quantile subspace.
