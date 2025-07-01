@@ -29,7 +29,11 @@ conditional quantile function using `llqr`.
 ## Note: Vendored Code from the `dr` Package
 
 The `quantdr` package includes internal code adapted from the `dr`
-package by Cook and Ni (2005), which is no longer maintained on CRAN.
+package by [Cook, R. D., & Ni, L. (2005) Sufficient Dimension Reduction
+via Inverse Regression: A Minimum Discrepancy Approach. *Journal of the
+American Statistical Association*, 100(470),
+410–428](https://www.tandfonline.com/doi/abs/10.1198/016214504000001501),
+which is no longer maintained on CRAN.
 
 The original `dr` package implemented sufficient dimension reduction
 methods. We have included any set of essential functions to support the
@@ -158,7 +162,4 @@ ggplot(data2, aes(x = tau, y = beta_hat)) + geom_line() +
   ylab('Coefficient') + xlab('Quantile')
 ```
 
-**Reference**:  
-Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse
-Regression: A Minimum Discrepancy Approach. *Journal of the American
-Statistical Association*, 100(470), 410–428.
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
