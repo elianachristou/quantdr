@@ -492,7 +492,7 @@ dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
   Phi <- svd(zmeans, nv = h)$v[, 1:min(d,h), drop = FALSE]
 
   epsilonHZ <- array(0, c(n, r * d))
-  for (j in 1:n) epsilonHZ[j, ] <- t(Phi)% *%t (t(epsilon[j, ])) %*% t(HZ[j, ])
+  for (j in 1:n) epsilonHZ[j, ] <- t(Phi)%*%t (t(epsilon[j, ])) %*% t(HZ[j, ])
 
   wts <- eigen(((n - 1) / n) * cov(epsilonHZ))$values
   testg <- dr.pvalue(wts[wts > 0], st, chi2approx = chi2approx)
@@ -975,7 +975,7 @@ dr.direction.default <- function(object, which = NULL, x = dr.x(object)) {
 #' @method plot dr
 #' @exportS3Method
 plot.dr <- function(x, which = 1:x$numdir, mark.by.y = FALSE,
-                    plot.method = pairs, ...) {
+                    plot.method = graphics::pairs, ...) {
   d <- dr.direction(x, which)
   if (mark.by.y == FALSE) {
     plot.method(cbind(dr.y(x), d), labels = c(dr.yname(x), colnames(d)), ...)
@@ -988,7 +988,7 @@ plot.dr <- function(x, which = 1:x$numdir, mark.by.y = FALSE,
 #'
 #' Helper function to assign colors or symbols based on response levels.
 #' @noRd
-markby <- function (z, use = "color", values = NULL, color.fn = rainbow,
+markby <- function (z, use = "color", values = NULL, color.fn = grDevices::rainbow,
             na.action = "na.use")
   {
     u <- unique(z)
