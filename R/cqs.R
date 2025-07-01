@@ -119,7 +119,7 @@ cqs <- function(x, y, tau = 0.5, dtau = NULL) {
 
   # use SIR for initial dimension reduction
   # use bic_d to estimate d, the dimension of the central subspace
-  output <- dr::dr(y ~ xstand)
+  output <- dr(y ~ xstand)
   lambdas <- output$evalues
   d_hat <- bic_d(lambdas, n)
   ahat <- cbind(output$evectors[, 1:d_hat])
