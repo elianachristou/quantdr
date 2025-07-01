@@ -162,6 +162,7 @@ ggplot(data2, aes(x = tau, y = beta_hat)) + geom_line() +
   ylab('Coefficient') + xlab('Quantile')
 ```
 
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
 **Reference**:  
 Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse
 Regression: A Minimum Discrepancy Approach. *Journal of the American
