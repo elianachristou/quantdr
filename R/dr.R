@@ -36,7 +36,7 @@ dr <- function(formula, data, subset, group = NULL, na.action = na.fail,
   if(!is.null(mf$group)) {
    mf$group <- eval(parse(text = as.character(group)[2]), data,
                     environment(group)) }
-  # Remoove unusued ... arguments for model.frame
+  # Remove unused ... arguments for model.frame
   mf$... <- NULL
   mf[[1]] <- as.name("model.frame")
 
