@@ -18,10 +18,10 @@ RoxygenNote: 7.3.1
 Collate: 
     'ValAR.R'
     'bic_d.R'
+    'dr.R'
     'llqrcv.R'
     'llqr.R'
     'cqs.R'
-    'dr.R'
 Suggests: 
     ggplot2,
     knitr,
