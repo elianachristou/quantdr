@@ -165,6 +165,7 @@ dr.qr <- function(object) {object$qr}
 #' @export
 dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
+#' @noRd
 #' @method dr.Q default
 #' @exportS3Method
 dr.Q.default <- function(object, ...) {
@@ -175,6 +176,7 @@ dr.Q.default <- function(object, ...) {
 #' @export
 dr.R <- function(object) {UseMethod("dr.R")}
 
+#' @noRd
 #' @method dr.R default
 #' @exportS3Method
 dr.R.default <- function(object) {
@@ -196,6 +198,7 @@ dr.yname <- function(object) {object$y.name}
 #' @export
 dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
+#' @noRd
 #' @method dr.basis default
 #' @exportS3Method
 dr.basis.default <- function(object, numdir = object$numdir, ...) {
@@ -206,6 +209,7 @@ dr.basis.default <- function(object, numdir = object$numdir, ...) {
 #' @export
 dr.evalues <- function(object, ...) {UseMethod("dr.evalues")}
 
+#' @noRd
 #' @method dr.evalues default
 #' @exportS3Method
 dr.evalues.default <- function(object, ...) object$evalues
@@ -218,6 +222,7 @@ dr.evalues.default <- function(object, ...) object$evalues
 #' @export
 dr.fit <- function(object, numdir = 4, ...) UseMethod("dr.fit")
 
+#' @noRd
 #' @method dr.fit default
 #' @exportS3Method
 dr.fit.default <- function(object, numdir = 4, ...) {
@@ -687,26 +692,32 @@ dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
 #####################################################################
 # Principal Hessian Directions (pHd), pHdy and pHdres Methods
 #####################################################################
+#' @noRd
 #' @method dr.M phdy
 #' @exportS3Method
 dr.M.phdy <- function(...) {dr.M.phd(...)}
 
+#' @noRd
 #' @method dr.M mphd
 #' @exportS3Method
 dr.M.mphd <- function(...) stop("Multivariate pHd not implemented!")
 
+#' @noRd
 #' @method dr.M phdres
 #' @exportS3Method
 dr.M.phdres <- function(...) {dr.M.phd(...)}
 
+#' @noRd
 #' @method dr.M mphdres
 #' @exportS3Method
 dr.M.mphdres <- function(...) stop("Multivariate pHd not implemented!")
 
+#' @noRd
 #' @method dr.M mphy
 #' @exportS3Method
 dr.M.mphy <- function(...) stop("Multivariate pHd not implemented!")
 
+#' @noRd
 #' @method dr.M phd
 #' @exportS3Method
 dr.M.phd <-function(object,...) {
@@ -719,6 +730,7 @@ dr.M.phd <-function(object,...) {
   return(list(M = M))
 }
 
+#' @noRd
 #' @method dr.y phdy
 #' @exportS3Method
 dr.y.phdy <- function(object) {
@@ -727,6 +739,7 @@ dr.y.phdy <- function(object) {
   y - mean(y)
   }
 
+#' @noRd
 #' @method dr.y phdres
 #' @exportS3Method
 dr.y.phdres <- function(object) {
@@ -736,11 +749,13 @@ dr.y.phdres <- function(object) {
   qr.resid(object$qr,sw*(y-mean(y)))
 }
 
+#' @noRd
 #' @method dr.y phd
 #' @exportS3Method
 dr.y.phd <- function(object) {dr.y.phdres(object)}
 
 # Modified by Jorge de la Vega, February, 2001
+#' @noRd
 #' @method dr.test phd
 #' @exportS3Method
 dr.test.phd<-function(object, numdir = object$numdir, ...) {
@@ -774,12 +789,14 @@ dr.test.phd<-function(object, numdir = object$numdir, ...) {
   z
 }
 
+#' @noRd
 #' @method dr.test phdres
 #' @exportS3Method
 dr.test.phdres <- function(object, numdir, ...) {
   dr.test.phd(object, numdir)
   }
 
+#' @noRd
 #' @method dr.test phdy
 #' @exportS3Method
 dr.test.phdy <- function(object, numdir, ...) {
@@ -816,6 +833,7 @@ dr.test.phdy <- function(object, numdir, ...) {
 # Quadratic form based on full second-order regression fit
 # Corrected by Jorge de la Vega 7/10/01
 #####################################################################
+#' @noRd
 #' @method dr.M phdq
 #' @exportS3Method
 dr.M.phdq <- function(object, ...) {
@@ -867,6 +885,7 @@ fullquad.fit <-function(object) {
   lm(y ~ z, weights = w)
 }
 
+#' @noRd
 #' @method dr.y phdq
 #' @exportS3Method
 dr.y.phdq <- function(object) {
@@ -874,6 +893,7 @@ dr.y.phdq <- function(object) {
   residuals(fullquad.fit(object), type = "pearson")
 }
 
+#' @noRd
 #' @method dr.test phdq
 #' @exportS3Method
 dr.test.phdq <- function(object, numdir, ...){
@@ -881,6 +901,7 @@ dr.test.phdq <- function(object, numdir, ...){
   dr.test.phd(object, numdir)
 }
 
+#' @noRd
 #' @method dr.M mphdq
 #' @exportS3Method
 dr.M.mphdq <- function(...) stop("Multivariate pHd not implemented!")
@@ -1340,6 +1361,7 @@ dr.permutation.test <- function(object, npermute = 50, numdir = object$numdir) {
     ans
 }
 
+#' @noRd
 #' @method print dr.permutation.test
 #' @export
 print.dr.permutation.test <- function(x, digits = max(3, getOption("digits") - 3),
@@ -1351,6 +1373,7 @@ print.dr.permutation.test <- function(x, digits = max(3, getOption("digits") - 3
     invisible(x)
  }
 
+#' @noRd
 #' @method summary dr.permutation.test
 #' @export
 summary.dr.permutation.test <- function(...) {
@@ -2040,6 +2063,7 @@ dr.test.ire <- function(object, numdir, Gz = Gzcomp(object,numdir),
   return(ans)
 }
 
+#' @noRd
 #' @export
 Gzcomp <- function(object, numdir, span) {
   UseMethod("Gzcomp")
@@ -2136,7 +2160,7 @@ Gzcomp.ire <- function(object, numdir, span = NULL) {
 ##                Hence, we use `qr.resid()` instead of `qr.fitted()` to compute
 ##                residuals from the projection.
 #####################################################################
-
+#' @noRd
 #' @export
 dr.iteration <- function(object, Gz, d = 2, B, T, eps, itmax, verbose) {
   UseMethod("dr.iteration")
