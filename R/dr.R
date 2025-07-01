@@ -1723,7 +1723,7 @@ dr.weights <- function (formula, data = list(), subset, na.action=na.fail,
     if (int > 0) x <- x[, -int, drop = FALSE] # remove intercept
 
     # Estimate robust center and covariance
-    ans <- cov.rob(x, ...)
+    ans <- MASS::cov.rob(x, ...)
     m <- ans$center
     s <- svd(ans$cov)
 
