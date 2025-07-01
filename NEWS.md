@@ -1,4 +1,4 @@
-# quantdr 1.2.3
+# quantdr 1.3.2
 
 ## Minor changes
 
