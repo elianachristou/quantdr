@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # quantdr
 
 <!-- badges: start -->
-  [![Build Status](https://app.travis-ci.com/elianachristou/quantdr.svg?branch=main)](https://app.travis-ci.com/elianachristou/quantdr)
+<!--  [![Build Status](https://app.travis-ci.com/elianachristou/quantdr.svg?branch=main)](https://app.travis-ci.com/elianachristou/quantdr) -->
 
 <!-- [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/elianachristou/quantdr?branch=master&svg=true)](https://ci.appveyor.com/project/elianachristou/quantdr) -->
 
