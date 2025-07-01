@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
   [![Build Status](https://app.travis-ci.com/elianachristou/quantdr.svg?branch=main)](https://app.travis-ci.com/elianachristou/quantdr)
 
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/elianachristou/quantdr?branch=master&svg=true)](https://ci.appveyor.com/project/elianachristou/quantdr)
+<!-- [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/elianachristou/quantdr?branch=master&svg=true)](https://ci.appveyor.com/project/elianachristou/quantdr) -->
 
  [![](https://cranlogs.r-pkg.org/badges/quantdr)](https://cran.r-project.org/package=quantdr) 
  
@@ -112,7 +112,7 @@ ggplot(data1, aes(x = dir1, y = y)) + geom_point(size = 1) +
 
 Another example using the Boston housing data from the `MASS` library in `R`. 
 
-```{r, warning = FALSE, fig.height = 7, fig.width = 8, fig.align = "center"}
+```{r, warning = FALSE, fig.height = 7, fig.width = 8, fig.align = "center", eval = FALSE}
 library(MASS)
 attach(Boston)
 # read the data 
