@@ -27,6 +27,23 @@ directions of the central quantile subspace. Once the directions are
 determined, one can form the new sufficient predictors and estimate the
 conditional quantile function using `llqr`.
 
+## Vendored Code from the `dr` Package
+
+The `quantdr` package includes internal code adapted from the `dr`
+package by Cook and Ni (2005), which is no longer maintained on CRAN.
+
+The original `dr` package implemented sufficient dimension reduction
+methods. We have included any set of essential functions to support the
+core functionality of `quantdr`.
+
+All vendored code has been updated and integrated under the internal
+namespace of `quantdr`.
+
+**Reference**:  
+Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse
+Regression: A Minimum Discrepancy Approach. *Journal of the American
+Statistical Association*, 100(470), 410–428.
+
 ## Installation
 
 You can install the released version of quantdr from
@@ -36,8 +53,7 @@ You can install the released version of quantdr from
 install.packages("quantdr") 
 ```
 
-and the development version from [GitHub](https://github.com/)
-with:
+and the development version from [GitHub](https://github.com/) with:
 
 <!-- You can install the development version of quantdr from [GitHub](https://github.com/) with:  -->
 
