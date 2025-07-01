@@ -44,14 +44,13 @@
 #'    performed on the design matrix \code{x}.
 #' @return \code{llqr} computes the local linear \eqn{\tau}th conditional
 #'    quantile function of \code{y} given \code{x} and returns:
-#'    \itemize{
 #'    \item{ll_est: }{The estimated function value at the design points \code{x}
 #'    or, if specified, at the point \code{x0}.}
 #'
 #'  \item{h: }{The bandwidth for the local linear quantile regression fit.  If
 #'  not specified by the user, \code{h} is estimated using either the
 #'  rule-of-thumb given by Yu and Jones (1994) or the cross-validation
-#'  criterion.} }
+#'  criterion.}
 #'
 #' @references Yu, K., and Jones, M.C. (1998), Local linear quantile regression.
 #'  \emph{Journal of the American Statistical Association}, 93, 228-237.

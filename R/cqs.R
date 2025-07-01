@@ -30,7 +30,6 @@
 #'
 #' @return \code{cqs} computes the directions of the central quantile subspace
 #'   and returns:
-#'   \itemize{
 #'   \item{qvectors: }{The estimated directions of the
 #'   \eqn{\tau}th central quantile subspace.}
 #'
@@ -46,7 +45,7 @@
 #'   estimate the structural dimension and is not necessarily a perfect one. The
 #'   user has the option to use the eigenvalues \code{qvalues} on other
 #'   criteria, like cross-validation, and determine the estimated dimension of
-#'   the subspace.}}
+#'   the subspace.}
 #'
 #' @references Zhu, L.-P., Zhu, L.-X., Feng, Z.-H. (2010) Dimension reduction in
 #'   regression through cumulative slicing estimation. \emph{Journal of the
