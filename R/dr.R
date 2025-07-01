@@ -2433,8 +2433,8 @@ print.summary.ire <- function (x, digits = max(3, getOption("digits") - 3), ...)
 #' @return A matrix whose columns form an orthonormal basis for the estimated
 #'   central subspace, with appropriate column and row names.
 #' @noRd
-dr.basis.ire <- function(object, numdir = length(object$result)) {
-  # Normalize and flip sign of vectors so that the first elementn is always positive
+dr.basis.ire <- function(object, numdir = length(object$result), ...) {
+  # Normalize and flip sign of vectors so that the first element is always positive
   fl <- function(z) apply(z, 2, function(x) {
     b <- x / sqrt(sum(x^2)) # Normalize to unit length
     if (b[1] < 0) -1*b else b
