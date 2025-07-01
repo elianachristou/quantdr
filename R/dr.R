@@ -162,7 +162,6 @@ dr.qr <- function(object) {object$qr}
 
 #' Generic function for computing Q from a dr object
 #' @noRd
-#' @export
 dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
 #' @noRd
@@ -173,7 +172,6 @@ dr.Q.default <- function(object, ...) {
   }
 
 #' @noRd
-#' @export
 dr.R <- function(object) {UseMethod("dr.R")}
 
 #' @noRd
@@ -195,7 +193,6 @@ dr.yname <- function(object) {object$y.name}
 
 #' Generic function for extracting basis vectoors from a dr object
 #' @noRd
-#' @export
 dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
 #' @noRd
@@ -276,11 +273,9 @@ dr.fit.default <- function(object, numdir = 4, ...) {
 # generic functions
 #####################################################################
 #' @noRd
-#' @export
 dr.M <- function(object, ...){UseMethod("dr.M")}
 
 #' @noRd
-#' @export
 dr.y <- function(object) {UseMethod("dr.y")}
 
 #' Default method for dr.y
@@ -291,7 +286,6 @@ dr.y.default <- function(object, ...){object$y}
 
 #' Generic function for performing dimension reduction test
 #' @noRd
-#' @export
 dr.test <- function(object, numdir, ...){  UseMethod("dr.test")}
 
 #' Default method for dr.test (returns NULL)
@@ -302,7 +296,6 @@ dr.test.default <-function(object, numdir, ...) {NULL}
 
 #' Generic function for coordinate-wise hypothesis tests
 #' @noRd
-#' @export
 dr.coordinate.test <- function(object, hypothesis, d, chi2approx, ...) {
   UseMethod("dr.coordinate.test")
 }
@@ -315,7 +308,6 @@ dr.coordinate.test.default <- function(object, hypothesis, d, chi2approx, ...) {
 
 #' Generic function for joint hypothesis testing
 #' @noRd
-#' @export
 dr.joint.test <- function(object, ...){ UseMethod("dr.joint.test")}
 
 #' Default method for dr.joint.test (returns NULL)
@@ -1161,7 +1153,6 @@ cov.ew.matrix <- function(object, scaled = FALSE) {
 #'
 #' @return A data frame with statistics and general p-values.
 #' @noRd
-#' @export
 dr.test2.phdres <- function(object, stats) {
   covew <- cov.ew.matrix(object, scaled = TRUE)
   C <- 0.5 / var(dr.y(object))
@@ -1312,7 +1303,6 @@ wood.pvalue <- function (coef, f, tol = 0.0, print = FALSE) {
 #' \item{npermute}{The number of permutations used.}
 #'
 #' @noRd
-#' @export
 dr.permutation.test <- function(object, npermute = 50, numdir = object$numdir) {
   if (inherits(object, "ire"))
     stop("Permutation tests not implemented for ire")
@@ -1398,7 +1388,6 @@ summary.dr.permutation.test <- function(...) {
 #' @return A numeric vector of test statistics for each hypothesized dimension.
 #'
 #' @noRd
-#' @export
 dr.permutation.test.statistic <- function(object, numdir) {
   UseMethod("dr.permutation.test.statistic")
   }
@@ -1483,7 +1472,6 @@ dr.permutation.test.statistic.phd <- function(object,numdir) {
 #'   \item{slice.sizes}{A vector of counts per slice.}
 #'
 #' @noRd
-#' @export
 dr.slices <- function(y, nslices) {
   # Slice a univeriate response into h levels
   dr.slice.1d <- function(y, h) {
@@ -1577,7 +1565,6 @@ dr.slices <- function(y, nslices) {
 #' @return A list with slice indicators and sizes.
 #'
 #' @noRd
-#' @export
 dr.slices.arc <- function(y, nslices) {
   if(is.matrix(y))  stop("dr.slices.arc is used for univariate y only.
                          Use dr.slices")
@@ -1635,7 +1622,6 @@ dr.slices.arc <- function(y, nslices) {
 #' @return A numeric vector or matrix of squared cosine values.
 #'
 #' @noRd
-#' @export
 cosangle <- function(mat, vecs) {
   ans <-NULL
   # If vecs is a single vector
@@ -1708,7 +1694,6 @@ cosangle1 <- function(mat, vec) {
 #'
 #' @return A numeric vector of weights.
 #' @noRd
-#' @export
 dr.weights <- function (formula, data = list(), subset, na.action=na.fail,
             sigma = 1, nsamples = NULL, ...) {
     # Build model frame and extract matrix
@@ -1831,7 +1816,6 @@ drop1.dr <- function (object, scope = NULL, update = TRUE, test = "general",
 #'
 #' @return A reduced \code{dr} object.
 #' @noRd
-#' @export
 dr.step <- function (object, scope = NULL, d = NULL, minsize = 2, stop = 0,
             trace=1,...) {
     if (is.null(object$stop)) {
@@ -2064,7 +2048,6 @@ dr.test.ire <- function(object, numdir, Gz = Gzcomp(object,numdir),
 }
 
 #' @noRd
-#' @export
 Gzcomp <- function(object, numdir, span) {
   UseMethod("Gzcomp")
 }
