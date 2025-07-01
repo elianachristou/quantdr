@@ -27,7 +27,7 @@ directions of the central quantile subspace. Once the directions are
 determined, one can form the new sufficient predictors and estimate the
 conditional quantile function using `llqr`.
 
-## Vendored Code from the `dr` Package
+## Note: Vendored Code from the `dr` Package
 
 The `quantdr` package includes internal code adapted from the `dr`
 package by Cook and Ni (2005), which is no longer maintained on CRAN.
@@ -38,11 +38,6 @@ core functionality of `quantdr`.
 
 All vendored code has been updated and integrated under the internal
 namespace of `quantdr`.
-
-**Reference**:  
-Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse
-Regression: A Minimum Discrepancy Approach. *Journal of the American
-Statistical Association*, 100(470), 410–428.
 
 ## Installation
 
@@ -165,3 +160,7 @@ ggplot(data2, aes(x = tau, y = beta_hat)) + geom_line() +
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
+**Reference**:  
+Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse
+Regression: A Minimum Discrepancy Approach. *Journal of the American
+Statistical Association*, 100(470), 410–428.

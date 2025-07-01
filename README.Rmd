@@ -29,16 +29,13 @@ The R package 'quantdr' performs dimension reduction techniques for conditional 
 
 The main function of the package is `cqs`, which estimates the directions of the central quantile subspace.  Once the directions are determined, one can form the new sufficient predictors and estimate the conditional quantile function using `llqr`.
 
-## Vendored Code from the `dr` Package
+## Note: Vendored Code from the `dr` Package
 
 The `quantdr` package includes internal code adapted from the `dr` package by Cook and Ni (2005), which is no longer maintained on CRAN. 
 
 The original `dr` package implemented sufficient dimension reduction methods. We have included any set of essential functions to support the core functionality of `quantdr`.
 
 All vendored code has been updated and integrated under the internal namespace of `quantdr`. 
-
-**Reference**:  
-Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse Regression: A Minimum Discrepancy Approach. *Journal of the American Statistical Association*, 100(470), 410–428.
 
 ## Installation
 
@@ -137,4 +134,5 @@ ggplot(data2, aes(x = tau, y = beta_hat)) + geom_line() +
   ylab('Coefficient') + xlab('Quantile')
 
 ```
-
+**Reference**:  
+Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse Regression: A Minimum Discrepancy Approach. *Journal of the American Statistical Association*, 100(470), 410–428.
