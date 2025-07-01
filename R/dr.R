@@ -165,8 +165,6 @@ dr.qr <- function(object) {object$qr}
 dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
 #' @noRd
-#' @method dr.Q default
-#' @exportS3Method
 dr.Q.default <- function(object, ...) {
   qr.Q(dr.qr(object))[, 1:object$qr$rank]
   }
@@ -175,8 +173,6 @@ dr.Q.default <- function(object, ...) {
 dr.R <- function(object) {UseMethod("dr.R")}
 
 #' @noRd
-#' @method dr.R default
-#' @exportS3Method
 dr.R.default <- function(object) {
   qr.R(dr.qr(object))[1:object$qr$rank, 1:object$qr$rank]
 }
@@ -196,8 +192,6 @@ dr.yname <- function(object) {object$y.name}
 dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
 #' @noRd
-#' @method dr.basis default
-#' @exportS3Method
 dr.basis.default <- function(object, numdir = object$numdir, ...) {
   object$evectors[, 1:numdir]
   }
@@ -206,8 +200,6 @@ dr.basis.default <- function(object, numdir = object$numdir, ...) {
 dr.evalues <- function(object, ...) {UseMethod("dr.evalues")}
 
 #' @noRd
-#' @method dr.evalues default
-#' @exportS3Method
 dr.evalues.default <- function(object, ...) object$evalues
 
 #' Generic function for fitting a dimension reduction model
@@ -218,8 +210,6 @@ dr.evalues.default <- function(object, ...) object$evalues
 dr.fit <- function(object, numdir = 4, ...) UseMethod("dr.fit")
 
 #' @noRd
-#' @method dr.fit default
-#' @exportS3Method
 dr.fit.default <- function(object, numdir = 4, ...) {
 
   # Compute the kernel matrix M (method-specific function)
@@ -278,8 +268,6 @@ dr.y <- function(object) {UseMethod("dr.y")}
 
 #' Default method for dr.y
 #' @noRd
-#' @method dr.y default
-#' @exportS3Method
 dr.y.default <- function(object, ...){object$y}
 
 #' Generic function for performing dimension reduction test
@@ -288,8 +276,6 @@ dr.test <- function(object, numdir, ...){  UseMethod("dr.test")}
 
 #' Default method for dr.test (returns NULL)
 #' @noRd
-#' @method dr.test default
-#' @exportS3Method
 dr.test.default <-function(object, numdir, ...) {NULL}
 
 #' Generic function for coordinate-wise hypothesis tests
@@ -300,8 +286,6 @@ dr.coordinate.test <- function(object, hypothesis, d, chi2approx, ...) {
 
 #' Default method for dr.coordinate.test (returns NULL)
 #' @noRd
-#' @method dr.coordinate.test default
-#' @exportS3Method
 dr.coordinate.test.default <- function(object, hypothesis, d, chi2approx, ...) {NULL}
 
 #' Generic function for joint hypothesis testing
@@ -310,8 +294,6 @@ dr.joint.test <- function(object, ...){ UseMethod("dr.joint.test")}
 
 #' Default method for dr.joint.test (returns NULL)
 #' @noRd
-#' @method dr.joint.test default
-#' @exportS3Method
 dr.joint.test.default <- function(object,...){NULL}
 
 #####################################################################
@@ -322,8 +304,6 @@ dr.joint.test.default <- function(object,...){NULL}
 #' This method computes the kernel matrix (M) for ordinary least squares (OLS),
 #' which is a special case of dimension reduction with a univariate response.
 #' @noRd
-#' @method dr.M ols
-#' @exportS3Method
 dr.M.ols <- function(object, ...) {
   # Compute OLS projection of response onto predictors
   ols <- t(dr.z(object)) %*% (sqrt(dr.wts(object)) * dr.y(object))
@@ -339,8 +319,6 @@ dr.M.ols <- function(object, ...) {
 #' within response slices.
 #'
 #' @noRd
-#' @method dr.M sir
-#' @exportS3Method
 dr.M.sir <-function(object, nslices = NULL, slice.function = dr.slices,
                     sel = NULL, ...) {
 
@@ -385,8 +363,6 @@ dr.M.sir <-function(object, nslices = NULL, slice.function = dr.slices,
 
 #' Alias of SIR kernel matrix function for multivariate SIR (MSIR)
 #' @noRd
-#' @method dr.M msir
-#' @exportS3Method
 dr.M.msir <-function(...) {dr.M.sir(...)}
 
 #' Compute test statistics for SIR dimension reduction
@@ -394,8 +370,6 @@ dr.M.msir <-function(...) {dr.M.sir(...)}
 #' This function calculates the SIR test statistics for the first \code{numdir}
 #' directions, including chi-square p-values.
 #' @noRd
-#' @method dr.test sir
-#' @exportS3Method
 dr.test.sir<-function(object, numdir = object$numdir, ...) {
   e <- sort(object$evalues) # sorted eigenvalues
   p <- length(object$evalues) # number of eigenvalues
@@ -425,8 +399,6 @@ dr.test.sir<-function(object, numdir = object$numdir, ...) {
 #' \code{hypothesis}.
 #'
 #' @noRd
-#' @method dr.coordinate.test sir
-#' @exportS3Method
 dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
                                  chi2approx = object$chi2approx,
                                  pval = "general", ...) {
@@ -519,8 +491,6 @@ dr.coordinate.test.sir <- function(object, hypothesis, d = NULL,
 #' \item{slice.info}{Information about the slicing.}
 #'
 #' @noRd
-#' @method dr.M save
-#' @exportS3Method
 dr.M.save <- function(object, nslices = NULL, slice.function = dr.slices,
                       sel=NULL, ...) {
   # Subset observations if specified
@@ -572,8 +542,6 @@ dr.M.save <- function(object, nslices = NULL, slice.function = dr.slices,
 #' normal and general assumptions.
 #'
 #' @noRd
-#' @method dr.test save
-#' @exportS3Method
 dr.test.save <- function(object, numdir = object$numdir, ...) {
   p <- length(object$evalues)
   n <- object$cases
@@ -635,8 +603,6 @@ dr.test.save <- function(object, numdir = object$numdir, ...) {
 #' @return A data frame with test statistic, degrees of freedom, and p-values.
 #'
 #' @noRd
-#' @method dr.coordinate.test save
-#' @exportS3Method
 dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
                                      chi2approx = object$chi2approx, ...) {
   # Construct coordinate hypothesis basis
@@ -683,33 +649,21 @@ dr.coordinate.test.save <- function (object, hypothesis, d = NULL,
 # Principal Hessian Directions (pHd), pHdy and pHdres Methods
 #####################################################################
 #' @noRd
-#' @method dr.M phdy
-#' @exportS3Method
 dr.M.phdy <- function(...) {dr.M.phd(...)}
 
 #' @noRd
-#' @method dr.M mphd
-#' @exportS3Method
 dr.M.mphd <- function(...) stop("Multivariate pHd not implemented!")
 
 #' @noRd
-#' @method dr.M phdres
-#' @exportS3Method
 dr.M.phdres <- function(...) {dr.M.phd(...)}
 
 #' @noRd
-#' @method dr.M mphdres
-#' @exportS3Method
 dr.M.mphdres <- function(...) stop("Multivariate pHd not implemented!")
 
 #' @noRd
-#' @method dr.M mphy
-#' @exportS3Method
 dr.M.mphy <- function(...) stop("Multivariate pHd not implemented!")
 
 #' @noRd
-#' @method dr.M phd
-#' @exportS3Method
 dr.M.phd <-function(object,...) {
   # Computes the kernel matrix M for pHd method
   wts <- dr.wts(object) # Observation weights
@@ -721,8 +675,6 @@ dr.M.phd <-function(object,...) {
 }
 
 #' @noRd
-#' @method dr.y phdy
-#' @exportS3Method
 dr.y.phdy <- function(object) {
   # Centered response for phdy
   y <- object$y
@@ -730,8 +682,6 @@ dr.y.phdy <- function(object) {
   }
 
 #' @noRd
-#' @method dr.y phdres
-#' @exportS3Method
 dr.y.phdres <- function(object) {
   # Residuals from regressing y on the predictors (using QR)
   y <- object$y
@@ -740,14 +690,10 @@ dr.y.phdres <- function(object) {
 }
 
 #' @noRd
-#' @method dr.y phd
-#' @exportS3Method
 dr.y.phd <- function(object) {dr.y.phdres(object)}
 
 # Modified by Jorge de la Vega, February, 2001
 #' @noRd
-#' @method dr.test phd
-#' @exportS3Method
 dr.test.phd<-function(object, numdir = object$numdir, ...) {
   # pHd asymptotic test based on OLS residuals
   e <- sort(abs(object$evalues)) # sorted eigenvalues
@@ -780,15 +726,11 @@ dr.test.phd<-function(object, numdir = object$numdir, ...) {
 }
 
 #' @noRd
-#' @method dr.test phdres
-#' @exportS3Method
 dr.test.phdres <- function(object, numdir, ...) {
   dr.test.phd(object, numdir)
   }
 
 #' @noRd
-#' @method dr.test phdy
-#' @exportS3Method
 dr.test.phdy <- function(object, numdir, ...) {
   # pHd test using y directly (requires normal predictors)
   e <- sort(abs(object$evalues))
@@ -824,8 +766,6 @@ dr.test.phdy <- function(object, numdir, ...) {
 # Corrected by Jorge de la Vega 7/10/01
 #####################################################################
 #' @noRd
-#' @method dr.M phdq
-#' @exportS3Method
 dr.M.phdq <- function(object, ...) {
   # Extracts parameters from a full quadratic regression
   pars <- fullquad.fit(object)$coef
@@ -876,24 +816,18 @@ fullquad.fit <-function(object) {
 }
 
 #' @noRd
-#' @method dr.y phdq
-#' @exportS3Method
 dr.y.phdq <- function(object) {
   # Returns the Pearson residuals from full quadratic fit
   residuals(fullquad.fit(object), type = "pearson")
 }
 
 #' @noRd
-#' @method dr.test phdq
-#' @exportS3Method
 dr.test.phdq <- function(object, numdir, ...){
   # Reuses the test procedure for pHd
   dr.test.phd(object, numdir)
 }
 
 #' @noRd
-#' @method dr.M mphdq
-#' @exportS3Method
 dr.M.mphdq <- function(...) stop("Multivariate pHd not implemented!")
 
 #####################################################################
@@ -941,8 +875,6 @@ dr.direction  <- function(object, which, x) {UseMethod("dr.direction")}
 #' This function standardizes predictor values and applied the estimated basis
 #' vectors.
 #' @noRd
-#' @method dr.direction default
-#' @exportS3Method
 dr.direction.default <- function(object, which = NULL, x = dr.x(object)) {
     ans <- (apply(x, 2, function(x) {x - mean(x)}) %*% object$evectors)
     which <- if (is.null(which)) seq(dim(ans)[2]) else which
@@ -962,8 +894,6 @@ dr.direction.default <- function(object, which = NULL, x = dr.x(object)) {
 #' This function produces pairwise plots of the estimated dimension reduction
 #' directions.
 #' @noRd
-#' @method plot dr
-#' @exportS3Method
 plot.dr <- function(x, which = 1:x$numdir, mark.by.y = FALSE,
                     plot.method = graphics::pairs, ...) {
   d <- dr.direction(x, which)
@@ -1012,8 +942,6 @@ markby <- function (z, use = "color", values = NULL, color.fn = grDevices::rainb
 #'
 #' This function prints estimated basis vectors and eigenvalues.
 #' @noRd
-#' @method print dr
-#' @exportS3Method
 print.dr <- function(x, digits = max(3, getOption("digits") - 3), width = 50,
            numdir = x$numdir, ...) {
     fout <- deparse(x$call, width.cutoff = width)
@@ -1035,8 +963,6 @@ print.dr <- function(x, digits = max(3, getOption("digits") - 3), width = 50,
 #'
 #' This function summarizes reduction results including eigenvalues and angles.
 #' @noRd
-#' @method summary dr
-#' @exportS3Method
 summary.dr <- function (object, ...) {
   z <- object
   ans <- z[c("call")]
@@ -1071,8 +997,6 @@ ans
 #' This function prints summary of dimension reduction analysis incuding test
 #' results.
 #' @noRd
-#' @method print summary.dr
-#' @exportS3Method
 print.summary.dr <- function (x, digits = max(3, getOption("digits") - 3), ...)
   {
     cat("\nCall:\n")#S: ' ' instead of '\n'
@@ -1410,8 +1334,6 @@ dr.permutation.test.statistic.default <- function(object, numdir) {
 #' @param numdir Number of directions to test.
 #'
 #' @noRd
-#' @method dr.permutation.test.statistic phdy
-#' @exportS3Method
 dr.permutation.test.statistic.phdy <- function(object, numdir) {
   dr.permutation.test.statistic.phd(object,numdir)
 }
@@ -1424,8 +1346,6 @@ dr.permutation.test.statistic.phdy <- function(object, numdir) {
 #' @param numdir Number of directions to test.
 #'
 #' @noRd
-#' @method dr.permutation.test.statistic phdres
-#' @exportS3Method
 dr.permutation.test.statistic.phdres <- function(object, numdir) {
   dr.permutation.test.statistic.phd(object,numdir)
 }
@@ -1439,8 +1359,6 @@ dr.permutation.test.statistic.phdres <- function(object, numdir) {
 #' @param numdir Number of directions to test.
 #'
 #' @noRd
-#' @method dr.permutation.test.statistic phd
-#' @exportS3Method
 dr.permutation.test.statistic.phd <- function(object,numdir) {
   (0.5 * object$cases * rev(cumsum(rev(object$evalues^2))) /
      var(dr.y(object)))[1:numdir]
@@ -2164,7 +2082,6 @@ dr.iteration <- function(object, Gz, d = 2, B, T, eps, itmax, verbose) {
 #'   \item{\code{summary}}{A data frame with test statistic, degrees of
 #'       freedom, p-value, and number of iterations.}
 #' @noRd
-#' @exportS3Method dr.iteration ire
 dr.iteration.ire <- function(object, Gz, d = 2, B = NULL, T = NULL, eps = 1.e-6,
                              itmax = 200, verbose = FALSE) {
   n <- object$cases
@@ -2275,7 +2192,6 @@ dr.iteration.ire <- function(object, Gz, d = 2, B = NULL, T = NULL, eps = 1.e-6,
 #' \item{\code{df}}{Degrees of freedom.}
 #' \item{\code{p.value}}{Associated p-value.}
 #'
-#' @exportS3Method dr.coordinate.test ire
 #' @noRd
 dr.coordinate.test.ire <- function(object, hypothesis, d = NULL, ...) {
   # Convert hypothesis to matrix (if formula, extract design matrix basis)
@@ -2346,7 +2262,6 @@ dr.coordinate.test.ire <- function(object, hypothesis, d = NULL, ...) {
 #'    \code{d = NULL}), or a result from \code{\link{dr.iteration}} using the
 #'    hypothesized transformation matrix.
 #'
-#' @exportS3Method dr.joint.test ire
 #' @noRd
 dr.joint.test.ire <- function(object, hypothesis, d = NULL, ...) {
   # If no specific dimension is given, defer to coordinate test
@@ -2378,8 +2293,6 @@ dr.joint.test.ire <- function(object, hypothesis, d = NULL, ...) {
 #' @param width Integer. Maximum line width when printing the call. Default is 50.
 #' @param ... Further arguments passed to other print methods (ignored here).
 #'
-#' @method print ire
-#' @exportS3Method
 #' @noRd
 print.ire <- function(x, width = 50, ...) {
   # Print the call used to fit the model, wrapping lines at 'width' characters
@@ -2421,7 +2334,6 @@ print.ire <- function(x, width = 50, ...) {
 #'
 #' @return An object of class \code{"summary.ire"} containing the fitted call,
 #' method, slice information, weights, estimated directions, and test results.
-#' @exportS3Method
 #' @noRd
 summary.ire <- function (object, ...) {
   # Start with storing the original call
@@ -2474,7 +2386,6 @@ summary.ire <- function (object, ...) {
 #' @param ... Additional arguments (currently ignored).
 #'
 #' @return The input object \code{x}, invisibly.
-#' @exportS3Method
 #' @noRd
 print.summary.ire <- function (x, digits = max(3, getOption("digits") - 3), ...) {
   # Print the original function call that created the IRE object
