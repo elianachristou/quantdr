@@ -203,7 +203,6 @@ dr.basis.default <- function(object, numdir = object$numdir, ...) {
   }
 
 #' @noRd
-#' @export
 dr.evalues <- function(object, ...) {UseMethod("dr.evalues")}
 
 #' @noRd
@@ -216,7 +215,6 @@ dr.evalues.default <- function(object, ...) object$evalues
 #' This is the generic function for fitting a dimension reduction model.
 #' Specific methods are dispatched based on the class of the object.
 #' @noRd
-#' @export
 dr.fit <- function(object, numdir = 4, ...) UseMethod("dr.fit")
 
 #' @noRd
@@ -1185,7 +1183,6 @@ dr.test2.phdres <- function(object, stats) {
 #'
 #' @return A data frame with test result.
 #' @noRd
-#' @export
 dr.indep.test.phdres <- function(object, stat) {
   eval <- eigen(cov.ew.matrix(object, scaled = FALSE), only.values = TRUE)
   pval <- dr.pvalue(0.5 * eval$values, stat,
@@ -1353,7 +1350,6 @@ dr.permutation.test <- function(object, npermute = 50, numdir = object$numdir) {
 
 #' @noRd
 #' @method print dr.permutation.test
-#' @export
 print.dr.permutation.test <- function(x, digits = max(3, getOption("digits") - 3),
                                       ...) {
     cat("\nPermutation tests\nNumber of permutations:\n")
@@ -1365,7 +1361,6 @@ print.dr.permutation.test <- function(x, digits = max(3, getOption("digits") - 3
 
 #' @noRd
 #' @method summary dr.permutation.test
-#' @export
 summary.dr.permutation.test <- function(...) {
   print.dr.permutation.test(...)
 }
@@ -1403,7 +1398,6 @@ dr.permutation.test.statistic <- function(object, numdir) {
 #'
 #' @noRd
 #' @method dr.permutation.test.statistic default
-#' @export
 dr.permutation.test.statistic.default <- function(object, numdir) {
   object$cases * rev(cumsum(rev(object$evalues)))[1:numdir]
 }
@@ -1753,7 +1747,6 @@ dr.weights <- function (formula, data = list(), subset, na.action=na.fail,
 #' @return An updated \code{dr} object or a data frame of test results.
 #'
 #' @noRd
-#' @export
 drop1.dr <- function (object, scope = NULL, update = TRUE, test = "general",
             trace=1, ...) {
     keep <- if (is.null(scope))
@@ -2144,7 +2137,6 @@ Gzcomp.ire <- function(object, numdir, span = NULL) {
 ##                residuals from the projection.
 #####################################################################
 #' @noRd
-#' @export
 dr.iteration <- function(object, Gz, d = 2, B, T, eps, itmax, verbose) {
   UseMethod("dr.iteration")
 }
