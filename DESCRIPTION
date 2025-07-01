@@ -28,9 +28,11 @@ Suggests:
     rmarkdown,
     testthat,
     pracma,
-    MASS, 
+    MASS,
     PerformanceAnalytics,
-    png
+    png,
+    graphics,
+    grDevices
 VignetteBuilder: knitr
 SystemRequirements: GNU make
 URL: https://github.com/elianachristou/quantdr
