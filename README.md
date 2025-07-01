@@ -10,8 +10,8 @@ Status](https://app.travis-ci.com/elianachristou/quantdr.svg?branch=main)](https
 
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/elianachristou/quantdr?branch=master&svg=true)](https://ci.appveyor.com/project/elianachristou/quantdr)
-
 [![](https://cranlogs.r-pkg.org/badges/quantdr)](https://cran.r-project.org/package=quantdr)
+[![R-CMD-check](https://github.com/elianachristou/quantdr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/elianachristou/quantdr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # quantdr: Dimension Reduction Techniques for Conditional Quantiles
