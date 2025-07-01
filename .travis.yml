@@ -1,5 +1,17 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: r
-sudo: required
+
 cache: packages
+
+warnings_are_errors: false
+
+r:
+  - release
+  - devel
+  - oldrel
+
+r_build_args: --no-manual
+
+r_check_args: --no-manual --as-cran
+
