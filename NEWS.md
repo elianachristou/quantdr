@@ -1,3 +1,9 @@
+# quantdr 1.2.3
+
+## Minor changes
+
+* Remove the dependency with the dr package, which will be removed from CRAN soon.  
+
 # quantdr 1.2.2
 
 * This is a resubmission.  The package was removed from CRAN due to dependency issues with MTS package.  
