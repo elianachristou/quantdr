@@ -10,7 +10,9 @@ Status](https://app.travis-ci.com/elianachristou/quantdr.svg?branch=main)](https
 
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/elianachristou/quantdr?branch=master&svg=true)](https://ci.appveyor.com/project/elianachristou/quantdr)
+
 [![](https://cranlogs.r-pkg.org/badges/quantdr)](https://cran.r-project.org/package=quantdr)
+
 [![R-CMD-check](https://github.com/elianachristou/quantdr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/elianachristou/quantdr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -160,7 +162,6 @@ ggplot(data2, aes(x = tau, y = beta_hat)) + geom_line() +
   ylab('Coefficient') + xlab('Quantile')
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
 **Reference**:  
 Cook, R. D., & Ni, L. (2005). Sufficient Dimension Reduction via Inverse
 Regression: A Minimum Discrepancy Approach. *Journal of the American
