@@ -167,7 +167,7 @@ dr.Q <- function(object, ...){UseMethod("dr.Q")}
 
 #' @method dr.Q default
 #' @exportS3Method
-dr.Q.default <- function(object) {
+dr.Q.default <- function(object, ...) {
   qr.Q(dr.qr(object))[, 1:object$qr$rank]
   }
 
@@ -198,7 +198,7 @@ dr.basis <- function(object, numdir, ...) {UseMethod("dr.basis")}
 
 #' @method dr.basis default
 #' @exportS3Method
-dr.basis.default <- function(object, numdir = object$numdir) {
+dr.basis.default <- function(object, numdir = object$numdir, ...) {
   object$evectors[, 1:numdir]
   }
 
